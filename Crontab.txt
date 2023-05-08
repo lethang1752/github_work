@@ -1,0 +1,59 @@
+https://crontab.guru/
+//
+Cấu trúc crontab
+--
+*    *     *     *     *     command to be executed
+Min	 Hour  Dom   Mon   Dow   Cmd
+Phút Giờ   Ngày  Tháng Tuần  Lệnh
+--
+//
+Tạo, xem, xoá
+--
+crontab -e: tạo,  chỉnh sửa các crontab
+crontab -l: Xem các Crontab đã tạo
+crontab -r: xóa file crontab
+--
+//
+Start Crontab, tự động chạy mỗi khi reboot
+--
+service crond start
+chkconfig crond on
+--
+//
+Chạy script 30 phút 1 lần
+*/30 * * * * command
+Chạy script vào 3 giờ sáng mỗi ngày
+0 3 * * * command
+Giờ cụ thể (ngày 07 tháng 10 lúc 08:11 AM)
+11 08 10 07 * /home/oracle/backup
+Chạy 2 lần trong 1 ngày (7h sáng và 21h tối)
+00 07,21 * * * /home/oracle/backup
+//
+Tạo file script Rman: backup_level_01.rman
+--
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '/home/oracle/backup/level1/dba_backup_ctl%F';
+run {
+CROSSCHECK BACKUP;
+CROSSCHECK ARCHIVELOG ALL;
+BACKUP AS COMPRESSED BACKUPSET DEVICE TYPE DISK INCREMENTAL LEVEL 1 DATABASE FORMAT '/home/oracle/backup/level0/db_%T_%d_%u_%s' FILESPERSET 10 MAXSETSIZE 80G TAG LEVEL0;
+sql 'ALTER SYSTEM ARCHIVE LOG CURRENT';
+BACKUP AS COMPRESSED BACKUPSET DEVICE TYPE DISK ARCHIVELOG ALL FORMAT '/home/oracle/backup/level0/arc_%T_%d_%u_%s_%U' FILESPERSET 10 TAG ARCH;
+CROSSCHECK BACKUP;
+DELETE NOPROMPT OBSOLETE;
+DELETE NOPROMPT EXPIRED BACKUP;
+DELETE ARCHIVELOG UNTIL TIME 'SYSDATE-7';
+}
+EXIT;
+--
+Tạo file sh chạy script backup: level01.sh
+--
+logfile=`date +%Y%m%d`_level0.log
+NLS_DATE_FORMAT="YYYY-MM-DD HH24:MI:SS"
+export NLS_DATE_FORMAT
+rman target / nocatalog cmdfile /home/oracle/script/backup_level_01.rman log /home/oracle/backup/logs/$logfile
+exit
+--
+Tạo crontab: crontab -e
+--
+5 * * * * /home/oracle/script/level01.sh

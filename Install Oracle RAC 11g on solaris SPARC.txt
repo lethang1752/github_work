@@ -1,0 +1,294 @@
+# hosts files
+# Public
+10.29.15.42   db01-dichvucong.com        db01	loghost
+10.29.15.44   db02-dichvucong.com        db02
+# Private
+10.0.0.48   hb-db01
+10.0.0.49   hb-db02
+10.0.1.48   hb-db11
+10.0.1.49   hb-db12
+# Virtual
+175.168.1.57   db01-vip.dichvucong.com        db01-vip
+175.168.1.58   db02-vip.dichvucong.com        db02-vip
+#SCAN
+175.168.1.54	esams.dichvucong.com	esams
+175.168.1.55	esams.dichvucong.com	esams
+175.168.1.56	esams.dichvucong.com	esams
+
+
+1	Checking the Hardware Requirements
+
+1.1 Memory Requirements: 2 GB of RAM or more
+
+/usr/sbin/prtconf | grep "Memory size"
+/usr/sbin/swap -l
+
+1.2	System Architecture
+
+/bin/isainfo -kv
+
+1.3 Disk Space Requirements: At least 1 GB of space in the /tmp directory. 4.7 GB for Oracle Enterprise Edition
+
+df -k /tmp
+df -k
+
+2	Checking the Software Requirements
+
+2.1	Operating System Requirements
+
+uname -r
+cat /etc/release
+
+2.2 Package Requirements
+
+# pkginfo -i SUNWarc SUNWbtool SUNWhea SUNWlibC SUNWlibms SUNWsprot SUNWtoo SUNWi1of SUNWi1cs SUNWi15cs SUNWxwfnt
+
+pkg install oracle-rdbms-server-12cR1-preinstall
+
+# pkg install SUNWxwplt
+pkg install solaris-desktop
+pkg install motif
+
+2.3 Patch Requirements
+
+Oracle Solaris 10 on SPARC
+
+/usr/sbin/patchadd -p | grep 120753
+/usr/sbin/patchadd -p | grep 139574
+/usr/sbin/patchadd -p | grep 141414
+/usr/sbin/patchadd -p | grep 141444
+/usr/sbin/patchadd -p | grep 119963
+/usr/sbin/patchadd -p | grep 124861
+
+# for db flash cache
+/usr/sbin/patchadd -p | grep 125555
+/usr/sbin/patchadd -p | grep 139555
+/usr/sbin/patchadd -p | grep 140796
+/usr/sbin/patchadd -p | grep 140899
+/usr/sbin/patchadd -p | grep 141016
+/usr/sbin/patchadd -p | grep 141414
+/usr/sbin/patchadd -p | grep 141736
+
+3. Disable Automount of /home
+
+svcs autofs
+disabled       13:48:39 svc:/system/filesystem/autofs:default
+
+vi /etc/auto_master
+#/home         auto_home       -nobrowse         <<<<  Comment out this line
+svcadm enable system/filesystem/autofs
+
+Create Groups, Users and Resource Control:
+
+groupadd -g 2008 oinstall
+groupadd -g 2009 dba
+groupadd -g 2010 oper
+groupadd -g 2011 backupdba
+groupadd -g 2012 asmdba
+groupadd -g 2013 dgdba
+groupadd -g 2014 kmdba
+groupadd -g 2015 asmadmin
+groupadd -g 2016 asmoper
+
+projadd group.dba
+projects -l group.dba
+
+useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=group.dba grid
+passwd grid
+OgiAdm29
+
+useradd -u 2010 -g oinstall -G dba,asmdba,backupdba,dgdba,kmdba -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
+passwd oracle
+DbsAdm29
+
+projmod -sK "project.max-shm-memory=(privileged,20G,deny)" group.dba 
+projmod -sK "project.max-sem-ids=(privileged,100,deny)" group.dba
+projmod -sK "project.max-shm-ids=(privileged,100,deny)" group.dba
+projmod -sK "project.max-sem-nsems=(privileged,256,deny)" group.dba
+projmod -sK "process.max-file-descriptor=(privileged,65536,deny)" group.dba
+
+cat /etc/project
+
+Check the soft and hard limits for the file descriptor setting. Ensure that the result
+is in the recommended range. For example:
+$ ulimit -Sn
+1024
+$ ulimit -Hn
+65536
+3. Check the soft and hard limits for the number of processes available to a user.
+Ensure that the result is in the recommended range. For example:
+$ ulimit -Su
+2047
+$ ulimit -Hu
+16384
+4. Check the soft limit for the stack setting. Ensure that the result is in the
+recommended range. For example:
+$ ulimit -Ss
+10240
+$ ulimit -Hs
+32768
+
+echo "set max_nprocs=30000" >> /etc/system
+echo "set maxuprc=16384" >> /etc/system
+echo "set rlim_fd_max=65536" >> /etc/system
+echo "set rlim_fd_cur=4096" >> /etc/system
+echo "set maxusers=4096" >> /etc/system
+
+4.1 ASM password for all account (sys,asmsnmp) : AsmAdm29
+SID=db
+User Password: DbaAdm29
+Schema Password: DbaAdm29
+
+# create directory
+zfs create rpool/oracle
+zfs set mountpoint=/oracle rpool/oracle
+zfs set quota=200g rpool/oracle
+
+zfs create rpool/grid
+zfs set mountpoint=/u01/app/grid rpool/grid
+zfs set quota=100g rpool/grid
+
+mkdir -p /u01/app
+mkdir -p /oracle/setup
+mkdir -p /oracle/product/12.1.0/db_1
+chown -R oracle:oinstall /oracle
+chmod -R 775 /oracle
+
+mkdir -p /u01/app/grid/
+mkdir -p /u01/app/grid/product/ogi/12.1.0
+chown -R grid:oinstall /grid
+chmod -R 775 /grid
+
+#Oracle profile
+umask 022
+export ORACLE_BASE=/oracle/product
+export ORACLE_HOME=$ORACLE_BASE/dbs/11.2.0
+export ORACLE_SID=esams1
+export ORACLE_UNQNAME=esams
+export TEMP=/tmp
+export TMPDIR=/tmp
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib
+export EDITOR=vi
+ 
+export PATH=$PATH:/usr/X11/bin:/usr/openwin/bin:/usr/bin:/usr/sbin:$ORACLE_HOME/bin
+
+ulimit -t unlimited
+ulimit -f unlimited
+ulimit -d unlimited
+ulimit -s unlimited
+ulimit -v unlimited
+ 
+# Grid profile
+umask 022
+export ORACLE_BASE=/grid/product
+export ORACLE_HOME=/grid/product/ogi/12.1.0
+export ORACLE_SID=+ASM1
+export TEMP=/tmp
+export TMPDIR=/tmp
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib
+ 
+export PATH=$PATH:/usr/X11/bin:/usr/openwin/bin:/usr/bin:/usr/sbin:$ORACLE_HOME/bin
+
+ulimit -t unlimited
+ulimit -f unlimited
+ulimit -d unlimited
+ulimit -s unlimited
+ulimit -v unlimited
+ 
+5 Configure SSH Timeout Parameter:
+vi /etc/ssh/sshd_config
+#### Look for LoginGraceTime and change the value from 600 to 0
+LoginGraceTime 0
+
+$ svcadm restart ssh
+
+6. Configure Oracle Recommended TCP/UDP Parameters:
+
+/usr/sbin/ndd -set /dev/tcp tcp_smallest_anon_port 9000
+/usr/sbin/ndd -set /dev/tcp tcp_largest_anon_port 65500
+/usr/sbin/ndd -set /dev/udp udp_smallest_anon_port 9000
+/usr/sbin/ndd -set /dev/udp udp_largest_anon_port 65500
+
+Add the following lines to the "/etc/inittab" file, immediately before the entry for "startd":
+
+tm::sysinit:/usr/sbin/ndd -set /dev/tcp tcp_smallest_anon_port 9000 > /dev/console
+tm::sysinit:/usr/sbin/ndd -set /dev/tcp tcp_largest_anon_port 65500 > /dev/console
+tm::sysinit:/usr/sbin/ndd -set /dev/udp udp_smallest_anon_port 9000 > /dev/console
+tm::sysinit:/usr/sbin/ndd -set /dev/udp udp_largest_anon_port 65500 > /dev/console
+
+7. Configure Network Time Protocol (ntp)
+
+Obtain the NTP server for Cluster Node Time Synchronization. Add the following entries into /etc/inet/ntp.conf :
+vi /etc/inet/ntp.conf
+# Oracle RAC requirements
+disable pll
+slewalways yes
+# End Oracle RAC requirements
+
+8 Change DNS client to DNS server 
+# cat /etc/resolv.conf
+	search dichvucong.com
+	nameserver 175.168.1.47
+Remove either the "domain" or "search" lines from resolv.conf on every cluster node.
+	
+# svccfg -s network/dns/client
+svc:/network/dns/client> setprop config/search = astring: ("dichvucong.com")
+svc:/network/dns/client> setprop config/nameserver = net_address: (175.168.1.47)
+svc:/network/dns/client> setprop config/options = ("retrans:3 retry:1")
+svc:/network/dns/client> refresh
+svc:/network/dns/client> quit
+	
+ ''options timeout'', ''options attempts''
+
+ 
+2.  Enable the DNS client service (when you configure it for the first time)
+# svccfg enable -r dns/client
+
+3. Restart/Refresh DNS client service (It is done when there is any update to the configuration)
+# svcadm refresh dns/client
+# svcadm restart dns/client
+
+4. Verify /etc/resolv.conf if it is updated with the changes.
+	
+
+Change permittion of LUN
+
+      6. c0t600144F0C6F7AA4B000057A84B320007d0 <SUN-ZFS Storage 7330-1.0 cyl 648 alt 2 hd 254 sec 254>
+          /scsi_vhci/ssd@g600144f0c6f7aa4b000057a84b320007
+       7. c0t600144F0C6F7AA4B000057A84DC60008d0 <SUN-ZFS Storage 7330-1.0-2.00TB>
+          /scsi_vhci/ssd@g600144f0c6f7aa4b000057a84dc60008
+       8. c0t600144F0C6F7AA4B000057A84DD60009d0 <SUN-ZFS Storage 7330-1.0-2.00TB>
+          /scsi_vhci/ssd@g600144f0c6f7aa4b000057a84dd60009
+       9. c0t600144F0820C9E78000057A84C8D0001d0 <SUN-ZFS Storage 7330-1.0 cyl 648 alt 2 hd 254 sec 254>
+          /scsi_vhci/ssd@g600144f0820c9e78000057a84c8d0001
+		  
+
+chown grid:asmadmin /dev/rdsk/c0t600144F0C6F7AA4B000057A84DC60008d0s6  	data01
+chown grid:asmadmin /dev/rdsk/c0t600144F0C6F7AA4B000057A84DD60009d0s6	fra01  
+chown grid:asmadmin /dev/rdsk/c0t600144F0C6F7AA4B000057A84B320007d0s6  	ogi01
+chown grid:asmadmin /dev/rdsk/c0t600144F0820C9E78000057A84C8D0001d0s6	ogi02
+chown grid:asmadmin /dev/rdsk/c0t600144F0C6F7AA4B000057A870830001d0s6	ogi03
+
+
+chmod 660 /dev/rdsk/c0t600144F0C6F7AA4B000057A84B320007d0s6
+chmod 660 /dev/rdsk/c0t600144F0C6F7AA4B000057A84DC60008d0s6
+chmod 660 /dev/rdsk/c0t600144F0C6F7AA4B000057A84DD60009d0s6
+chmod 660 /dev/rdsk/c0t600144F0820C9E78000057A84C8D0001d0s6
+chmod 660 /dev/rdsk/c0t600144F0C6F7AA4B000057A870830001d0s6
+
+9. Set up SSH Logins
+
+This step is for manual set up of SSH.  Otherwise, the runInstaller.sh script can handle the steps automatically.
+Perform this step for both grid and oracle users:  
+./sshUserSetup.sh -user grid -hosts "db01 db02" -noPromptPassphrase -advanced -exverify
+./sshUserSetup.sh -user oracle -hosts "db01 db02" -noPromptPassphrase -advanced -exverify
+
+abcd1234
+10. Install RAC
+
+Before installing RAC, it is a good idea to verify using the cluster verify command:
+
+./runcluvfy.sh stage -pre crsinst -n db01,db02 -verbose >> /export/home/grid/runcluvfy.log
+
+./runcluvfy.sh stage -pre crsinst -n db02,db01 -verbose
+

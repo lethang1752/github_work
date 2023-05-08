@@ -1,0 +1,17 @@
+﻿#Tạo cấu hình replicate trên TARGET
+$GGATE/ggsci
+dblogin userid ggate password ggtadmin
+add checkpointtable ggate.chktab
+add replicat rep1, exttrail /u01/app/GoldG/dirdat/pump1/rt,CHECKPOINTTABLE ggate.chktab
+edit params rep1
+
+--rep1.prm
+REPLICAT rep1
+ASSUMETARGETDEFS
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggtadmin
+discardfile /u01/app/GoldG/dirdat/pump1/rep1.dsc, append , megabytes 100
+DISCARDROLLOVER AT 00:01 ON SUNDAY
+--Table map
+MAP scott.*, TARGET scott.*;
+--

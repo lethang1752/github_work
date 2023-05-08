@@ -1,0 +1,283 @@
+Node 1:
+load averages:  1.84,  1.83,  1.89;               up 440+03:47:47                                                                                                                  13:47:10
+1242 processes: 1240 sleeping, 2 on cpu
+CPU states: 99.5% idle,  0.4% user,  0.1% kernel,  0.0% stolen,  0.0% swap
+Kernel: 32630 ctxsw, 997 trap, 13096 intr, 37424 syscall, 4 flt
+Memory: 957G phys mem, 86G free mem, 32G total swap, 32G free swap
+
+enable_goldengate_replication        boolean     FALSE
+lock_sga                             boolean     FALSE
+pga_aggregate_target                 big integer 200G
+pre_page_sga                         boolean     FALSE
+sga_max_size                         big integer 400G
+sga_target                           big integer 400G
+
+Filesystem                        Size   Used  Available Capacity  Mounted on
+rpool/u01                         200G   135G        65G    68%    /u01
+172.24.64.55:/export/NFS_BACKUP   3.0T   1.7T       1.3T    58%    /backup
+rpool/oemagt                       10G   1.6G       8.4G    17%    /oemagt
+172.24.101.13:/                   985G    27G       959G     3%    /net/172.24.101.13
+rpool/export/home/grid            1.1T    15G       885G     2%    /export/home/grid
+swap                               97G   6.7M        97G     1%    /tmp
+swap                               97G    11M        97G     1%    /system/volatile
+rpool/VARSHARE/zones              1.1T    31K       885G     1%    /system/zones
+rpool/VARSHARE/tmp                1.1T   7.6M       885G     1%    /var/tmp
+rpool/VARSHARE/sstore             1.1T   336M       885G     1%    /var/share/sstore/repo
+rpool/VARSHARE/pkg/repositories   1.1T    31K       885G     1%    /var/share/pkg/repositories
+rpool/VARSHARE/pkg                1.1T    32K       885G     1%    /var/share/pkg
+rpool/VARSHARE/kvol               1.1T    31K       885G     1%    /var/share/kvol
+rpool/VARSHARE                    1.1T   7.2G       885G     1%    /var/share
+rpool/ROOT/11.4.12.5.0/var        1.1T   549M       885G     1%    /var
+rpool/ROOT/11.4.12.5.0            1.1T   7.1G       885G     1%    /
+rpool/export/home/oracle          1.1T    56M       885G     1%    /export/home/oracle
+rpool/export/home                 1.1T    34K       885G     1%    /export/home
+rpool/export                      1.1T    32K       885G     1%    /export
+rpool                             1.1T    73K       885G     1%    /rpool
+172.24.64.55:/export/NFS_BACKUP2  3.0T   7.8M       3.0T     1%    /backup2
+sharefs                             0K     0K         0K     0%    /etc/dfs/sharetab
+proc                                0K     0K         0K     0%    /proc
+objfs                               0K     0K         0K     0%    /system/object
+mnttab                              0K     0K         0K     0%    /etc/mnttab
+fd                                  0K     0K         0K     0%    /dev/fd
+ctfs                                0K     0K         0K     0%    /system/contract
+/devices                            0K     0K         0K     0%    /devices
+/dev                                0K     0K         0K     0%    /dev
+
+State    Type    Rebal  Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512   4096  4194304   6289344   884016                0          884016              0             N  DG_DATA/
+MOUNTED  EXTERN  N         512   4096  4194304   1048224   966152                0          966152              0             N  DG_FRA/
+MOUNTED  NORMAL  N         512   4096  4194304    152784   151744            50928           50408              0             Y  DG_OCR/
+MOUNTED  EXTERN  N         512   4096  1048576     81376    11572                0           11572              0             N  DG_REDO/
+
+# T8-2
+172.24.101.11     rvdc-t8db01.ayabankho.com     rvdc-t8db01
+172.24.101.13     rvdc-t8db02.ayabankho.com     rvdc-t8db02     loghost
+#-------------Virtual IP -----------------------------------------------------#
+172.24.101.12     rvdc-t8db01-vip.ayabankho.com     rvdc-t8db01-vip
+172.24.101.14     rvdc-t8db02-vip.ayabankho.com     rvdc-t8db02-vip
+#-- SCAN
+#172.24.101.15     rvdc-t8-scan.ayabankho.com       rvdc-t8-scan
+#172.24.101.16     rvdc-t8-scan.ayabankho.com       rvdc-t8-scan
+#172.24.101.17     rvdc-t8-scan.ayabankho.com       rvdc-t8-scan
+#
+# Private Interconnect IP
+#
+20.20.20.32 rvdc-t8db01-priv1
+20.20.20.33 rvdc-t8db02-priv1
+20.20.21.32 rvdc-t8db01-priv2
+20.20.21.33 rvdc-t8db02-priv2
+
+search  ayabankho.com
+nameserver      172.24.11.31
+nameserver      172.24.11.32
+
+root::0:
+other::1:root
+bin::2:daemon,root
+sys::3:bin,adm,root
+adm::4:daemon,root
+mail::6:root
+tty::7:adm,root
+lp::8:adm,root
+staff::10:
+daemon::12:root
+dialout::13:
+sysadmin::14:
+games::20:
+ftp::21:
+sshd::22:
+smmsp::25:
+aiuser::61:
+netadm::65:
+openldap::75:
+webservd::80:
+mlocate::95:
+unknown::96:
+pkg5srv::97:
+nobody::60001:
+noaccess::60002:
+nogroup::65534:
+oinstall::1001:
+dba::1002:grid,oracle,pcbscct
+asmdba::1003:grid,oracle,pcbscct
+asmadmin::1004:grid,oracle,pcbscct
+asmoper::1005:grid,pcbscct
+
+Node 2:
+last pid:  4013;  load avg:  1.75,  1.72,  1.77;  up 323+01:45:38                                                                                                                  13:47:47
+1241 processes: 1239 sleeping, 2 on cpu
+CPU states: 99.7% idle,  0.2% user,  0.1% kernel,  0.0% stolen,  0.0% swap
+Kernel: 18398 ctxsw, 1625 trap, 18771 intr, 38011 syscall, 64 flt
+Memory: 957G phys mem, 206G free mem, 32G total swap, 32G free swap
+
+Filesystem                        Size   Used  Available Capacity  Mounted on
+/dev/dsk/c12t0d0s2                 85M    85M         0K   100%    /media/Solaris-11_4_9_5_0-Boot-SPARC
+172.24.64.55:/export/NFS_BACKUP   3.0T   1.7T       1.3T    58%    /backup
+rpool/u01                         200G    49G       151G    25%    /u01
+rpool/oemagt                       10G   1.6G       8.4G    16%    /oemagt
+rpool/ROOT/11.4.12.5.0            1.1T    27G       959G     3%    /
+rpool/export/home/grid            1.1T    15G       959G     2%    /export/home/grid
+swap                              217G   1.1M       217G     1%    /tmp
+swap                              217G    11M       217G     1%    /system/volatile
+rpool/VARSHARE/zones              1.1T    31K       959G     1%    /system/zones
+rpool/VARSHARE/tmp                1.1T    14M       959G     1%    /var/tmp
+rpool/VARSHARE/sstore             1.1T   357M       959G     1%    /var/share/sstore/repo
+rpool/VARSHARE/pkg/repositories   1.1T    31K       959G     1%    /var/share/pkg/repositories
+rpool/VARSHARE/pkg                1.1T    32K       959G     1%    /var/share/pkg
+rpool/VARSHARE/kvol               1.1T    31K       959G     1%    /var/share/kvol
+rpool/VARSHARE                    1.1T   250M       959G     1%    /var/share
+rpool/ROOT/11.4.12.5.0/var        1.1T   600M       959G     1%    /var
+rpool/export/home/oracle          1.1T   2.2M       959G     1%    /export/home/oracle
+rpool/export/home                 1.1T    39K       959G     1%    /export/home
+rpool/export                      1.1T    32K       959G     1%    /export
+rpool                             1.1T    73K       959G     1%    /rpool
+172.24.64.55:/export/NFS_BACKUP2  3.0T   7.8M       3.0T     1%    /backup2
+sharefs                             0K     0K         0K     0%    /etc/dfs/sharetab
+proc                                0K     0K         0K     0%    /proc
+objfs                               0K     0K         0K     0%    /system/object
+mnttab                              0K     0K         0K     0%    /etc/mnttab
+fd                                  0K     0K         0K     0%    /dev/fd
+ctfs                                0K     0K         0K     0%    /system/contract
+/devices                            0K     0K         0K     0%    /devices
+/dev                                0K     0K         0K     0%    /dev
+
+The output of this script is also logged into /tmp/sshUserSetup_2023-02-17-14-50-31.log
+Hosts are rvdc-t8db01 rvdc-t8db02
+user is grid
+Platform:- SunOS 
+Checking if the remote hosts are reachable
+PING rvdc-t8db01: 5 data bytes
+13 bytes from rvdc-t8db01.ayabankho.com (172.24.101.11): icmp_seq=0. 
+13 bytes from rvdc-t8db01.ayabankho.com (172.24.101.11): icmp_seq=1. 
+13 bytes from rvdc-t8db01.ayabankho.com (172.24.101.11): icmp_seq=2. 
+13 bytes from rvdc-t8db01.ayabankho.com (172.24.101.11): icmp_seq=3. 
+13 bytes from rvdc-t8db01.ayabankho.com (172.24.101.11): icmp_seq=4. 
+
+----rvdc-t8db01 PING Statistics----
+5 packets transmitted, 5 packets received, 0% packet loss
+PING rvdc-t8db02: 5 data bytes
+13 bytes from rvdc-t8db02.ayabankho.com (172.24.101.13): icmp_seq=0. 
+13 bytes from rvdc-t8db02.ayabankho.com (172.24.101.13): icmp_seq=1. 
+13 bytes from rvdc-t8db02.ayabankho.com (172.24.101.13): icmp_seq=2. 
+13 bytes from rvdc-t8db02.ayabankho.com (172.24.101.13): icmp_seq=3. 
+13 bytes from rvdc-t8db02.ayabankho.com (172.24.101.13): icmp_seq=4. 
+
+----rvdc-t8db02 PING Statistics----
+5 packets transmitted, 5 packets received, 0% packet loss
+Remote host reachability check succeeded.
+The following hosts are reachable: rvdc-t8db01 rvdc-t8db02.
+The following hosts are not reachable: .
+All hosts are reachable. Proceeding further...
+
+
+Verifying resolv.conf Integrity ...FAILED (PRVG-10048)
+Verifying DNS/NIS name service ...PASSED
+Verifying Domain Sockets ...FAILED (PRVG-11750)
+Verifying Oracle Solaris Support Repository Updates (SRU) version. ...PASSED
+Verifying network interfaces CLASS/TYPE attribute ...PASSED
+Verifying loopback network interface address ...PASSED
+Verifying Grid Infrastructure home path: /u01/app/11.2.0/grid ...
+  Verifying '/u01/app/11.2.0/grid' ...FAILED (PRVG-11931)
+Verifying Grid Infrastructure home path: /u01/app/11.2.0/grid ...FAILED (PRVG-11931)
+Verifying User Equivalence ...PASSED
+Verifying IP hostmodel ...PASSED
+Verifying File system mount options for path /var ...PASSED
+Verifying Multiuser services check ...PASSED
+Verifying ASM Filter Driver configuration ...PASSED
+
+Pre-check for cluster services setup was unsuccessful on all the nodes. 
+
+
+Warnings were encountered during execution of CVU verification request "stage -pre crsinst".
+
+Verifying Node Connectivity ...WARNING
+PRVG-11077 : Different MTU values used across the network for interfaces
+"dbaggr0" on subnets "172.24.101.0" with MTU values "1500,1500,1500,1500" on
+the node "rvdc-t8db01".  The most common MTU value is "1500".
+PRVG-11077 : Different MTU values used across the network for interfaces
+"dbaggr0" on subnets "172.24.101.0" with MTU values "9706,9706,9706" on the
+node "rvdc-t8db02".  The most common MTU value is "1500".
+
+Verifying resolv.conf Integrity ...FAILED
+rvdc-t8db02: PRVG-10048 : Name "rvdc-t8db02" was not resolved to an address of
+             the specified type by name servers "172.24.11.31".
+rvdc-t8db02: PRVG-10048 : Name "rvdc-t8db02" was not resolved to an address of
+             the specified type by name servers "172.24.11.32".
+
+rvdc-t8db01: PRVG-10048 : Name "rvdc-t8db01" was not resolved to an address of
+             the specified type by name servers "172.24.11.31".
+rvdc-t8db01: PRVG-10048 : Name "rvdc-t8db01" was not resolved to an address of
+             the specified type by name servers "172.24.11.32".
+
+Verifying Domain Sockets ...FAILED
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db02gridrvdc-t8-clusterCRFM_CLII
+             PC_lock" exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_GPNPD_rvdc-t8db02_lock" exists on node
+             "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File "/var/tmp/.oracle/ora_gipc_GPNPD_rvdc-t8db02"
+             exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_gipcd_rvdc-t8db02_lock" exists on node
+             "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File "/var/tmp/.oracle/npohasd" exists on node
+             "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db02gridrvdc-t8-clusterCRFM_CLII
+             PC" exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File "/var/tmp/.oracle/mdnsd" exists on node
+             "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db02gridrvdc-t8-clusterCRFM_SIPC
+             _lock" exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db02gridrvdc-t8-clusterCRFM_SIPC
+             " exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File "/var/tmp/.oracle/ora_gipc_gipcd_rvdc-t8db02"
+             exists on node "rvdc-t8db02".
+rvdc-t8db02: PRVG-11750 : File "/var/tmp/.oracle/mdnsd.pid" exists on node
+             "rvdc-t8db02".
+
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db01gridrvdc-t8-clusterCRFM_SIPC
+             _lock" exists on node "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db01gridrvdc-t8-clusterCRFM_CLII
+             PC" exists on node "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File "/var/tmp/.oracle/ora_gipc_GPNPD_rvdc-t8db01"
+             exists on node "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File "/var/tmp/.oracle/npohasd" exists on node
+             "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db01gridrvdc-t8-clusterCRFM_CLII
+             PC_lock" exists on node "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File "/var/tmp/.oracle/mdnsd" exists on node
+             "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File "/var/tmp/.oracle/ora_gipc_gipcd_rvdc-t8db01"
+             exists on node "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_GPNPD_rvdc-t8db01_lock" exists on node
+             "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_gipcd_rvdc-t8db01_lock" exists on node
+             "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File "/var/tmp/.oracle/mdnsd.pid" exists on node
+             "rvdc-t8db01".
+rvdc-t8db01: PRVG-11750 : File
+             "/var/tmp/.oracle/ora_gipc_srvdc-t8db01gridrvdc-t8-clusterCRFM_SIPC
+             " exists on node "rvdc-t8db01".
+
+Verifying Grid Infrastructure home path: /u01/app/11.2.0/grid ...FAILED
+  Verifying '/u01/app/11.2.0/grid' ...FAILED
+  rvdc-t8db02: PRVG-11931 : Path "/u01/app/11.2.0/grid" is not writeable on
+               node "rvdc-t8db02".
+
+  rvdc-t8db01: PRVG-11931 : Path "/u01/app/11.2.0/grid" is not writeable on
+               node "rvdc-t8db01".
+
+
+CVU operation performed:      stage -pre crsinst
+Date:                         Feb 17, 2023 2:58:00 PM
+CVU home:                     /u01/app/19.3.0/grid/
+User:                         grid

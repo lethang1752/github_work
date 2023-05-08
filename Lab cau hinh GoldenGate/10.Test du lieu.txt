@@ -1,0 +1,33 @@
+﻿#1. Test du lieu
+delete SCOTT.TEST1 where object_id<1000;
+commit;
+Update SCOTT.TEST1 set LAST_DDL_TIME=sysdate where mod(object_id,9999)=1;
+commit;
+insert into SCOTT.TEST1 values (1000000,'ownertest', 'tabletest',sysdate-1);
+commit;
+
+#2. Verify dữ liệu
+#Tạo database link SOURCE
+create public database link target
+connect to ggate
+identified by "ggtadmin"
+using '(DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.202.101)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = dbhcm)
+     )
+)';
+#Test dblink
+select instance_name from v$instance@target;
+
+#Count
+Select 'SOURCE', count(*) from scott.test1
+union all
+select 'TARGET', count(*) from scott.test1@target;
+
+#Minus
+select * from scott.test1 minus select * from scott.test1@target;
+select * from scott.test1@target minus select * from scott.test1;

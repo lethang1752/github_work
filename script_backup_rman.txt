@@ -1,0 +1,30 @@
+#!/bin/bash
+export ORACLE_SID=dba012
+export ORACLE_HOME=/u01/app/oracle/product/12.2.0/db_home
+export ORACLE_BASE=/u01/app/oracle
+export PATH=$ORACLE_HOME/bin:$PATH
+date_rman=`date +%Y%m%d`
+export date_rman
+mkdir -p /home/oracle/$date_rman
+rman target / log=/home/oracle/$date_rman/bklv0.log << EOS
+run
+{
+crosscheck backupset;
+crosscheck archivelog all;
+delete noprompt expired backupset;
+delete noprompt expired archivelog all;
+delete noprompt obsolete;
+allocate channel d1 device type disk;
+allocate channel d2 device type disk;
+allocate channel d3 device type disk;
+allocate channel d4 device type disk;
+allocate channel d5 device type disk;
+backup as compressed backupset incremental level 0 database format '/home/oracle/$date_rman/datafile_lv0_%d_s%s_%T.bkp' plus archivelog format '/home/oracle/$date_rman/arch_lv0_%d_s%s_%T.bkp' delete input ;
+backup CURRENT CONTROLFILE format '/home/oracle/$date_rman/controlfile_lv0_%d_%s_%T.bkp';
+release channel d1;
+release channel d3;
+release channel d4;
+release channel d2;
+release channel d5;
+}
+EOS

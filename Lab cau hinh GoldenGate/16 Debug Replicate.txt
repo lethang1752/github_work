@@ -1,0 +1,49 @@
+/*
+- Debug một tiến trình REPLICAT bị lag
+- Kiểm tra xem đang chạy câu lệnh gì, trên bảng nào
+
+*/
+#1. Tao table 
+#1.1 Tren Source
+#sqlplus
+create table scott.test3 as select * from all_objects where object_id is not null;
+#ggsci
+add trandata scott.test3
+
+#1.2.Tren Target
+#sqlplus
+create table scott.test3 as select * from all_objects where 0=1;
+#ggsci
+add trandata scott.test3
+
+#1.3.Init load
+#Insert du lieu qua dblink
+insert into scott.test3@target select * from scott.test3;
+commit;
+1.4. Kiểm tra tham số
+-Kiểm tra tham số tiến trình: ext1, pump1, rep1 có cấu hình đồng bộ cho bảng scott.test3 không?
+-Nếu không có, đặt tham số để tiến trình có thể đồng bộ cho bảng scott.test3
+
+#1.5.Test dữ liệu
+update scott.test3 set CREATED=sysdate where rownum <20000;
+commit;
+delete scott.test3 set CREATED=sysdate where rownum <10000;
+commit;
+
+#1.6. Check
+- Replicat bị lag 
+- send rep1, forcestop
+#1.7 Debug
+#Them tham so vao parameter file cua REP1
+#GGSCI
+----
+SHOWSYNTAX
+NOBINARYCHARS
+NODYNSQL
+----
+#Ngoài shell của OS
+cd $GGATE 	
+./replicat paramfile dirprm/rep1.prm
+=======================================
+(S)top display: bỏ qua chế độ debug
+(K)eep displaying (default): vẫn giữ màn hình debug

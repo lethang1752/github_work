@@ -1,0 +1,9 @@
+﻿#Cấu hình manager trên source & target
+$GGATE/ggsci
+edit params mgr
+/*Thêm dòng
+	PORT 7809
+*/lưu file
+start manager
+info mgr
+info all

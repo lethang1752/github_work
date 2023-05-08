@@ -1,0 +1,26 @@
+---------------------------------------
+- backup_info
+- dbinfo
+- HealthCheck
+- awrrpt
+- diskusage
+- copy alert log
+- script (rman + opatch + cluster)
+- Oswatcher
+---------------------------------------
+- cmsdb1 (96.11)
+@/export/home/oracle/DBHC/dbinfo.sql
+@/export/home/oracle/DBHC/HealthCheck.sql
+@/export/home/oracle/DBHC/backup_info.sql
+@/u01/app/oracle/product/12.2.0/dbhome_1/rdbms/admin/awrrpt.sql
+/export/home/oracle/DBHC/diskusage.sh
+cp /u01/app/oracle/diag/rdbms/ .
+
+nohup ./startOSWbb.sh 60 120 None /export/home/oracle/DBHC/oswbb/archive/ &
+
+script script.txt
+rman target / - show all;
+$ORACLE_HOME/OPatch/opatch lsinventory | grep -B 2 "Patch description"
+$ORACLE_HOME/OPatch/opatch lsinventory
+crsctl check cluster -all
+crsctl stat res -t

@@ -1,0 +1,65 @@
+===============Cấu hình DDL
+#0. Tao tablespce cho user ggate 
+create tablespace ggate_tbs datafile size 1m autoextend on next 10m maxsize 1G;
+alter user ggate default tablespace ggate_tbs;
+
+#1.Cấu hình user ggate trên SOURCE
+#Stop toàn bộ tiến trình goldengate
+$GGATE/ggsci
+stop *
+stop manager
+---
+cd $GGATE
+sqlplus / as sysdba
+---
+@marker_setup.sql
+@ddl_setup.sql 
+@role_setup.sql
+grant GGS_GGSUSER_ROLE to ggate;
+@ddl_enable.sql
+--
+#2.Cấu hình user ggate trên TARGET
+#Stop toàn bộ tiến trình goldengate
+$GGATE/ggsci
+stop *
+stop manager
+---
+cd $GGATE
+sqlplus / as sysdba
+---
+@marker_setup.sql
+@ddl_setup.sql 
+@role_setup.sql
+grant GGS_GGSUSER_ROLE to ggate;
+@ddl_enable.sql
+--
+
+#3.Thay đổi tham số manager trên SOURCE
+encrypt password ggsadmin BLOWFISH -> ******
+USERID ggate, PASSWORD ******, ENCRYPTKEY DEFAULT
+PURGEDDLHISTORY MINKEEPDAYS 2, MAXKEEPDAYS 3
+PURGEMARKERHISTORY MINKEEPDAYS 2, MAXKEEPDAYS 3
+===> restart manager
+
+#4.Thay đổi tham số trong extract 
+$GGATE/ggsci
+edit params ext1
+#Them cac tham so vao roi save file
+----
+--DDL config
+DDL INCLUDE MAPPED &
+EXCLUDE OBJNAME abc.xyz
+DDLOPTIONS ADDTRANDATA ABEND, REPORT
+DDLERROR SKIPTRIGGERERROR 10000
+----
+==========> restart ext1
+
+#5.Thay đổi tham số trên rep1 cua TARGET
+--
+DDL INCLUDE MAPPED &
+EXCLUDE OBJNAME 'TRIGGER'
+--EXCLUDE OBJNAME "abc.xxx" 
+DDLERROR 24344  DISCARD
+===============> restart rep1
+
+

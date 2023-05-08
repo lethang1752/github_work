@@ -1,0 +1,36 @@
+﻿# Test cau hinh multi target
+#.1. Trên TARGET : Tạo thêm 1 GOLDENGATE HOME
+mkdir /u01/app/goldengate2
+cp /u01/app/goldengate/fbo_ggs_Linux_x64_ora11g_64bit.tar /u01/app/goldengate2
+cd /u01/app/goldengate2
+tar -xvf fbo_ggs_Linux_x64_ora11g_64bit.tar
+
+#2. Tạo cấu trúc thư mục & start manager trên GOLDENGATE HOME thứ 2
+./ggsci
+--
+create subdirs
+edit params mgr
+----
+#Thêm dòng bên dưới và save lại
+PORT 7800
+
+# start manager
+start manager
+info mgr
+# Tạo một thư mục lưu trail file từ pump1
+mkdir /u01/app/goldengate2/dirdat/pump1
+
+#3. Trên Source thay đổi tiến trình PUMP1
+$GGATE/ggsci
+stop pump1
+add rmttrail /u01/app/goldengate2/dirdat/pump1/rt, extract pump1
+edit params pump1
+#Thêm các dòng sau vào pump1
+RMTHOST 192.168.172.11, MGRPORT 7800
+RMTTRAIL /u01/app/goldengate2/dirdat/pump1/rt
+PASSTHRU
+TABLE SCOTT.*;
+---
+#start lại tiến trình pump1
+start pump1
+

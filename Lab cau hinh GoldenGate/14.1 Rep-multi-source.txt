@@ -1,0 +1,114 @@
+﻿1.Tạo bảng
+#1.2 Tạo bảng trên SOURCE
+CREATE TABLE  SCOTT.TEST2 AS SELECT OBJECT_ID, OWNER, OBJECT_NAME,LAST_DDL_TIME FROM DBA_OBJECTS WHERE OBJECT_ID IS NOT NULL;
+ALTER TABLE SCOTT.TEST2 ADD CONSTRAINT TEST2_PK PRIMARY KEY (OBJECT_ID) USING INDEX;
+SELECT COUNT(*) FROM SCOTT.TEST2;
+
+#ADD TRANDATA cho bảng mới tạo
+$GGATE/ggsci
+dblogin USERID ggate, PASSWORD ggsadmin
+ADD TRANDATA SCOTT.TEST2
+
+
+#Thay đổi cấu trúc bảng trên TARGET
+truncate table scott.test1;
+alter table scott.test1 drop primary key;
+alter table scott.test1 add (des varchar2(10));
+alter table scott.test1 add constraint test1_pk primary key (object_id, des) using index;
+desc scott.test1
+#ADD TRANDATA cho bảng sau thay đổi cấu trúc
+$GGATE/ggsci
+dblogin USERID ggate, PASSWORD ggtadmin
+ADD TRANDATA SCOTT.TEST1
+
+
+======================
+
+#2. Thay đổi cấu hình các replicat trên TARGET
+#Note: để tránh nhầm lẫn sau khi vào ggsci giữa các 2 GGATE-HOME, gõ lệnh: shell pwd 
+#để kiểm tra đang đứng ở HOME nào
+
+#Thay đổi nội dụng parameter của rep1 trên GGATE-HOME 1
+========>GGATE-HOME 1
+REPLICAT rep1
+ASSUMETARGETDEFS
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggtadmin
+discardfile /u01/app/goldengate/dirdat/pump1/rep1.dsc, append , megabytes 100
+DISCARDROLLOVER AT 00:01 ON SUNDAY
+--Table map
+MAP SCOTT.TEST1, TARGET SCOTT.TEST1, colmap(USEDEFAULTS,DES="REP1");
+----
+==> Restart rep1
+
+========>GGATE-HOME 2
+##Thay đổi nội dung parameter của rep2 trên GGATE-HOME 2, nếu chưa có, thực hiện add replicat dựa theo lab 07
+#Ví dụ:
+#dblogin userid ggate password ggtadmin
+#add checkpointtable ggate.chktab2
+#add replicat rep2, exttrail /u01/app/goldengate2/dirdat/pump1/rt,CHECKPOINTTABLE ggate.chktab2
+
+--
+REPLICAT rep2
+ASSUMETARGETDEFS
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggtadmin
+discardfile /u01/app/goldengate2/dirdat/pump1/rep1.dsc, append , megabytes 100
+DISCARDROLLOVER AT 00:01 ON SUNDAY
+--Table map
+MAP SCOTT.TEST2, TARGET SCOTT.TEST1, colmap(USEDEFAULTS,DES="REP2");
+--
+===> restart rep2
+
+
+3.InitLoad
+=====>SOURCE
+# Thay đổi cấu hình iext1
+$GGATE/ggsci
+edit params iext1
+#Thay đổi lại tham số như sau:
+EXTRACT iext1
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggsadmin
+RMTHOST 192.168.172.11, MGRPORT 7809
+RMTTASK replicat, GROUP irep1
+--Table list
+TABLE SCOTT.TEST1;
+
+# Thay đổi cấu hình iext2 
+$GGATE/ggsci
+add extract iext2, sourceistable
+edit params iext2
+#Thay đổi lại tham số như sau:
+EXTRACT iext2
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggsadmin
+RMTHOST 192.168.172.11, MGRPORT 7800
+RMTTASK replicat, GROUP irep2
+--Table list
+TABLE SCOTT.TEST2;
+
+=====>TARGET GGATE-HOME 1
+#Thay đổi file cấu hình irep1
+$GGATE/ggsci
+edit params irep1
+--
+REPLICAT irep1
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggtadmin
+ASSUMETARGETDEFS
+MAP SCOTT.TEST1, TARGET SCOTT.TEST1, colmap(USEDEFAULTS,DES="REP1");
+--
+=====>TARGET GGATE-HOME 2
+#Tạo irep2
+$GGATE/ggsci
+ADD REPLICAT irep2, SPECIALRUN
+edit params irep2
+--
+REPLICAT irep2
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggtadmin
+ASSUMETARGETDEFS
+MAP SCOTT.TEST2, TARGET SCOTT.TEST1, colmap(USEDEFAULTS,DES="REP2");
+
+

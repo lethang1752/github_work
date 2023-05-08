@@ -1,0 +1,25 @@
+﻿#Cấu hình database SOURCE và các bảng trước khi đồng bộ (trong ví dụ này là schema SCOTT) 
+1. Kiểm tra chế độ archivelog mode
+archive log list;
+#Info
+#	Database log mode              Archive Mode
+#	Automatic archival             Enabled
+#	Archive destination            USE_DB_RECOVERY_FILE_DEST
+#	Oldest online log sequence     5
+#	Next log sequence to archive   7
+#	Current log sequence           7
+
+2. Enable supplemental logging
+select force_logging,supplemental_log_data_min from v$database;
+alter database force logging; 
+alter database add supplemental log data;
+select force_logging,supplemental_log_data_min from v$database;
+
+3. Cấu hình supplemental logging cho bảng đồng bộ
+$GGATE/ggsci
+dblogin userid ggate password ggsadmin
+add trandata scott.test1
+add trandata scott.test2
+.....
+Hoặc toàn bộ bảng của schema SCOTT:
+add trandata scott.*

@@ -1,0 +1,5 @@
+I used one of the fastboot versions (in my case xiaomi.eu_multi_ingres_v13.0.10.0.sljcnxm_v13-12-fastboot.zip, use the one that applys to your phone it must have fastboot at the end) of the xiaomi.eu Rom to fix the bootloop. I rebooted the phone, it automaticly booted into Fastboot mode, then I connected it via USB to my computer and started the windows_fastboot_update_rom.bat (dont use the first install one, the first install one wipes your phone)
+After its done, your phone will reboot, but it'll load indefinetly on the home screen, to fix that, you'll go back into Fastboot mode. Perform "fastboot.exe flash recovery twrp.img" and after that "fastboot.exe reboot recovery" once thats done you should end up being in twrp, from there you need to change the language from chinese to english, and after that you put the twrp.img on the phone and install it via advanced > install recovery ramdisk. Once that's done you can install the latest xiaomi.eu version.
+
+.\fastboot.exe flash recovery .\twrp.img
+.\fastboot.exe reboot recovery

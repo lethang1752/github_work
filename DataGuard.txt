@@ -1,0 +1,263 @@
+[ PREPARE PRIMARY ARCHIVELOG MODE (SQL) ]
+
+CHECK LOG_MODE:
+
+SELECT LOG_MODE FROM V$DATABASE;
+
+NOARCHIVELOG MODE THEN DO:
+
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE ARCHIVELOG;
+ALTER DATABASE OPEN;
+
+ENABLE FORCED LOGGING:
+
+ALTER DATABASE FORCE LOGGING;
+
+MAKE SURE AT LEAST ONE LOGFILE IS PRESENT.
+
+ALTER SYSTEM SWITCH LOGFILE;
+
+================================================================================================================
+service_name: sho parameter service
+fal_server: header tnsnames.ora
+global_dbname: sho parameter service
+================================================================================================================
+
+[ LISTENER & TNSNAMES BOTH SIDE ]
+
+# LISTENER.ORA Network Configuration File: $ORACLE_HOME/network/admin/listener.ora
+
+[ Primary + Standby ]
+
+SID_LIST_LISTENER =
+  (SID_LIST =
+    (SID_DESC =
+      (GLOBAL_DBNAME = [service_in_parameter])
+      (ORACLE_HOME = [$ORACLE_HOME])
+      (SID_NAME = [$ORACLE_SID])
+    )
+  )
+
+LISTENER =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = [ip_address / hostname])(PORT = 1521))
+      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))
+    )
+  )
+
+ADR_BASE_LISTENER = [$ORACLE_BASE]
+
+================================================================================================================
+
+# TNSNAMES.ORA file looks like this check below on both sides. You can copy it from production or recreate it on standby.
+
+[ Primary + Standby ]
+
+[any_name -> tns_header (DC)] =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = [scan_name_for_rac / ip_address_for_single])(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = [service_name])
+    )
+  )
+
+[any_name -> tns_header (DR)] =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = [scan_name_for_rac / ip_address_for_single])(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = [service_name])
+    )
+  )
+    
+
+================================================================================================================
+***CONFIG PARAMETER IN DATABASE
+
+ALTER SYSTEM SET LOG_ARCHIVE_CONFIG='DG_CONFIG=([db_unique_name],...)'; (no change on both side)
+
+ALTER SYSTEM SET LOG_ARCHIVE_DEST_2='SERVICE=[tns_header_dr] NOAFFIRM ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=[db_unique_name_dr]';
+
+ALTER SYSTEM SET LOG_ARCHIVE_DEST_STATE_2=ENABLE;
+
+ALTER SYSTEM SET LOG_ARCHIVE_FORMAT='%t_%s_%r.arc' SCOPE=SPFILE;
+ALTER SYSTEM SET LOG_ARCHIVE_MAX_PROCESSES=30;
+ALTER SYSTEM SET REMOTE_LOGIN_PASSWORDFILE=EXCLUSIVE SCOPE=SPFILE;
+
+ALTER SYSTEM SET FAL_SERVER=[tns_header];
+
+ALTER SYSTEM SET DB_FILE_NAME_CONVERT=[db_unique_name_uppercase],... SCOPE=SPFILE;
+ALTER SYSTEM SET LOG_FILE_NAME_CONVERT=[db_unique_name_uppercase],...  SCOPE=SPFILE;
+
+ALTER SYSTEM SET STANDBY_FILE_MANAGEMENT=AUTO;
+
+================================================================================================================
+***ADD STANDBY REDO LOGS ON PRIMARY + STANDBY (FOR SWITCHOVER)
+
+SELECT MEMBER FROM V$LOGFILE; (CHECK MEMBER LOG + GET DESTINATION TO ENABLE OMF)
+
+ALTER SYSTEM SET DB_CREATE_FILE_DEST='/ /';
+
+SELECT GROUP#,THREAD#,MEMBERS,BYTES/1024/1024 FROM V$LOG; (CHECK GROUP LOG + GET SIZE + THREAD)
+
+*Noted: Add Standby Logfile = Redo Logfile + 1 (For each Thread)****
+
+If Oracle Managed Files (OMF) is used.
+
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 10 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 11 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 12 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 13 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 2 GROUP 14 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 2 GROUP 15 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 2 GROUP 16 SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 2 GROUP 17 SIZE 200M;
+
+
+If Oracle Managed Files is not used
+
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 10 ('/U01/APP/ORACLE/ORADATA/[PRI]/STANDBY_REDO01.LOG') SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 11 ('/U01/APP/ORACLE/ORADATA/[PRI]/STANDBY_REDO02.LOG') SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 12 ('/U01/APP/ORACLE/ORADATA/[PRI]/STANDBY_REDO03.LOG') SIZE 200M;
+ALTER DATABASE ADD STANDBY LOGFILE THREAD 1 GROUP 13 ('/U01/APP/ORACLE/ORADATA/[PRI]/STANDBY_REDO04.LOG') SIZE 200M;
+
+================================================================================================================
+
+[ CREATE BACKUP FILE TO RESTORE IN DR ]
+
+mkdir -p /tmp/backup061022 (backup + pfile + orapwd + controlfile)
+
+cp $ORACLE_HOME/dbs/[pwd_file] /tmp/backup081122/.
+
+***SQL 
+CREATE PFILE='/tmp/backup081122/init.ora' FROM SPFILE;
+ALTER DATABASE CREATE STANDBY CONTROLFILE AS '/tmp/backup081122/controlfile.ctl';
+
+***RMAN
+run {
+allocate channel d1 device type disk format '/tmp/backup081122/backup_full_%d_%u_%s_%T.dbf';
+allocate channel d2 device type disk format '/tmp/backup081122/backup_full_%d_%u_%s_%T.dbf';
+allocate channel d3 device type disk format '/tmp/backup081122/backup_full_%d_%u_%s_%T.dbf';
+allocate channel d4 device type disk format '/tmp/backup081122/backup_full_%d_%u_%s_%T.dbf';
+
+BACKUP AS COMPRESSED BACKUPSET INCREMENTAL level 0 tag='backup_full' database FILESPERSET=4;
+
+release channel d1;
+release channel d2;
+release channel d3;
+release channel d4;
+
+allocate channel d1 device type disk format '/tmp/backup081122/archive_%d_%u_%s_%T.dbf';
+allocate channel d2 device type disk format '/tmp/backup081122/archive_%d_%u_%s_%T.dbf';
+allocate channel d3 device type disk format '/tmp/backup081122/archive_%d_%u_%s_%T.dbf';
+allocate channel d4 device type disk format '/tmp/backup081122/archive_%d_%u_%s_%T.dbf';
+
+backup archivelog all;
+
+release channel d1;
+release channel d2;
+release channel d3;
+release channel d4;
+}
+
+---------------------------------------
+*** STANDBY ***
+
+scp -r oracle@[ip_address_dc]:/tmp/backup081122/. /tmp/backup081122/ 
+
+cp /tmp/backup081122/[pwd_file] $ORACLE_HOME/dbs/[pwd_file]
+[pwd_file]=orapw{$ORACLE_SID} (with single filesystem)
+
+*SQL
+STARTUP NOMOUNT PFILE='/tmp/backup081122/init.ora';
+
+*RMAN
+RESTORE STANDBY CONTROLFILE FROM '/tmp/backup081122/backup081122/controlfile.ctl';
+
+ALTER DATABASE MOUNT;
+
+SELECT FILE#, NAME, STATUS FROM V$DATAFILE;
+
+CATALOG START WITH '/tmp/backup081122/backup081122/'; 
+(YES)
+RUN
+{
+  SET NEWNAME FOR DATAFILE 1 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 2 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 3 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 4 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 5 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 7 TO '+DATA';
+  SET NEWNAME FOR DATAFILE 8 TO '+DATA';
+  RESTORE DATABASE;
+  SWITCH DATAFILE ALL;
+  RECOVER DATABASE;
+}
+
+--SET APPLY MODE ON STANDBY--
+
+ALTER DATABASE OPEN;
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE USING CURRENT LOGFILE DISCONNECT FROM SESSION;
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL;
+
+--------------BROKER MANAGE-------------
+
+**Config tnsnames.ora with db and instance for each instance in RAC
+
+(PRI + STANDBY) 
+
+ALTER SYSTEM SET DG_BROKER_START=TRUE;
+
+ALTER SYSTEM SET LOG_ARCHIVE_DEST_2='' SCOPE=BOTH SID='*'; (Delete all log_archive_dest_n in standby database)
+
+ALTER SYSTEM SET LOG_ARCHIVE_DEST_&a='' SID='*';
+
+(PRIMARY) - DGMGRL /
+
+CREATE CONFIGURATION MY_DG_CONFIG AS PRIMARY DATABASE IS [db_unique_name_dc] CONNECT IDENTIFIER IS [db_unique_name_dc];
+ADD DATABASE [db_unique_name_dr] AS CONNECT IDENTIFIER IS [db_unique_name_dr] MAINTAINED AS PHYSICAL;
+ENABLE CONFIGURATION;
+SHOW CONFIGURATION;
+SHOW DATABASE [db_unique_name_dc];
+SHOW DATABASE [db_unique_name_dr];
+
+***With RAC to ASM single: https://oracledbwr.com/step-by-step-configuration-of-data-guard-broker-for-rac-database/
+--------------SWITCHOVER---------------
+
+-- Convert primary database to standby
+- CONNECT / AS SYSDBA
+- ALTER DATABASE COMMIT TO SWITCHOVER TO STANDBY;
+
+-- Shutdown primary database
+- SHUTDOWN IMMEDIATE; (19c shutdown auto)
+
+-- Mount old primary database as standby database
+- STARTUP NOMOUNT;
+- ALTER DATABASE MOUNT STANDBY DATABASE;
+- ALTER DATABASE RECOVER MANAGED STANDBY DATABASE DISCONNECT FROM SESSION;
+
+On the original standby database issue the following commands.
+
+-- Convert standby database to primary
+- CONNECT / AS SYSDBA
+- ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY;
+
+-- Shutdown standby database
+- SHUTDOWN IMMEDIATE;
+
+-- Open old standby database as primary
+- STARTUP;
+
+----------------------------------------------------------------
+
+https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=426010270319359&parent=EXTERNAL_SEARCH&sourceId=HOWTO&id=2283978.1&_afrWindowMode=0&_adf.ctrl-state=zxkzf1xgt_4
+
+hang in cancel process: ps -ef|grep mrp -> kill -9

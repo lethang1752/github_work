@@ -1,0 +1,225 @@
+CREATE OR REPLACE PROCEDURE redefinition_table
+(
+	in_table_name varchar2
+)
+IS
+ownertb varchar2(30);
+l_num_errors PLS_INTEGER;
+BEGIN 
+
+select owner into ownertb from ALL_TABLES where UPPER(TABLE_NAME)=UPPER(in_table_name);
+
+DBMS_REDEFINITION.CAN_REDEF_TABLE(ownertb,in_table_name, DBMS_REDEFINITION.CONS_USE_ROWID);
+DBMS_OUTPUT.PUT_LINE('CHECK REDEFINITION TABLE is successful');
+
+EXECUTE IMMEDIATE 'CREATE TABLE '||ownertb||'.INTERIM AS SELECT * from '||ownertb||'.'||in_table_name||' WHERE 1=2';
+DBMS_OUTPUT.PUT_LINE('CREATE TABLE  ');
+
+
+DBMS_REDEFINITION.START_REDEF_TABLE( uname => ownertb, orig_table => in_table_name,int_table =>'INTERIM',options_flag => DBMS_REDEFINITION.CONS_USE_ROWID);
+DBMS_OUTPUT.PUT_LINE('REDEFINITION TABLE is successful');
+
+DBMS_REDEFINITION.copy_table_dependents(uname => ownertb,orig_table => in_table_name,int_table => 'INTERIM',copy_indexes => DBMS_REDEFINITION.CONS_ORIG_PARAMS, copy_triggers => TRUE, copy_constraints => TRUE,copy_privileges => TRUE, ignore_errors => TRUE, num_errors => l_num_errors,copy_statistics => FALSE, copy_mvlog => FALSE);        
+DBMS_OUTPUT.put_line('num_errors=' || l_num_errors); 
+
+
+DBMS_REDEFINITION.sync_interim_table(ownertb,in_table_name, 'INTERIM');
+DBMS_OUTPUT.PUT_LINE('SYCN TABLE is successful');
+
+DBMS_REDEFINITION.FINISH_REDEF_TABLE(ownertb,in_table_name,'INTERIM');
+DBMS_OUTPUT.PUT_LINE('........Finish.....');
+
+EXECUTE IMMEDIATE 'DROP TABLE '||ownertb||'.INTERIM purge';
+DBMS_OUTPUT.PUT_LINE('table INTERIM is dropped');
+
+DBMS_STATS.GATHER_TABLE_STATS (ownname => ownertb,tabname => in_table_name,estimate_percent => 100);
+END;
+/
+
+set serveroutput on
+exec redefinition_table('FBNK_AA_ACCOUNT_DET001');
+exec redefinition_table('FBNK_AA_ACTIVITY_HI001');
+exec redefinition_table('F_JOB_LIST_9');
+exec redefinition_table('F_JOB_LIST_4');
+exec redefinition_table('F_JOB_LIST_5');
+exec redefinition_table('F_JOB_LIST_3');
+exec redefinition_table('F_ENQUIRY_LEVEL');
+exec redefinition_table('F_DM_SERVICE_CONTROL');
+exec redefinition_table('F_JOB_LIST_10');
+exec redefinition_table('F_JOB_LIST_2775');
+exec redefinition_table('F_JOB_LIST_8');
+exec redefinition_table('F_JOB_LIST_2');
+exec redefinition_table('F_JOB_LIST_1');
+exec redefinition_table('F_JOB_LIST_12');
+exec redefinition_table('F_JOB_LIST_2776');
+exec redefinition_table('FBNK_OD_ACCT_ACTIVITY');        --20 mins
+exec redefinition_table('FBNK_CONT_ACTIVITY');           -- 60 mins
+exec redefinition_table('FBNK_AA_PROCESS_DET001');        --120 mins
+
+alter index T24.SYS_C0081685 rebuild;
+alter index T24.SYS_C0078413 rebuild;
+alter index T24.SYS_C0076586 rebuild;
+alter index T24.SYS_C0074830 rebuild;
+alter index T24.SYS_C0075896 rebuild;
+alter index T24.SYS_C0076451 rebuild;
+alter index T24.SYS_C0086243 rebuild;
+alter index T24.SYS_C0083865 rebuild;
+alter index T24.SYS_C0076644 rebuild;
+alter index T24.SYS_C0074674 rebuild;
+alter index T24.SYS_C0090895 rebuild;
+alter index T24.SYS_C0092783 rebuild;
+alter index T24.SYS_C0090401 rebuild;
+alter index T24.SYS_C0091124 rebuild;
+alter index T24.SYS_C0094749 rebuild;
+alter index T24.SYS_C0092040 rebuild;
+alter index T24.SYS_C0078642 rebuild;
+alter index T24.SYS_C0089345 rebuild;
+alter index T24.SYS_C0094725 rebuild;
+alter index T24.SYS_C0094729 rebuild;
+alter index T24.SYS_C00108402 rebuild;
+alter index T24.SYS_C0095807 rebuild;
+alter index T24.SYS_C00119798 rebuild;
+
+
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_DE_O_HANDOFF',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_DE_O_MSG',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_ACCT_BALANCE_A000',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_DE_O_MSG_DEFAULT',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_AA_PROCESS_DET001',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_AA_ACTIVITY_HI002',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_RC_DETAIL',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_OD_ACCT_ACTIVITY',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_9',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_AA_INTEREST_AC000',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_4',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_DE_O_MSG_ADVICE',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_5',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_3',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_ENQUIRY_LEVEL',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_DM_SERVICE_CONTROL',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_10',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_2775',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_8',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_2',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_1',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_12',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_CONT_ACTIVITY',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'F_JOB_LIST_2776',Degree=> 8,Cascade=> True);
+exec DBMS_STATS.GATHER_TABLE_STATS ( OwnName=> 'T24',TabName => 'FBNK_AA_ACCOUNT_DET001',Degree=> 8,Cascade=> True);
+
+
+
+============================================================CHECK========================================================
+
+===============check 30 biggest lobsegment================================
+SET LINESIZE 200
+COLUMN owner FORMAT A10
+COLUMN table_name FORMAT A30
+COLUMN column_name FORMAT A10
+COLUMN segment_name FORMAT A30
+COLUMN tablespace_name FORMAT A10
+COLUMN size_mb FORMAT a40
+set pages 999
+
+SELECT *
+FROM   (SELECT l.owner,
+               l.table_name,
+               l.column_name,
+               l.segment_name,
+               l.tablespace_name,
+               s.bytes/1024/1024 size_mb
+        FROM   dba_lobs l
+               JOIN dba_segments s ON s.owner = l.owner AND s.segment_name = l.segment_name
+        ORDER BY 6 DESC)
+WHERE  ROWNUM <= 30;  
+
+----------check size lobsegment of table-------------------------------------------
+SELECT b.owner,b.table_name,b.column_name,a.segment_name, a.bytes/1024/1024 FROM dba_segments a JOIN dba_lobs b on A.SEGMENT_NAME=B.SEGMENT_NAME and b.table_name='FBNK_AA_ACCOUNT_DET001';
+
+--------------------check index of table--------------------------------------------
+select index_name, index_type from dba_indexes where table_name='FBNK_AA_ACTIVITY_HI001';
+
+===========================check tablespace================================================================
+
+SELECT a.tablespace_name,
+       ROUND (100 * (a.bytes_alloc - NVL (b.bytes_free, 0)) / a.bytes_alloc,
+              0)
+          Usage,
+       ROUND (a.bytes_alloc / 1024 / 1024) sizeMB,
+       ROUND (NVL (b.bytes_free, 0) / 1024 / 1024) sizeMB,
+       ROUND ( (a.bytes_alloc - NVL (b.bytes_free, 0)) / 1024 / 1024) usedMb,
+       ROUND ( (NVL (b.bytes_free, 0) / a.bytes_alloc) * 100) Pct_Free,
+       100 - ROUND ( (NVL (b.bytes_free, 0) / a.bytes_alloc) * 100) Pct_used,
+       ROUND (maxbytes / 1048576) MAX,
+       ROUND (100 * (a.bytes_alloc - NVL (b.bytes_free, 0)) / a.maxbytes, 0)
+          Used_pct_of_Max
+  FROM (  SELECT f.tablespace_name,
+                 SUM (f.bytes) bytes_alloc,
+                 SUM (
+                    DECODE (f.autoextensible,
+                            'YES', f.maxbytes,
+                            'NO', f.bytes))
+                    maxbytes
+            FROM dba_data_files f
+        GROUP BY tablespace_name) a,
+       (  SELECT f.tablespace_name, SUM (f.bytes) bytes_free
+            FROM dba_free_space f
+        GROUP BY tablespace_name) b
+ WHERE     a.tablespace_name = b.tablespace_name(+)
+UNION ALL
+  SELECT h.tablespace_name,
+         ROUND (
+            SUM (NVL (p.bytes_used, 0)) / SUM (h.bytes_free + h.bytes_used),
+            0)
+            Usage,
+         ROUND (SUM (h.bytes_free + h.bytes_used) / 1048576) megs_alloc,
+         ROUND (
+              SUM ( (h.bytes_free + h.bytes_used) - NVL (p.bytes_used, 0))
+            / 1048576)
+            megs_free,
+         ROUND (SUM (NVL (p.bytes_used, 0)) / 1048576) megs_used,
+         ROUND (
+              (  SUM ( (h.bytes_free + h.bytes_used) - NVL (p.bytes_used, 0))
+               / SUM (h.bytes_used + h.bytes_free))
+            * 100)
+            Pct_Free,
+           100
+         - ROUND (
+                (  SUM ( (h.bytes_free + h.bytes_used) - NVL (p.bytes_used, 0))
+                 / SUM (h.bytes_used + h.bytes_free))
+              * 100)
+            pct_used,
+         ROUND (
+              SUM (DECODE (f.AUTOEXTENSIBLE, 'YES', f.maxbytes, f.bytes))
+            / 1048576,
+            0)
+            MAX,
+         ROUND (
+              100
+            * SUM (NVL (p.bytes_used, 0))
+            / SUM (DECODE (f.AUTOEXTENSIBLE, 'YES', f.maxbytes, f.bytes)),
+            0)
+            Used_pct_of_Max
+    FROM sys.v_$TEMP_SPACE_HEADER h,
+         sys.v_$Temp_extent_pool p,
+         dba_temp_files f
+   WHERE     p.file_id(+) = h.file_id 
+         AND p.tablespace_name(+) = h.tablespace_name
+         AND f.file_id = h.file_id
+         AND f.tablespace_name = h.tablespace_name
+GROUP BY h.tablespace_name
+ORDER BY 1;
+
+==============check invalid object=========
+select count(*),owner ,  object_type from dba_objects where status='INVALID' group by owner ,  object_type order by owner;
+
+-----------------------check all index status is unusable---------------------------------------------------
+select index_name ,status from dba_indexes where status='UNUSABLE';
+
+------------------------------check process redefine error--------------------------------------
+select object_name, base_table_name, ddl_txt from DBA_REDEFINITION_ERRORS;
+
+---------------------------------check invalid object------------------------------------------
+select count(*),owner ,  object_type from dba_objects where status='INVALID' group by owner ,  object_type order by owner;
+
+

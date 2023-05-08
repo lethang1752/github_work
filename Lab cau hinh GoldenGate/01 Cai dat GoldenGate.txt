@@ -1,0 +1,30 @@
+﻿#Thực hiện cài đặt GoldenGate trên SOURCE & TARGET
+#Login vào user oracle(OS)
+su - oracle
+
+1. Tạo thư mục lưu goldengate
+mkdir /u01/app/goldengate
+
+2. Cài đặt GoldenGate
+cd /setup/
+unzip GG11.2.1.0.15_Linux-x86-64.zip -d /u01/app/goldengate/
+cd /u01/app/goldengate/
+tar -xvf fbo_ggs_Linux_x64_ora11g_64bit.tar
+
+3. Thiet lap bien moi truong
+vi /home/oracle/.bash_profile
+
+#Thêm thiết lập biến môi trường home của Oracle GoldenGate vào cuối file
+GGATE=/u01/app/goldengate
+export GGATE
+
+4.Kích hoạt biến môi trường
+. /home/oracle/.bash_profile
+env | grep GGATE
+
+5. Tạo cấu trúc thư mục
+$GGATE/ggsci
+/*
+CREATE SUBDIRS
+*/
+

@@ -1,0 +1,32 @@
+1. Install OS package
+mkdir /media/cdrom
+mount -t iso9660 /dev/cdrom /media/cdrom
+cd /media/cdrom/Packages
+/* Bo
+rpm -ivh scsi-target-utils-1.0.24-10.el6.x86_64.rpm libibverbs-1.1.7-1.el6.x86_64.rpm librdmacm-1.0.17-1.el6.x86_64.rpm perl-Config-General-2.52-1.el6.noarch.rpm sg3_utils-1.28-5.el6.x86_64.rpm 
+service tgtd start
+chkconfig tgtd on
+/*
+rpm -ivh iscsi-initiator-utils-6.2.0.873-10.0.1.el6.x86_64.rpm
+service iscsid start
+chkconfig iscsid on
+chkconfig iscsi on
+service iptables stop
+chkconfig iptables off
+
+iscsiadm -m discovery -t sendtargets -p 192.168.100.68
+	/*
+		192.168.100.68:3260,1 iqn.2006-01.com.openfiler:tsn.9af31dd5bf1d
+		192.168.10.68:3260,1 iqn.2006-01.com.openfiler:tsn.9af31dd5bf1d
+	*/
+service iscsi restart
+
+
+/* Rescan */
+iscsiadm -m session --rescan
+
+/* Disable an iSCSI target */
+iscsiadm --m node -T iqn.2006-01.com.openfiler:tsn.9af31dd5bf1d -p 192.168.100.68 -u 
+
+/* Delete the target's record */
+iscsiadm -m node -o delete -T iqn.2006-01.com.openfiler:tsn.9af31dd5bf1d -p 192.168.100.68

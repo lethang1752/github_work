@@ -1,0 +1,104 @@
+#1. May Target: Start VNCSERVER 
+vncserver :1
+
+#3. Tao thu muc va giai nen
+mkdir /u01/app/goldengate3
+cd /setup
+unzip 121210_fbo_ggs_Linux_x64_shiphome.zip
+
+#2. Cai dat Oracle GG 12c
+#Tu client su dung vncviewer ket noi vao TARGET qua dia chi :
+192.168.172.11:5901
+
+#Trong man hinh VNCviewer
+cd /setup/fbo_ggs_Linux_x64_shiphome/Disk1
+./runInstaller
+==> chon y
+==> chon Oracle GoldenGate cho Database 11g
+==> 
+Software Location = /u01/app/goldengate3
+Database Location = /u01/app/oracle/product/11.2.0/dbhome_1
+Manager Port = 9999
+==> Install ==> Close ==> Done
+
+3.Kiem tra GoldenGate 12c Home moi cai dat
+cd /u01/app/goldengate3
+./ggsci
+view params mgr
+info all
+shell mkdir /u01/app/goldengate3/dirdat/pump1
+
+4.Cau hinh Pump1 tren SOURCE
+$GGATE/ggsci
+---
+stop pump1
+add rmttrail /u01/app/goldengate3/dirdat/pump1/rt , extract pump1
+edit params pump1
+#Them tham so vao cau hinh pump1 roi save
+---
+RMTHOST 192.168.172.11, MGRPORT 9999
+RMTTRAIL /u01/app/goldengate3/dirdat/pump1/rt
+PASSTHRU
+TABLE SCOTT.*;
+---
+start pump1
+stats pump1
+
+#5. Kiem tra thu muc tren GGHOME-12c cua TARGET da co trailfile moi chua.
+ls -l /u01/app/goldengate3/dirdat/pump1
+==> Luu lai thong tin SEQUENCE cua TRAILFILE cuoi cung sinh ra. 
+==> Vi du trail file ten la rt000000 thi SEQUENCE se la 0
+
+
+#6.Stop pump1 tren Source
+Stop pump1
+
+#
+7.Cau hinh GGHOME-12c tren Target
+cd /u01/app/goldengate3
+./ggsci
+----
+dblogin userid ggate password ggtadmin
+add checkpointtable ggate.chktab12c
+ADD REPLICAT rep12c EXTTRAIL /u01/app/goldengate3/dirdat/pump1/rt, checkpointtable ggate.chktab12c
+info all
+#THAY DOI CHO SEQUENCE REP12C
+alter rep12c , extseqno xxx, extrba 0
+==> xxx = (Sequence co duoc tai buoc 5) + 1
+
+#Tao file cau hinh REP12C tu file cau hinh cua REP1
+- Doi lai ten cho group
+- Doi lai dau " --> ' cho cac gia tri kieu string
+
+shell cp /u01/app/goldengate/dirprm/rep1.prm /u01/app/goldengate3/dirprm/rep12c.prm
+#Sua lai tham so 
+edit params rep12c
+==> Sua lai:
+REPLICAT REP1 ===> REPLICAT REP12C
+DES="REP1"	===> DES='REP1'
+
+8. Kiem tra tien trinh REP1 tren HOME GG 11g cua Target
+#ggsci
+lag rep1
+==> neu tien trinh khong bi lag thi stop tien trinh
+stop rep1
+shell mv /u01/app/goldengate/dirprm/rep1.prm /u01/app/goldengate/dirprm/rep1.prm.bk
+
+9. Start tien trinh Pump1 tren Source
+start pump1
+
+10. Start REP12c tren Target 
+#GGSCI
+start rep12c 
+
+11. Check dong bo 
+#sqlplus
+delete scott.test1 where rownum < 100;
+commit;
+
+12. Kiem tra du lieu
+Select 'SOURCE', count(*) from scott.test1
+union all
+select 'TARGET', count(*) from scott.test1@target;
+
+

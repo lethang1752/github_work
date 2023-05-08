@@ -1,0 +1,146 @@
+GoldenGate_Replicate
+
+-Environment:
+*oracle_database:
+user: ggadmin 
+password: ggadmin
+table: ggadmin.test
+
+*mysql_database:
+database: oggdb1
+user: oggadm1
+password: Oracle@123
+table: oggdb1.test
+
+-Note:
+* run ggsci from software home
+* working with Source and Target db
+
+-Create subdir from mysql db server
+./ggsci
+create subdirs
+
+-Param mgr (manager) for both Source and Target
+PORT 7809
+DYNAMICPORTLIST 7810-7899
+ACCESSRULE, PROG *, IPADDR *, ALLOW
+
+-Prepare user and database from Oracle Source db
+sqlplus / as sysdba
+
+alter system set enable_goldengate_replication=true;
+
+create user ggadmin identified by ggadmin;
+grant dba to ggadmin;
+conn ggadmin/ggadmin
+
+create table test(test number, name varchar2(10), id varchar2(15));
+alter table test add primary key(test);
+
+exec DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE(grantee=>'ggadmin',privilege_type=>'CAPTURE',grant_optional_privileges=>'*');
+
+-Prepare user and database from Mysql Target db
+mysql -u root -pOracle@123
+
+create user 'oggadm1'@'localhost' identified by 'Oracle@123'
+grant all privileges on *.* to 'oggadm1'@'localhost' with grant option;
+
+create database oggdb1
+use oggdb1
+
+CREATE TABLE oggdb1.test(TEST TINYINT, NAME VARCHAR(14), ID VARCHAR(13));
+create unique index pk_test on oggdb1.test(test);
+
+-Initial load extract data from Source to Target (auto stop)
+*Source:
+./ggsci
+dblogin userid ggadmin, password ggadmin
+add extract test_ora, sourceistable
+
+edit param test_ora
+--
+extract test_ora
+userid ggadmin, password ggadmin
+rmthost [Target IP], mgrport 7809 
+rmttask replicat, group inittest
+table ggadmin.test;
+--
+
+-Create defgen for translate schema from Oracle Source to MySql Target
+*Source:
+./ggsci
+dblogin userid ggadmin, password ggadmin
+
+edit param defgen
+--
+defsfile ./dirdef/test.def, purge
+userid ggadmin, password ggadmin
+table ggadmin.test;
+--
+defgen paramfile ./dirprm/defgen.prm
+
+scp test.def to Target server: ./dirdef/
+
+-Configure the replicat for the initial data load
+*Target:
+./ggsci
+dblogin sourcedb oggdb1, userid oggadm1, password Oracle@123
+
+add replicat inittest, specialrun
+(replicat name need to be the same as Source, specialrun for running 1 time)
+edit param inittest
+--
+replicat inittest
+targetdb oggdb1, userid oggadm1, password Oracle@123
+sourcedefs ./dirdef/test.def
+discardfile ./dirrpt/testsql.dsc, purge
+map ggadmin.test, target oggdb1.test;
+--
+
+*Source:
+./ggsci
+dblogin userid ggadmin, password ggadmin
+
+start extract test_ora
+
+*Target: check table after run inittial load from Source
+
+-Configure data capture process for realtime running
+*Source: (Create extract from Source)
+./ggsci
+dblogin userid ggadmin, password ggadmin
+
+add extract extora, tranlog, begin now
+edit param extora
+--
+extract extora
+userid ggadmin, password ggadmin
+rmthost [Target IP], mgrport 7809
+rmttrail ./dirdat/lt
+table ggadmin.test;
+--
+
+add rmttrail ./dirdat/lt, extract extora
+start extora
+
+*Target: (Create replicat from Target)
+./ggsci
+dblogin sourcedb oggdb1, userid oggadm1, password Oracle@123
+
+add checkpointtable [database_name].chkttbl
+
+add replicat repmysql, exttrail ./dirdat/lt, checkpointtable [database_name].chkttbl
+edit param repmysql
+--
+replicat repmysql
+targetdb oggdb1, userid oggadm1, password Oracle@123
+HANDLECOLLISIONS
+sourcedefs ./dirdef/test.def
+discardfile ./dirrpt/repmysql.dsc PURGE
+map ggadmin.test, target oggdb1.test;
+--
+start repmysql
+
+***NOTES:
+OGG-00146  Call to VAMInitialize returned with error status 600: VAM Client Report
+-> Add Options: TRANLOGOPTIONS ALTLOGDEST "REMOTE" to extract from SourceDB

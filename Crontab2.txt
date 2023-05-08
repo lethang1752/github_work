@@ -1,0 +1,11 @@
+#!/bin/bash
+. /export/home/oracle/.profile
+# Define the TNS service name
+TNS_SERVICE="10.222.33.11"
+
+# Run the tnsping command and store the output in a variable
+RESULT=$(tnsping $TNS_SERVICE)
+echo $RESULT
+
+* * * * * sh /export/home/oracle/crontab_tns2.sh >> /export/home/oracle/crontab_tns2.log 2>&1
+* * * * * sh /export/home/oracle/crontab_tnsdr.sh >> /export/home/oracle/crontab_tnsdr.log 2>&1

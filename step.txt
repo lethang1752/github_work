@@ -1,0 +1,171 @@
+#Pre
+--alter tablespace TEMP add tempfile size 1024M autoextend on next 64M maxsize unlimited;
+--alter tablespace TEMP add tempfile size 1024M autoextend on next 64M maxsize unlimited;
+##CBS_Exa:
+--cd /cbs_nfs/migrate_scripts/cbs_exa
+##CBS_Sparc
+--cd /cbs_nfs/migrate_scripts/cbs_sparc 
+--rm /cbs_nfs/importing/*.dmp
+##CBS_Production
+purge dba_recyclebin;
+
+--create table  history 
+--alter user SCOTT quota 1G on AUDIT_AUX;
+--create table SCOTT.mig_dba_objects tablespace AUDIT_AUX as select * from dba_objects;
+--create table SCOTT.mig_dba_sys_privs tablespace AUDIT_AUX as select * from dba_sys_privs;
+--create table SCOTt.mig_dba_tab_privs tablespace AUDIT_AUX as select * from dba_tab_privs;
+--create table SCOTT.mig_dba_segments tablespace AUDIT_AUX as select * from dba_segments;
+
+@create_tab_history
+@count_tab_history
+
+--select 'OBJ='||count(*) from SCOTT.mig_dba_objects
+--union all
+--select  'SYS_PRIVS='||count(*) from SCOTT.mig_dba_sys_privs
+--union all
+--select 'TAB_PRIVS='||count(*) from SCOTT.mig_dba_tab_privs
+--union all
+--select 'SEGS='||count(*) from SCOTT.mig_dba_segments
+--;
+
+shutdown immediate;
+startup mount;
+alter system flush redo to 'xxx';
+
+#B1: 2 node EXA
+--startup force nomount pfile='/cbs_nfs/1';
+
+#B2_convert_standby (Sparc) (5 min)
+@db_stats
+@dg_stat_arc
+--select switchover_status from v$database;
+--select database_role, open_mode from v$database;
+--alter database commit to switchover to primary with session shutdown;
+@count_tab_history
+recover managed standby database cancel;
+alter database convert to snapshot standby;
+alter database open;
+
+#B6_convert tablespace to readonly (Sparc) --- 1min
+@tts_tsro.sql
+select tablespace_name, status from dba_tablespaces order by 2,1;
+
+create or replace directory ttsdir as '/cbs_nfs/importing';
+
+--parallel  ----------- 90 mins
+
+#B7_Convert datafile (Exadata)
+chmod 775  /cbs_nfs/oradata/cbsdb/datafile/*
+--CBS1 ---------------60 min
+ps -ef | grep rman | grep conv &&  echo "job is runing" || nohup sh conv1.sh
+
+--CBS2 ---------------56 mins
+ps -ef | grep rman | grep conv &&  echo "job is runing" || nohup sh conv2.sh
+
+#B8_ Export user metadata (Sparc) - 67 min
+nohup sh exp_user_metadata.sh & 
+
+#B9_ Export tbs metadata (Sparc) - 13 min 
+nohup sh exp_tbs_metadata.sh &
+
+#B10_Export xml type (Sparc) - 2min
+nohup sh exp_xml.sh &
+
+--end parallel
+
+#B11_Restart standby (Exa)
+--node1
+startup force pfile='/cbs_nfs/1'
+
+--node2
+shut abort;
+
+#B12_Import tablespace metadata (Exa)
+chmod 666 /cbs_nfs/importing/*.dmp
+nohup sh imp_tbs_metadata.sh &
+
+#B13_Grant dba role (Exa)
+@grant_dba_role.sql
+
+#B14_Import user metadata (Exa) 
+nohup sh imp_user_metadata.sh &
+
+#B15_Drop tablespace fresh(Exa)
+alter database default tablespace SYSAUX;
+@drop_tablespace.sql
+
+#B16_Import_tablespace_from_production (exa)
+--gen file name ???
+cat imp_tbs_tts_template > imp_tbs_tts.par
+cat /cbs_nfs/scripts/conv1.log /cbs_nfs/scripts/conv2.log | grep "converted" | sed 's/converted datafile=//' | awk '{print "'\''"$0"'\''," ;}' >> imp_tbs_tts.par  
+vi imp_tbs_tts.par
+
+nohup sh imp_tbs_tts.sh &
+
+alter database default tablespace users;
+
+#B17_Read_write_tablespace
+@tts_tsrw.sql
+
+#B18_Create system privilege
+@tts_sys_privs.sql
+
+
+#B19_Recreate global temporary table
+@gtt.sql
+
+@missing_obj.sql
+
+#B20_Import XML table 
+impdp \'/as sysdba\' dumpfile=xml_tables.dmp directory=ttsdir metrics=y logfile=imp_xml_tables.log table_exists_action=replace
+
+
+#B27 Config cell flash cache
+@tb_flash_cache.sql
+@idx_flash_cache
+shutdown immediate;
+srvctl start database -d SPNDBLIV
+
+#B21_Compile invalid object 
+@?/rdbms/admin/utlrp 16
+
+#B22 Refresh Mview
+@refresh_mview.sql
+
+#B25 Revoke dba
+@revoke_dba_role
+
+#B24 Import dblink
+impdp \'/as sysdba\' directory=ttsdir logfile=imp_DBLINK.log metrics=Y TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y dumpfile=exp_all_cbs_meta.dmp full=y table_exists_action=skip include=DB_LINK
+
+
+#B23 Compare object
+---CREATE DATABASE LINK ttslink
+---CONNECT TO system
+---IDENTIFIED BY "oracle_4U"
+---USING '(DESCRIPTION =
+---    (ADDRESS = (PROTOCOL = TCP)(HOST = 172.16.23.9)(PORT = 1804))
+---    (CONNECT_DATA =
+---      (SERVER = DEDICATED)
+---      (SERVICE_NAME = SPNDBMIG)
+---    )
+---' ;
+
+--sparc
+@/cbs_nfs/migrate_scripts/cbs_sparc/compare_object_sparc.sql
+
+--exa
+@/cbs_nfs/migrate_scripts/cbs_exa/compare_object_exa.sql
+@/cbs_nfs/migrate_scripts/cbs_exa/tts_verify.sql
+
+#B26 Compare & grant privileges SPNLIVE user
+@compare_privs_sparc
+@compare_privs_exa
+
+#B28 Gather statistics
+nohup sqlplus / as sysdba @gather &
+
+# Config_audit_location
+@change_audit_locat
+
+expdp "'/ as sysdba'" SCHEMAS=SPNADMIN_PRD,FCCREP,SPNLIVE include=STATISTICS DIRECTORY=ttsdir DUMPFILE=bk_statistics.dmp log=bk_statistics.log COMPRESSION=all 

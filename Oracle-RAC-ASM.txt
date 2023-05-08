@@ -1,0 +1,64 @@
+Oracle-RAC-ASM
+
+[ CONFIG NETWORK FOR 2 NODE ]
+
+*NODE 1 & NODE 2:
+
+**NOTE: Scan + Virtual need to none ping
+
+# vi /etc/hosts
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+# Public (main host - first adapter)
+192.168.202.100   victordc1.localdomain victordc1
+192.168.202.101   victordc2.localdomain victordc2
+# Virtual
+192.168.202.102    victordc1-vip.localdomain     victordc1-vip
+192.168.202.103    victordc2-vip.localdomain     victordc2-vip
+# Private (second adapter)
+192.168.80.100    victordc1-priv.localdomain    victordc1-priv
+192.168.80.101    victordc2-priv.localdomain    victordc2-priv
+# Scan
+192.168.202.110    victordc-scan.localdomain     victordc-scan
+192.168.202.111    victordc-scan.localdomain     victordc-scan
+192.168.202.112    victordc-scan.localdomain     victordc-scan
+
+# vi /etc/resolv.conf (leave blank)
+
+[ ADD CONFIG TO VMX FILE BOTH NODES ]
+
+disk.locking = "FALSE"
+diskLib.dataCacheMaxSize = "0"
+scsi1.sharedbus = "none"
+scsi0:1.shared = "TRUE"
+scsi0:1.uuid = " " (get from shared-disks opened by notepadd++) (only for grid 12c)
+
+[ PREPARE FOR INSTALLATION ]
+
+*Chronyd
+
+**NOTE: Turn on realtime on VMware on setting VM
+
+# yum install -y chrony
+# systemctl status chronyd
+# systemctl disable chronyd
+# systemctl enable --now chronyd
+# chronyc tracking
+
+[ SETUP PASSWORDLESS FOR 2 NODE ]
+
+*Insert Password then click setup
+
+[ INSTALL ORACLE GRID FOR 1 NODE ]
+
+https://ahmedbaraka.com/download/video-tutorials/Installing%20and%20Creating%20an%20Oracle%20Database%2019c%20on%20Linux%207%20with%20ASM.pdf
+
+Grid Standalone.txt
+
+**NOTE: Cluster name least than 15 character
+
+[ INSTALL ORACLE DATABASE SOFTWARE ONLY FOR 1 NODE ]
+
+[ INSTALL DATABASE FOR 1 NODE ]
+

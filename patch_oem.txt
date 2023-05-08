@@ -1,0 +1,41 @@
+/home/oracle/32545008
+32545013
+
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/32545008/32545013
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/32545008/32579761
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/32545008/32576499
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/32545008/32584670
+
+
+/home/oracle/32545008/32545013
+/home/oracle/32545008/32579761
+/home/oracle/32545008/32576499
+/home/oracle/32545008/32584670
+
+This information is also available at: 
+
+	/u01/app/oracle/middleware/install/setupinfo.txt
+
+See the following for information pertaining to your Enterprise Manager installation:
+
+
+Use the following URL to access:
+
+	1. Enterprise Manager Cloud Control URL: https://oem13:7803/em
+	2. Admin Server URL: https://oem13:7102/console
+
+The following details need to be provided while installing an additional OMS:
+
+	1. Admin Server Host Name: oem13
+	2. Admin Server Port: 7102
+
+You can find the details on ports used by this deployment at : /u01/app/oracle/middleware/install/portlist.ini
+
+
+ NOTE:
+ An encryption key has been generated to encrypt sensitive data in the Management Repository. If this key is lost, all encrypted data in the Repository becomes unusable. 
+
+ A backup of the OMS configuration is available in /u01/app/oracle/gc_inst/em/EMGC_OMS1/sysman/backup on host oem13. See Cloud Control Administrators Guide for details on how to back up and recover an OMS.
+
+ NOTE: This backup is valid only for the initial OMS configuration. For example, it will not reflect plug-ins installed later, topology changes like the addition of a load balancer, or changes to other properties made using emctl or emcli. Backups should be created on a regular basis to ensure they capture the current OMS configuration. Use the following command to backup the OMS configuration:
+/u01/app/oracle/middleware/bin/emctl exportconfig oms -dir <backup dir> 

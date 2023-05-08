@@ -1,0 +1,46 @@
+===== Single Instance
+
+-- Validate
+$ <ORACLE_HOME>/OPatch/opatch lsinventory -detail -oh <ORACLE_HOME>
+
+-- Conflict Check
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/downloads/Patch_19.11/p32545008/32545008/32545013
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/downloads/Patch_19.11/p32545008/32545008/32579761
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/downloads/Patch_19.11/p32545008/32545008/32576499
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/downloads/Patch_19.11/p32545008/32545008/32584670
+
+-- SystemSpace Check
+vi /tmp/patch_list_dbhome.txt
+/home/oracle/downloads/Patch_19.11/p32545008/32545008/32545013
+/home/oracle/downloads/Patch_19.11/p32545008/32545008/32579761
+
+$ORACLE_HOME/OPatch/opatch prereq CheckSystemSpace -phBaseFile /tmp/patch_list_dbhome.txt
+
+-- Export PATH
+export PATH=$PATH:$ORACLE_HOME/OPatch
+
+-- Install Patch
+cd /home/oracle/downloads/Patch_19.11/p32545008/32545008/
+
+opatch apply -analyze  (try)
+opatch apply
+
+---------------------------------------------------------------------------------
+
+Patch grid
+
+- OPatch conflict Check
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/dbpatch/32545008/32545013
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/dbpatch/32545008/32579761
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/dbpatch/32545008/32576499
+$ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/dbpatch/32545008/32584670
+
+- OPatch System space check
+/home/grid/gipatch/32545008/32545013
+/home/grid/gipatch/32545008/32579761
+/home/grid/gipatch/32545008/32576499
+/home/grid/gipatch/32545008/32584670
+
+opatch prereq CheckSystemSpace -phBaseFile /tmp/patch_list_gihome.txt
+
+opatchauto apply /u01/app/grid/gipatch/32545008 -oh $ORACLE_HOME -analyze

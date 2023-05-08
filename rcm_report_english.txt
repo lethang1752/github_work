@@ -1,0 +1,16 @@
+ Patch update is 2 years out-of-date. It is suggested to apply latest patch for Database (Patch 33261817 – Oct 2021) to minimize the impact of known bugs or security threats (refer to Appendix 1.10).
+ Consider building dataguard to ensure that the system works properly when a problem occurs.
+ Check root cause of error in alert log (ORA-19815, ORA-00700) and consider taking further action if needed (refer to Appendix 1.2).
+ Database has not been gathered for a long time. It is suggested to gather statistic tables and indexes to increase database performance (refer to Appendix 1.4.2).
+ Memory free on rvdc-pddbadm01.ayabankho.com sometimes drops below 5GB from 12am to 8pm. Consider to take further action if needed (refer to Appendix 1.3.2).
+ Tablespace USERS used 88%. Consider extending tablespace or adding datafile if needed (refer to Appendix 1.3.8).
+ Device I/O on both 2 nodes sometimes busy up to 100%. Consider taking further action if needed (refer to Appendix 1.3.3).
+ Consider to set backup policy and plan for database.
+ Consider to recomplile invalid objects (refer to Appendix 1.4.1).
++ Consider to shrink table to avoid fragmentation and reclaim space (refer to Appendix 1.3.9).
++ Device c0t600144F0B803AF0200005AFA824D0002d0 I/O sometimes busy up to 100%. Consider taking further action if needed (refer to Appendix 1.3.3).
+ The system used a lot of swap memory. Consider to checking the process and taking further action if needed (refer to Appendix 1.3.2).
++ Many tablespaces are created but unused. Consider planning or reorganizing the tablespace if necessary (refer to Appendix 3.3.8).
++ Some users are granted DBA permissions. Consider revoking if necessary (refer to Appendix 1.9.1).
++ Database sometimes backup fails. Consider monitoring and taking further action if needed (refer to Appendix 1.7.1).
++ Consider switching to using ASM to optimize I/O and file management for the database.

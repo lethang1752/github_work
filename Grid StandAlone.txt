@@ -1,0 +1,179 @@
+
+[ ADD USER + GROUP #(root) ]
+
+groupadd asmadmin
+groupadd oinstall
+groupadd asmdba
+usermod -g oinstall oracle
+usermod -a -G asmdba oracle
+useradd -u 54323 -g oinstall -G asmadmin,asmdba grid
+passwd grid
+
+useradd -g oinstall -G dba,oper,backupdba,dgdba,kmdba,racdba oracle
+
+[ CREATE DIRECTORY & INSTALL ORACLE GRID ]
+
+# Use Root user
+
+mkdir -p /u01/app/oracle/product/12.1.0.1/db_1
+mkdir -p /u01/app/grid
+mkdir -p /u01/app/12.1.0.1/grid
+chown -R grid:oinstall /u01
+chown -R oracle:oinstall /u01/app/oracle
+chmod -R 775 /u01
+
+$ mkdir -p /home/oracle/downloads (scp file from win to linux)
+
+[ UP ARROW IN SQLPLUS ]
+
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y rlwrap
+
+
+rlsqlplus / as sysdba
+rlrman target /
+
+[ CONFIG .BASH_PROFILE ]
+
+$ vi .bash_profile (of user Oracle)
+
+# .bash_profile
+# OS User: oracle
+# Application: Oracle Database Software Owner
+# Version: Oracle 12c
+# ---------------------------------------------------
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+. ~/.bashrc
+fi
+
+ORACLE_BASE=/u01/app/oracle; export ORACLE_BASE
+ORACLE_SID=rac12c1; export ORACLE_SID
+ORACLE_HOME=$ORACLE_BASE/product/12.1.0.1/db_1; export ORACLE_HOME
+
+NLS_DATE_FORMAT="DD-MON-YYYY HH24:MI:SS"; export NLS_DATE_FORMAT
+TNS_ADMIN=$ORACLE_HOME/network/admin; export TNS_ADMIN
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+PATH=${PATH}:/usr/bin:/bin:/usr/local/bin
+PATH=.:${PATH}:$ORACLE_HOME/bin
+export PATH
+
+LD_LIBRARY_PATH=$ORACLE_HOME/lib
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$ORACLE_HOME/oracm/lib
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/lib:/usr/lib:/usr/local/lib
+export LD_LIBRARY_PATH
+CLASSPATH=$ORACLE_HOME/JRE
+CLASSPATH=${CLASSPATH}:$ORACLE_HOME/jlib
+CLASSPATH=${CLASSPATH}:$ORACLE_HOME/rdbms/jlib
+CLASSPATH=${CLASSPATH}:$ORACLE_HOME/network/jlib
+export CLASSPATH
+export TEMP=/tmp
+export TMPDIR=/tmp
+umask 022
+
+$ vi .bash_profile (of user Grid)
+
+if [ -f ~/.bashrc ]; then
+. ~/.bashrc
+fi
+ORACLE_SID=+ASM; export ORACLE_SID
+ORACLE_BASE=/u01/app/grid; export ORACLE_BASE
+ORACLE_HOME=/u01/app/12.1.0.1/grid; export ORACLE_HOME
+
+ORACLE_TERM=xterm; export ORACLE_TERM
+TNS_ADMIN=$ORACLE_HOME/network/admin; export TNS_ADMIN
+PATH=.:${JAVA_HOME}/bin:${PATH}:$HOME/bin:$ORACLE_HOME/bin
+PATH=${PATH}:/usr/bin:/bin:/usr/local/bin
+export PATH
+export TEMP=/tmp
+export TMPDIR=/tmp
+umask 022
+
+[ SET & CREATE ASM DISKS ]
+
+# mount -t iso9660 -o ro /dev/sr0 /repos (mount repo disk for yum)
+
+# yum install -y oracleasm-support
+# yum install -y kmod-oracleasm
+
+# oracleasm configure -i (grid,oinstall,y,y) (configure step)
+# oracleasm init (load the oracleasm kernel module)
+# fdisk -l | grep "Disk /dev/sd" (check disk on device)
+# fdisk /dev/sdb (n,p,1,enter,enter,w) (partitioning step)
+# fdisk -l | grep "/dev/s" (verify the partition are created)
+# oracleasm createdisk DATA /dev/sdb1
+# oracleasm createdisk OCR /dev/sdc1 (create disk to store data)
+# oracleasm listdisks (check list disks)
+# ll /dev/oracleasm/disks (check status diskcreated)
+
+# oracleasm deletedisk /dev/sdb1 (clear disk header)
+# fdisk /dev/sdb (p,d,1-2,w) (delete partition disk)
+
+[ INSTALL GRID ]
+
+$ Use Grid user
+
+unzip /home/grid/downloads/----.zip -d $ORACLE_HOME
+
+# Use Root user
+
+cd /oracle/app/19.0/grid/cv/rpm
+export CVUQDISK_GRP=oinstall;
+rpm -iv cvuqdisk-1.0.10-1.rpm
+
+$ Use Grid user
+
+cd $ORACLE_HOME
+./gridSetup.sh
+
+~ Configure Oracle Grid Infrastructure for a Standalone Server (Oracle Restart)
+~ Change Discovery Path (/dev/oracleasm/disks/*)
+~ OCR / External / OCR 
+~ unselected checkbox Management Option
+Operating System Groups: OSASM-asmadmin; OSDBA-asmdba
+
+[ OPEN ASMCA + ADD HARD DISK ]
+
+$ Use Grid user
+
+asmca 
+! Add hard disk !
+
+[ INSTALL ORACLE DATABASE 19c ]
+
+$ Use Oracle user
+
+unzip /home/oracle/downloads/----.zip -d $ORACLE_HOME
+
+cd $ORACLE_HOME
+./runInstaller
+
+-- GUI Oracle Database 19c Installer --
+
+~ Create and Configure a single instance database
+~ Server Class 
+~ Enterprise Edition
+~ General Purpose
+~ oradb.localdomain / oradb (SID) / pdb1
+~ Do not mark AMM checkbox / Memory 5120 MB / Mark: Install sample schema in the database
+~ ASM Disk Group: DATA
+~ Do not mark Management Options
+~ oinstall for all options except OSOPER (keep blank)
+
+
+-----create partition for ASM Diskgroup
+- reload rule
+udevadm control --reload-rules && udevadm trigger
+- list disk:
+fdisk -l
+- format disk:
+fdisk /dev/sdb
+- disk info:
+udevadm info --query=all --name=/dev/sdb
+- create rule:
+vi /etc/udev/rules.d/99-oracle-asmdevices.rules
+	ACTION=="add|change",KERNEL=="dm-3",ENV{ID_PATH}=="pci-0000:00:0d.0-ata-4.0",SYMLINK+="oracleasm/data1",OWNER="grid",GROUP="asmadmin",MODE="0660" 
+- reboot
+- check privilege:
+ls -lh /dev/sdb

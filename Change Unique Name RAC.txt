@@ -1,0 +1,58 @@
+Change Unique Name RAC
+
+Spfile: +DATA/EVN/PARAMETERFILE/spfile.266.1116089511
+
++DATA/EVN/PARAMETERFILE/spfile.266.1116089453
+
+Password file: +DATA/VCTR/PASSWORD/pwdvctr.258.1111226869
+
+-Check status, config database SRVCTL
+
+srvctl status database -d [database_name]
+srvctl config database -d [database_name]
+
+-Create PFILE
+
+sho parameter spfile;
+create pfile='?/dbs/init@.ora-new' from spfile;
+
+-modify PFILE
+
+vi $ORACLE_HOME/dbs/init$ORACLE_SID.ora-new
+
+*.db_unique_name='[db_unique_name]' #Added by Mabu
+
+-create new SPFILE & point the location of SPFILE in PFILE on both nodes
+
+create spfile='+DATA/VCTR/PARAMETERFILE/spfile' from pfile='?/dbs/init@.ora-new';
+
+[oracle@primary01 ~]$ vi $ORACLE_HOME/dbs/init$ORACLE_SID.ora
+spfile='+DATA/VCTR/spfile'
+[oracle@primary02 ~]$ vi $ORACLE_HOME/dbs/init$ORACLE_SID.ora
+spfile='+DATA/VCTR/PARAMETERFILE/spfile'
+
+-Stop & remove Database SRVCTL
+
+srvctl stop database -d [db_unique_name_old]
+srvctl remove database -d [db_unique_name_old]
+
+-Add Database
+
+[oracle@primary01 ~]$ 
+srvctl add database \
+-db evndr \
+-dbname evn \
+-oraclehome $ORACLE_HOME \
+-spfile +DATA/EVN/PARAMETERFILE/spfile \
+-startoption OPEN \
+-stopoption IMMEDIATE \
+-role PRIMARY \
+-policy AUTOMATIC \
+-diskgroup DATA
+
+-Start Database
+
+srvctl add instance -d vctrdc -i vctr1 -n VICTORDC1
+srvctl add instance -d vctrdc -i vctr2 -n VICTORDC2
+srvctl start database -d [new_db_unique_name]
+

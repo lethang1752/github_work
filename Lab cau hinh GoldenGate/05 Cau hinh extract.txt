@@ -1,0 +1,19 @@
+﻿# Tạo cấu hình extract
+
+mkdir /u01/app/GoldG/dirdat/ext1
+$GGATE/ggsci
+add extract ext1, tranlog, begin now
+add exttrail /u01/app/GoldG/dirdat/ext1/lt, extract ext1,  Megabytes 100
+edit params ext1
+
+/*ext1.prm
+EXTRACT ext1
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggsadmin
+TRANLOGOPTIONS DBLOGREADER
+EXTTRAIL /u01/app/GoldG/dirdat/ext1/lt
+DISCARDFILE /u01/app/GoldG/dirdat/ext1/ext1.dsc, APPEND , MEGABYTES 100
+DISCARDROLLOVER AT 00:01 ON SUNDAY
+--Table list
+TABLE SCOTT.*;
+*/

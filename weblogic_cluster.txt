@@ -1,0 +1,4 @@
+- Fix Java Isssue
+Download & Install jdk-8u361-linux-x64.rpm
+
+nmEnroll('/u01/app/oracle/product/12.2.1/wls_1/user_projects/domains/base_domain','/u01/app/oracle/product/12.2.1/wls_1/user_projects/domains/base_domain/nodemanager')

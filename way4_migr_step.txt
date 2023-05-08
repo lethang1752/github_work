@@ -1,0 +1,392 @@
+way4_migrate
+------------------------------------------------------------Check tablespace self-containment (sparc)
+---------------------------------------------------------declare 
+--------------------------------------------------------- checklist varchar2(4000); 
+--------------------------------------------------------- i number := 0; 
+---------------------------------------------------------begin 
+--------------------------------------------------------- for ts in 
+--------------------------------------------------------- (select tablespace_name 
+--------------------------------------------------------- from dba_tablespaces 
+--------------------------------------------------------- where tablespace_name not in ('SYSTEM','SYSAUX') 
+--------------------------------------------------------- and contents = 'PERMANENT') 
+--------------------------------------------------------- loop 
+--------------------------------------------------------- if (i=0) then 
+--------------------------------------------------------- checklist := ts.tablespace_name; 
+--------------------------------------------------------- else 
+--------------------------------------------------------- checklist := checklist||','||ts.tablespace_name; 
+--------------------------------------------------------- end if; 
+--------------------------------------------------------- i := 1; 
+--------------------------------------------------------- end loop; 
+--------------------------------------------------------- dbms_tts.transport_set_check(checklist,TRUE,TRUE); 
+---------------------------------------------------------end; 
+---------------------------------------------------------/
+---------------------------------------------------------select * from transport_set_violations;
+
+------------------------------------------------------------Check timezone (exa)
+------------------------------------------------------------Check timezone fle version
+---------------------------------------------------------select version from v$timezone_file;
+
+------------------------------------------------------------Check NLS LANGUAGE
+---------------------------------------------------------select * from NLS_DATABASE_PARAMETERS where PARAMETER in ('NLS_CHARACTERSET','NLS_NCHAR_CHARACTERSET');
+
+------------------------------------------------------------Check object with data type TIMESTAMP WITH TIMEZONE
+----------------------------------------------------------select c.owner||'.'||c.table_name||'('||c.column_name||')-'||c.data_type||'' col 
+----------------------------------------------------------from dba_tab_cols c, dba_objects o where c.data_type like '%WITH TIME ZONE' and c.owner=o.owner
+----------------------------------------------------------and c.table_name=o.object_name and o.object_name='TABLE' and o.owner not in ('SYS','SYSTEM') order by col
+----------------------------------------------------------/
+
+-------------------------------------------------------------compile invalid object in primary database (sparc)
+-----------------------------------------------------------@?/rdbms/admin/utlrp.sql 8
+
+--change local temporary tablespace to temp (sparc)
+select 'alter user '||username||' LOCAL TEMPORARY TABLESPACE '||TEMPORARY_TABLESPACE||';' from dba_users where username not in ('XS$NULL') and local_temp_tablespace = 'SYSTEM';
+@/way4_nfs/scripts/chg_local_tmp_tbs.sql
+
+------------------------------------------------------------gather dictionary stats (sparc)
+----------------------------------------------------------exec dbms_stats.gather_dictionary_stats;
+
+---------------------------------------------------------------Create destination database
+------------------------------------------------------------dbca
+
+-------------------------------------------------------------Configure database options (exa)
+----------------------------------------------------------set line 200
+----------------------------------------------------------col COMP_NAME format a40
+----------------------------------------------------------set pages 999
+----------------------------------------------------------select COMP_ID,COMP_NAME,VERSION,STATUS from dba_registry order by 1;
+----------------------------------------------------------COMP_ID                        COMP_NAME                                          VERSION                        STATUS
+---------------------------------------------------------------------------------------- -------------------------------------------------- ------------------------------ -----------
+----------------------------------------------------------CATALOG                        Oracle Database Catalog Views                      19.0.0.0.0                     VALID
+----------------------------------------------------------CATPROC                        Oracle Database Packages and Types                 19.0.0.0.0                     VALID
+----------------------------------------------------------OWM                            Oracle Workspace Manager                           19.0.0.0.0                     VALID
+----------------------------------------------------------JAVAVM                         JServer JAVA Virtual Machine                       19.0.0.0.0                     VALID
+----------------------------------------------------------XML                            Oracle XDK                                         19.0.0.0.0                     VALID
+----------------------------------------------------------CATJAVA                        Oracle Database Java Packages                      19.0.0.0.0                     VALID
+----------------------------------------------------------CONTEXT                        Oracle Text                                        19.0.0.0.0                     VALID
+----------------------------------------------------------XDB                            Oracle XML Database                                19.0.0.0.0                     VALID
+----------------------------------------------------------ORDIM                          Oracle Multimedia                                  19.0.0.0.0                     VALID
+----------------------------------------------------------APS                            OLAP Analytic Workspace                            19.0.0.0.0                     VALID
+----------------------------------------------------------XOQ                            Oracle OLAP API                                    19.0.0.0.0                     VALID
+----------------------------------------------------------RAC                            Oracle Real Application Clusters                   19.0.0.0.0                     OPTION OFF
+----------------------------------------------------------SDO                            Spatial                                            19.0.0.0.0                     VALID
+----------------------------------------------------------APEX                           Oracle Application Express                         3.2.1.00.12                    VALID
+
+------------------------------------------------------------compile invalid object in primary database (exa)
+----------------------------------------------------------@?/rdbms/admin/utlrp.sql 8
+
+----------------------------------------------------------prepare database parameters by copy parameter from source (sparc)
+
+-----------------------------------------------------------------create password verify function (exa)
+-------------------------------------------------------------sqlplus / as sysdba
+-------------------------------------------------------------@?/rdbms/admin/utlpwdmg
+
+-----------------------------------------------------------Create tablespace structure (exa)
+---------------------------------------------------------CREATE TABLESPACE USERS DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWACQ_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWACQ_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCOMS_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCOMS_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCONST_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCONST_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCONTR_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWCONTR_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWDOC_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWDOC_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWFIN_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWFIN_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWLARGE_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWLARGE_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWMEDIUM_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWMEDIUM_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWRPL_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWRPL_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSTATIC_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSTATIC_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSTATLARGE_D DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSTATLARGE_I DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSREP_TB DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE AUDIT_AUX DATAFILE '+CMSDATA01' size 100M;
+---------------------------------------------------------CREATE TABLESPACE OWSAPI_TBS DATAFILE '+CMSDATA01' size 100M;
+
+
+----------------------------------------------------------create ttsdir directory source (exa)
+--------------------------------------------------------create or replace directory ttsdir as '/way4_nfs/importing';
+
+----------------------------------------------------------drop user scott (exa)
+--------------------------------------------------------drop user scott cascade;
+
+--create ttsdir directory target after open read write (sparc)
+create or replace directory ttsdir as '/way4_nfs/importing';
+
+---Purge dba_recyclebin after open read write (sparc)
+purge dba_recyclebin;
+
+----Read only tablespace (sparc)
+@/way4_nfs/scripts/tts_tsro.sql
+
+----Convert tablespace (35 min)
+---create convert datafile scripts exclude datafiles belong to tablespaces SYSTEM,SYSAUX,UNDOTBS1,AUDIT_AUX
+select file_name from dba_data_files where tablespace_name in ('SYSAUX','SYSTEM','UNDOTBS1','AUDIT_AUX');
+chmod 775 /way4_nfs/oradata/datafile/*
+cd /way4_nfs/scripts
+--node1 & 2
+startup nomount pfile='/way4_nfs/pfile';
+nohup sh ./conv1.sh &
+nohup sh ./conv2.sh &
+
+---export user metadata (sparc)
+expdp \'/as sysdba\' parfile=exp_all_way4_meta.par
+--exp_all_way4_meta.par---------------------------------------
+full=y
+exclude=table:"in(select table_name from dba_tables where owner in ('OWS','SWTREP','SCOTT','OWSREP'))"
+EXCLUDE=AUDIT_TRAILS
+exclude=tablespace
+exclude=statistics,index_statistics,table_statistics,password_history,MATERIALIZED_VIEW
+exclude=schema:"IN('OJVMSYS','SYSKM','GSMCATUSER','SYSBACKUP','SYSDG','SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR','GSMUSER','AUDSYS','APEX_040200','GSMADMIN_INTERNAL','XS$NULL','ORACLE_OCM','MDDATA','OUTLN','DIP','APEX_PUBLIC_USER','MDSYS','ORDSYS','WMSYS','APPQOSSYS','ORDDATA','CTXSYS','ANONYMOUS','XDB','ORDPLUGINS','SI_INFORMTN_SCHEMA','OLAPSYS')"
+directory=ttsdir
+metrics=y
+dumpfile=exp_all_way4_meta.dmp
+logfile=exp_all_way4_meta.log
+------------------------------------------------------------
+
+---export AUDIT TRAILS (sparc)
+expdp \'/as sysdba\' full=y INCLUDE=AUDIT_TRAILS PARALLEL=4 directory=ttsdir metrics=y compression=all dumpfile=AUDIT_TRAILS_%U.dmp logfile=exp_AUDIT_TRAILS.log
+
+---export tablespace metadata (sparc)
+expdp \'/as sysdba\' parfile=exp_transport_tbs.par
+--exp_transport_tbs.par-------------------------------------------
+directory=ttsdir
+dumpfile=exp_transport_tbs.dmp
+exclude=STATISTICS,INDEX_STATISTICS,TABLE_STATISTICS
+logfile=exp_transport_tbs.log
+metrics=y
+transport_full_check=no
+transport_tablespaces=USERS,
+OWACQ_D,
+OWACQ_I,
+OWCOMS_D,
+OWCOMS_I,
+OWCONST_D,
+OWCONST_I,
+OWCONTR_D,
+OWCONTR_I,
+OWDOC_D,
+OWDOC_I,
+OWFIN_D,
+OWFIN_I,
+OWLARGE_D,
+OWLARGE_I,
+OWMEDIUM_D,
+OWMEDIUM_I,
+OWRPL_D,
+OWRPL_I,
+OWSTATIC_D,
+OWSTATIC_I,
+OWSTATLARGE_D,
+OWSTATLARGE_I,
+OWSREP_TB,
+OWSAPI_TBS
+--------------------------------------------------------------
+
+---Import metadata for tablespace(exa) (5 min)
+--node2
+shut abort;
+cd /way4_nfs/importing
+chmod 777 *
+--node1
+startup force pfile='/way4_nfs/pfile';
+cd /way4_nfs/importing
+impdp \'/as sysdba\' directory=ttsdir logfile=imp_user_meta_for_tbs.log metrics=Y TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y dumpfile=exp_all_way4_meta.dmp full=y include=user,role,role_grant,profile
+
+---Import all user metadata(exa) (36 min)
+impdp \'/as sysdba\'  parfile=imp_all_way4_meta.par
+--imp_all_way4_meta.par------------------------------------
+directory=ttsdir
+logfile=imp_all_way4_meta.log
+metrics=Y
+TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y
+dumpfile=exp_all_way4_meta.dmp
+full=y
+exclude=user,role,role_grant,profile,DB_LINK
+------------------------------------------------------------
+
+----Import AUDIT TRAILS (exa)
+impdp \'/as sysdba\' full=y directory=ttsdir metrics=y PARALLEL=4 dumpfile=AUDIT_TRAILS_%U.dmp TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y logfile=imp_AUDIT_TRAILS.log
+
+----Drop tablespace structure (exa) (10 min)
+@/way4_nfs/scripts/tts_tsdrop.sql
+
+----Import tablespaces into target database (exa) (20 min)
+impdp \'/as sysdba\' parfile=imp_transport_tbs.par
+--imp_transport_tbs.par----------------
+directory=ttsdir
+dumpfile=exp_transport_tbs.dmp
+metrics=y
+logfile=imp_transport_tbs.log
+transport_datafiles='+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.280.1111334217',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.281.1111334199',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.284.1111334143',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.343.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.348.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.354.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/AUDIT_AUX.407.1111334371',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWACQ_D.276.1111334289',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWACQ_D.282.1111334171',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWACQ_I.289.1111334109',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWACQ_I.305.1111333985',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.307.1111333983',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.308.1111333981',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.336.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.353.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.366.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_D.395.1111334339',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_I.286.1111334121',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_I.290.1111334107',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_I.303.1111334023',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCOMS_I.327.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONST_D.400.1111334357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONST_D.406.1111334369',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONST_I.399.1111334355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONTR_D.279.1111334255',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONTR_D.396.1111334341',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONTR_I.288.1111334111',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONTR_I.328.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWCONTR_I.398.1111334353',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_D.285.1111334125',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_D.291.1111334079',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_D.295.1111334059',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_D.331.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_I.296.1111334057',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_I.304.1111334023',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWDOC_I.329.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_D.278.1111334261',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_D.287.1111334121',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_D.390.1111334303',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_D.392.1111334309',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_I.302.1111334041',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWFIN_I.393.1111334311',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.309.1111333981',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.310.1111333979',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.313.1111333967',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.318.1111333913',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.319.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.320.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.321.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.324.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.325.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.326.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.330.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.335.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.339.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.340.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.341.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.342.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.345.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.346.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.347.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.349.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.355.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.356.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.357.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.358.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.359.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.361.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.363.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.364.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_D.365.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.292.1111334077',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.293.1111334077',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.297.1111334053',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.298.1111334053',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.299.1111334051',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.300.1111334049',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.301.1111334045',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.311.1111333969',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.312.1111333969',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.314.1111333965',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.315.1111333965',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.316.1111333963',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.317.1111333961',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.322.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.323.1111333359',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.332.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.333.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.337.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.344.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.360.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWLARGE_I.362.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWMEDIUM_D.394.1111334339',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWMEDIUM_D.405.1111334367',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWMEDIUM_I.391.1111334303',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWRPL_D.401.1111334363',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWRPL_D.410.1111334375',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWRPL_I.402.1111334363',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSAPI_TBS.397.1111334351',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.294.1111334075',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.306.1111333983',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.334.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.338.1111333357',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.350.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.351.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSREP_TB.352.1111333355',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATIC_D.267.1111334293',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATIC_D.408.1111334371',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATIC_I.283.1111334143',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATLARGE_D.403.1111334365',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATLARGE_D.409.1111334373',
+'+CMSDATA01/SPNW4DB/DATAFILE/OWSTATLARGE_I.404.1111334367',
+'+CMSDATA01/SPNW4DB/DATAFILE/USERS.411.1111334375',
+'+CMSDATA01/SPNW4DB/DATAFILE/USERS.412.1111334377'
+----------------------------------------------------------------
+
+----read write tablespace(exa)
+@/way4_nfs/scripts/tts_tsrw.sql
+
+---Recreate global temporary table
+set pages 0
+set long 2000000
+spo gtt.sql
+SELECT dbms_metadata.get_ddl('TABLE', table_name, owner) || ';'
+FROM dba_tables
+WHERE temporary = 'Y'
+AND owner NOT IN ('SYSTEM','XDB','SYS','DBSNMP')
+ORDER BY owner, table_name;
+spo off
+@/way4_nfs/scripts/gtt.sql
+
+----Create 2 missing index of GTT table
+CREATE INDEX "OWS"."TEMP_COLLECTION_ID" ON "OWS"."TEMP_COLLECTION" ("SCOPE", "MARKED_ID");
+CREATE INDEX "OWS"."TEMP_CONTR_DAT" ON "OWS"."TEMP_CONTRACT_DATA" ("CONTRACT","MARKED_ID", "DOC_ID", "CURRENCY");
+
+---Create System Privileges in Target Database
+@/way4_nfs/scripts/tts_sys_privs.sql 
+
+---Compile INVALID object
+@?/rdbms/admin/utlrp.sql 32
+
+---Compare objects
+col owner format a20
+set pages 999
+set line 200
+select  owner, object_type, 
+        count(1) as obj_count, 
+        sum(case when status ='INVALID' then 1 else 0 end) as invalid_obj
+from dba_objects
+where owner in (select username from dba_users where oracle_maintained='N' and username not in ('APEX_030200','SCOTT','FLOWS_FILES'))
+group by owner, object_type
+order by 1,2;
+
+---Import db link
+impdp \'/as sysdba\' directory=ttsdir logfile=imp_DBLINK.log metrics=Y TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y dumpfile=exp_all_way4_meta.dmp full=y include=DB_LINK
+
+
+---Compile INVALID object
+@?/rdbms/admin/utlrp.sql 32
+
+
+---Gather statistics
+exec dbms_stats.gather_dictionary_stats;
+exec dbms_stats.gather_fixed_objects_stats;
+exec dbms_stats.gather_database_stats( -
+cascade => TRUE, -
+degree => 64, -
+method_opt => 'FOR ALL COLUMNS SIZE AUTO' );

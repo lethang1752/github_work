@@ -1,0 +1,73 @@
+DECLARE
+obj_id number;
+BEGIN
+    dbms_advisor.create_task (
+    advisor_name     => 'Segment Advisor',
+    task_name        => 'Manual_T' );
+
+    dbms_advisor.create_object (
+    task_name        => 'Manual_T',
+    object_type      => 'TABLE',
+    attr1            => user,
+    attr2            => 'T',
+    attr3            => NULL,
+    attr4            => NULL,
+    attr5            => NULL,
+    object_id        => obj_id);
+
+    dbms_advisor.set_task_parameter(
+    task_name        => 'Manual_T',
+    parameter        => 'recommend_all',
+    value            => 'TRUE');
+END;
+/
+
+create or replace procedure run_sa
+authid current_user
+as
+begin
+    dbms_advisor.RESET_TASK('Manual_T');
+    dbms_advisor.execute_task('Manual_T');
+end;
+/
+
+--Create table for test
+create table t as
+select *
+    from all_objects, (select level l from dual connect by level <= &1)
+/
+
+select sum(bytes) from USER_SEGMENTS where segment_name = 'T';
+
+--delete data
+delete from t where mod(t.object_id ,3)!=0;
+commit;
+
+-- exec task
+exec run_sa
+
+--check recommendation
+SELECT segment_name,
+round(allocated_space/1024/1024,1) alloc_mb,
+round( used_space/1024/1024, 1 ) used_mb,
+round( reclaimable_space/1024/1024) reclaim_mb,
+round(reclaimable_space/allocated_space*100,0) pctsave,
+recommendations
+FROM TABLE(dbms_space.asa_recommendations())
+where segment_owner = user
+/
+
+--shrink table 
+select sum(bytes) from USER_SEGMENTS where segment_name = 'T';
+alter table t enable row movement;
+--compact table (move row)
+alter table t shrink space compact;
+select sum(bytes) from USER_SEGMENTS where segment_name = 'T';
+--move HWM
+alter table t shrink space;
+select sum(bytes) from USER_SEGMENTS where segment_name = 'T';
+
+--clean
+--exec dbms_advisor.delete_task('Manual_T');
+exec dbms_advisor.RESET_TASK('Manual_T');
+drop table t purge;

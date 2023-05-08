@@ -1,0 +1,383 @@
+yum error on using -->> dhclient -->> yum update -y
+
+-----------------------------------------------------------
+
+alter database clear logfile group 9,group 10,group 11,group 12,group 13;
+
+alter database drop standby logfile group 10;
+alter database drop standby logfile group 11;
+alter database drop standby logfile group 12;
+alter database drop standby logfile group 13;
+alter database drop standby logfile group 14;
+
+chmod g+w
+
+SET LINESIZE 300
+COL [COLUMN_NAME] FORMAT a45
+
+! ps -ef|grep mrp
+
+-----------------------------------------------------------
+***UP ARROW IN SQLPLUS***
+
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y rlwrap
+
+alias rlsqlplus='rlwrap sqlplus'
+alias rlrman='rlwrap rman'
+
+rlsqlplus / as sysdba
+
+-----------------------------------------------------------
+***Check logfile, member, datafile...***
+
+col tablespace_name format a15
+col file_name format a30
+SELECT TABLESPACE_NAME,FILE_NAME,BYTES/1024/1024 FROM DBA_DATA_FILES;
+
+SELECT MEMBER FROM V$LOGFILE;
+
+SELECT FILE#, NAME, STATUS FROM V$DATAFILE;
+
+SELECT GROUP#, TYPE, MEMBER FROM V$LOGFILE WHERE TYPE = 'STANDBY' ORDER BY GROUP#;
+
+COL NAME FOR A25
+COL VALUE FOR A65;
+SELECT NAME, VALUE FROM V$DIAG_INFO WHERE VALUE LIKE '%ORACLE%';
+
+SELECT DEST_ID "ID",STATUS "DB_status",DESTINATION "Archive_dest",ERROR "Error" FROM V$ARCHIVE_DEST;
+
+-------------------------------------------
+***Bật tắt tiến trình đồng bộ DataGuard***
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE USING CURRENT LOGFILE DISCONNECT FROM SESSION;
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL;
+
+-------------------------------------------
+***Check Thread Database***
+
+SELECT THREAD#, GROUP#, SEQUENCE#, BYTES, ARCHIVED, STATUS FROM V$STANDBY_LOG ORDER BY THREAD#, GROUP#;
+
+SELECT GROUP#,THREAD#,SEQUENCE#,BYTES/1024/1024,MEMBERS,STATUS FROM V$LOG;
+
+col dbid format a15
+SELECT GROUP#, DBID, THREAD#, SEQUENCE#, STATUS FROM V$STANDBY_LOG;
+
+-------------------------------------------
+***Check đồng bộ DataGuard***
+
+SELECT to_char(CURRENT_SCN) FROM V$DATABASE;
+
+-check sync status
+col name format a10
+col value format a15
+col datum_time format a20
+col time_computed format a20
+SELECT name, value, datum_time, time_computed FROM v$dataguard_stats WHERE name like '%lag';
+
+SELECT SEQUENCE#,PROCESS,STATUS FROM V$MANAGED_STANDBY;
+
+SELECT SEQUENCE#,APPLIED FROM V$ARCHIVED_LOG ORDER BY SEQUENCE#;
+
+col dbid format a15
+SELECT GROUP#, DBID, THREAD#, SEQUENCE#, STATUS FROM V$STANDBY_LOG;
+
+-------------------------------------------
+***Chụp ảnh đồng bộ DataGuard cho Report***
+
+select name, db_unique_name, database_role, open_mode from v$database;
+
+select max(to_char(timestamp,'yyyymmdd hh24:mi:ss')) from v$recovery_progress;
+
+!date
+
+-------------------------------------------
+-check scn gap
+select to_char(min(checkpoint_change#)) from v$datafile_header where file# not in (select file# from v$datafile where enabled = 'READ ONLY');
+
+select min(f.fhscn) from x$kcvfh f, v$datafile d where f.hxfil =d.file# and d.enabled != 'READ ONLY'; (Disaster Recovery)
+
+select min(fhscn) from x$kcvfh;
+
+alter database drop standby logfile group &group;
+
+-------------------------------------------
+***Shutdown 1 node RAC
+
+sho parameter unique
+select instance_name, status from gv$instance;
+
+awk -F = ' $1 ~ /^ORA_CRS_HOME$/ {print $2} ' /etc/init.d/init.ohasd
+
+srvctl stop instance -i *** -d ***
+
+-------------------------------------------
+- oswbb note
+oswcpuinfo
+oswiostat
+oswmeminfo
+oswnetstat
+oswvmstat
+
+- oswbb gen file
+java -jar oswbba.jar -i /.../
+
+- Rename day in oswbb log file
+
+for file in *.dat ; do mv $file ${file//_22.10./_23.01.} ; done
+
+find . -type f -name *.gz -exec gzip -d {} \;
+
+-------------------------------------------
+***Form Backup Rman***
+
+run {
+allocate channel c1 type disk format '/home/oracle/incr/rman_bkup%U.rmb';
+allocate channel c2 type disk format '/home/oracle/incr/rman_bkup%U.rmb';
+allocate channel c3 type disk format '/home/oracle/incr/rman_bkup%U.rmb';
+allocate channel c4 type disk format '/home/oracle/incr/rman_bkup%U.rmb';
+backup incremental from scn 5381833 database;
+}
+
+run
+{
+allocate channel c1 type disk format '/tmp/backuparchive/rman_datafile_backup_%U';
+backup datafile '+DATA/VCTRDR/DATAFILE/users.333.1113692371';
+release channel c1;
+}
+
+- restore from catalog
+RUN
+{
+SET NEWNAME FOR DATAFILE 7 TO '+DATA';
+RESTORE DATABASE;
+SWITCH DATAFILE ALL;
+RECOVER DATABASE;
+}
+
+- restore from service
+run {
+set newname for database to '+DATA';
+set newname for tempfile 1 to '+DATA';
+restore database from service CMIS3DR;
+backup spfile;
+switch datafile all;
+switch tempfile all; }
+
+-> switch database to copy -> clear logfile -> recover standby database -> open database
+-ORA-01152
+run {
+recover database from service 'CMIS3DR' section size 64G;
+}
+
+- clear logfile
+
+begin
+for log_cur in ( select group# group_no from v$log )
+loop
+execute immediate 'alter database clear logfile group '||log_cur.group_no;
+end loop;
+end;
+/
+
+begin
+for log_cur in ( select group# group_no from v$standby_log )
+loop
+execute immediate 'alter database clear logfile group '||log_cur.group_no;
+end loop;
+end;
+/
+
+-> alter database open;
+RUN {
+set archivelog destination to '+DATA/VCTRDC/ARCHIVELOG/2022_08_25';
+restore archivelog from logseq 7 until logseq 27;
+}
+
+SQL> 
+select first_change#-1, sequence#
+from v$archived_log
+where sequence#=28;
+
+recover automatic database until change 2170773;
+
+select first_time from v$archived_log where sequence# = 28;
+
+
+RMAN> run {
+allocate channel c1 type disk format '/tmp/backupdatafile/rman_datafile_backup_%U';
+backup datafile 5;
+release channel c1; }
+
+RMAN> run {
+set newname for datafile 5 to '+DATA';
+restore datafile 5;
+switch datafile 5;
+recover datafile 5; }
+
+-----------------------------------------------------------
+To uncatalog all archived logs issue,
+RMAN>CHANGE ARCHIVELOG ALL UNCATALOG;
+
+To uncataog tablespace USERS issue,
+RMAN>CHANGE BACKUP OF TABLESPACE USERS UNCATALOG;
+
+To uncatalog a backuppiece name /oradata2/oft7qq issue,
+RMAN>CHANGE BACKUPPIECE ‘/oradata2/oft7qq’ UNCATALOG;
+
+-----------------------------------------------------------
+***Check frequency switch logfile DataGuard***
+
+set lines 120;
+set pages 999;
+SELECT
+to_char(first_time,'YYYY-MON-DD') day,
+to_char(sum(decode(to_char(first_time,'HH24'),'00',1,0)),'99') "00",
+to_char(sum(decode(to_char(first_time,'HH24'),'01',1,0)),'99') "01",
+to_char(sum(decode(to_char(first_time,'HH24'),'02',1,0)),'99') "02",
+to_char(sum(decode(to_char(first_time,'HH24'),'03',1,0)),'99') "03",
+to_char(sum(decode(to_char(first_time,'HH24'),'04',1,0)),'99') "04",
+to_char(sum(decode(to_char(first_time,'HH24'),'05',1,0)),'99') "05",
+to_char(sum(decode(to_char(first_time,'HH24'),'06',1,0)),'99') "06",
+to_char(sum(decode(to_char(first_time,'HH24'),'07',1,0)),'99') "07",
+to_char(sum(decode(to_char(first_time,'HH24'),'08',1,0)),'99') "08",
+to_char(sum(decode(to_char(first_time,'HH24'),'09',1,0)),'99') "09",
+to_char(sum(decode(to_char(first_time,'HH24'),'10',1,0)),'99') "10",
+to_char(sum(decode(to_char(first_time,'HH24'),'11',1,0)),'99') "11",
+to_char(sum(decode(to_char(first_time,'HH24'),'12',1,0)),'99') "12",
+to_char(sum(decode(to_char(first_time,'HH24'),'13',1,0)),'99') "13",
+to_char(sum(decode(to_char(first_time,'HH24'),'14',1,0)),'99') "14",
+to_char(sum(decode(to_char(first_time,'HH24'),'15',1,0)),'99') "15",
+to_char(sum(decode(to_char(first_time,'HH24'),'16',1,0)),'99') "16",
+to_char(sum(decode(to_char(first_time,'HH24'),'17',1,0)),'99') "17",
+to_char(sum(decode(to_char(first_time,'HH24'),'18',1,0)),'99') "18",
+to_char(sum(decode(to_char(first_time,'HH24'),'19',1,0)),'99') "19",
+to_char(sum(decode(to_char(first_time,'HH24'),'20',1,0)),'99') "20",
+to_char(sum(decode(to_char(first_time,'HH24'),'21',1,0)),'99') "21",
+to_char(sum(decode(to_char(first_time,'HH24'),'22',1,0)),'99') "22",
+to_char(sum(decode(to_char(first_time,'HH24'),'23',1,0)),'99') "23"
+from
+v$log_history
+GROUP by
+to_char(first_time,'YYYY-MON-DD');
+
+select
+   b.recid,
+   to_char(b.first_time,'dd-mon-yy hh24:mi:ss') start_time,
+   a.recid,
+   to_char(a.first_time,'dd-mon-yy hh24:mi:ss') end_time,
+   round(((a.first_time-b.first_time)*25)*60,2) minutes
+from
+See code depot for full script
+   v$log_history a,
+   v$log_history b
+where
+   a.recid = b.recid+1
+and
+   a.first_time between to_date('2010-04-14:00:00:00â€²,'yyyy-mm-dd:hh24:mi:ss')
+and
+   to_date('2010-04-15:00:00:00â€²,'yyyy-mm-dd:hh24:mi:ss')
+order by
+   a.first_time asc;
+   
+col day format a15;
+col hour format a4;
+col total format 999;
+select
+   to_char(first_time,'yyyy-mm-dd') day,
+   to_char(first_time,'hh24') hour,
+   count(*) total
+from
+   v$log_history
+group by
+   to_char(first_time,'yyyy-mm-dd'),to_char(first_time,'hh24')
+order by
+   to_char(first_time,'yyyy-mm-dd'),to_char(first_time,'hh24') asc;
+
+
+administer key management set keystore open identified by "NPC#12345";
+
+select wrl_type wallet,status,wrl_parameter wallet_location from v$encryption_wallet;
+
+
+set linesize 200;
+col name for A50 heading 'File name'
+select file#, name, checkpoint_change#, last_change#, status, enabled from v$datafile;
+
+===========================
+ORA-01152: file 1 was not restored from a sufficiently old backup & ORA-01110
+-->>
+recover standby database until cancel using backup controlfile;
+select * from v$log where SEQUENCE#=(...);
+select * from v$logfile where group#=(...);
+scp -> apply
+===========================
+
+select dbms_metadata.get_ddl('TABLESPACE','TEMP','') from dual;
+
+
+dbca -createDuplicateDB -silent \
+-gdbName vctr \
+-primaryDBConnectionString victordr:1521/vctr \
+-sid vctrdr \
+-initParams "dg_broker_start=true" \
+-sysPassword welcome1 \
+-nodelist victordc1,victordc2 \
+-recoveryAreaDestination +DATA \
+  -recoveryAreaSize 10000 \
+-databaseConfigType RAC \
+-useOMF true \
+-storageType ASM \
+  -datafileDestination +DATA \
+-createAsStandby \
+  -dbUniqueName vctrdr \
+-createListener victordc1.localdomain:1522
+
+279: -adminManaged \
+
+(rac1)
+SID_LIST_LISTENER=
+  (SID_LIST=
+      (SID_DESC=
+         (SID_NAME=vctrdr1)
+         (ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1)
+       )
+   )
+   
+administer key management set keystore open identified by "oracle_123";
+
+=================================================
+calculate database growth through year
+
+alter session set nls_date_format='YYYY-MM-DD HH24:MI:SS';
+select name, created from v$database;
+
+
+set lines 200
+set pages 999
+col OBJECT_NAME for a30
+col OWNER for a20
+select o.object_name, o.owner, sum(s.space_allocated_delta/1024/1024) allocated_MB ,sum(s.DB_BLOCK_CHANGES_DELTA) 
+from DBA_HIST_SEG_STAT s, dba_objects o, dba_hist_snapshot ss
+where s.obj# = o.object_id
+  and s.SPACE_ALLOCATED_DELTA >0 
+  and s.SPACE_USED_DELTA >0
+  and ss.SNAP_ID = s.SNAP_ID
+ and ss.BEGIN_INTERVAL_TIME > sysdate-365
+group by o.object_name, o.owner
+order by sum(s.SPACE_ALLOCATED_DELTA) desc;
+
+select sum(s.SPACE_ALLOCATED_DELTA/1024/1024) Total_size_MB
+from DBA_HIST_SEG_STAT s, dba_objects o, dba_hist_snapshot ss
+where s.obj# = o.object_id
+  and s.SPACE_ALLOCATED_DELTA > 0 
+  and s.SPACE_USED_DELTA > 0
+  and ss.SNAP_ID = s.SNAP_ID
+  and ss.BEGIN_INTERVAL_TIME > sysdate-2;
+
+
+--remove label from disk SPARC
+cd $ORACLE_HOME/bin
+./asmcmd afd_lslbl
+./asmcmd afd_unlabel DATA1 -f --init

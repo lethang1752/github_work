@@ -1,0 +1,50 @@
+1. Tạo user & gán quyền cho user quản lý cấu hình GoldenGate trên SOURCE
+sqlplus / as sysdba
+/* sql command
+create user ggate identified by ggsadmin default tablespace users;
+grant CREATE SESSION, ALTER SESSION TO ggate;
+grant ALTER SYSTEM to ggate;
+grant CONNECT,RESOURCE to ggate;
+grant SELECT ANY DICTIONARY to ggate;
+grant FLASHBACK ANY TABLE to ggate;
+grant SELECT ANY TABLE to ggate;
+grant SELECT on dba_clusters to ggate;
+grant EXECUTE on DBMS_FLASHBACK to ggate;
+grant SELECT ANY TRANSACTION to ggate;
+grant SELECT on  V_$DATABASE  to ggate;
+exec dbms_goldengate_auth.grant_admin_privilege('ggate');
+grant EXECUTE on DBMS_LOGMNR to ggate;
+grant SELECT ON SYS.LOGMNR_BUILDLOG to ggate;
+grant dba to ggate;
+exit;
+*/
+
+cd $GGATE
+sqlplus / as sysdba @sequence.sql
+/*Khi xuất hiện dòng hỏi user admin thì điền vào user GGATE
+Please enter the name of a schema for the GoldenGate database objects:
+GGATE
+*/
+
+2. Tạo user & gán quyền cho user quản lý cấu hình GoldenGate trên TARGET
+sqlplus / as sysdba
+/*SQL command
+create user ggate identified by ggtadmin default tablespace users;
+grant CREATE SESSION, ALTER SESSION TO ggate;
+grant CONNECT,RESOURCE to ggate;
+grant SELECT ANY DICTIONARY to ggate;
+grant SELECT ANY TABLE to ggate;
+grant CREATE ANY TABLE to ggate;
+grant LOCK ANY TABLE to ggate;
+grant SELECT on  V_$DATABASE  to ggate;
+--grant INSERT, UPDATE, DELETE ON target_tables
+--grant DDL Privileges
+grant dba to ggate;
+exit;
+*/
+cd $GGATE
+sqlplus / as sysdba @sequence.sql
+/*Khi xuất hiện dòng hỏi user admin thì điền vào user GGATE
+Please enter the name of a schema for the GoldenGate database objects:
+GGATE
+*/

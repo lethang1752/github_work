@@ -1,0 +1,17 @@
+﻿#Tạo cấu hình pump trên SOURCE
+ADD EXTRACT pump1, exttrailsource /u01/app/GoldG/dirdat/ext1/lt
+add rmttrail /u01/app/GoldG/dirdat/pump1/rt, extract pump1
+alter rmttrail /u01/app/GoldG/dirdat/pump1/rt, extract pump1 megabytes 100
+edit params pump1
+
+/*pump1.prm
+EXTRACT pump1
+USERID ggate, PASSWORD ggsadmin
+RMTHOST gg-target, MGRPORT 7809
+RMTTRAIL /u01/app/GoldG/dirdat/pump1/rt
+PASSTHRU
+TABLE SCOTT.*;
+*/
+
+#Tạo đường dẫn trên TARGET để lưu trữ trail file từ source
+mkdir /u01/app/GoldG/dirdat/pump1

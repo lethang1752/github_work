@@ -1,0 +1,15 @@
+﻿#Start cấu hình đồng bộ:
+#1. Start tiến trình extract SOURCE 
+start ext1
+
+#2. Start tiến trình pump PUMP 
+start pump1
+
+#3. Start tiến trình replicat trên TARGET
+#3.1. Nếu init dữ liệu sử dụng GoldenGate
+=====>NOTE Thêm tham số HANDLECOLLISIONS vào tiến trình replicat REP1 trước khi start 
+start rep1
+
+3.2 Nếu init dữ liệu sử dụng Oracle DATAPUMP	
+start rep1, aftercsn xxxxxxxxxxx
+====> CSN xxxxxxxxxxx chính là SCN của database khi thực hiện export dữ liệu.

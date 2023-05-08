@@ -1,0 +1,20 @@
+﻿#Hướng dẫn sử dụng defgen trên SOURCE
+cd $GGATE
+vi ./dirprm/defgen_scott.prm
+
+#2.Thêm các dòng bên dưới rồi save file
+DEFSFILE /u01/app/goldengate/dirdef/scott.def, PURGE
+USERID ggate, PASSWORD ggsadmin
+TABLE SCOTT.*;
+
+#3.Chạy câu lệnh sinh file chứa cấu trúc bảng
+./defgen PARAMFILE ./dirprm/defgen_scott.prm
+
+#4.Copy file chứa cấu trúc sang bên TARGET
+scp /u01/app/goldengate/dirdef/scott.def 192.168.172.11:/u01/app/goldengate/dirdef/
+
+#5.Thêm tham số vào sử dụng file cấu trúc vào replicat REP1 bên TARGET
+edit params rep1
+# Thêm vào bên trên câu lệnh MAP..TARGET
+SOURCEDEFS /u01/app/goldengate/dirdef/scott.def
+#

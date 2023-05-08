@@ -1,0 +1,31 @@
+﻿#Tạo passsive-alias extract
+#SOURCE
+mkdir /u01/app/GoldG/dirdat/pps
+$GGATE/ggsci
+---
+edit params mgr
+thêm: 
+ACCESSRULE,PROG *, IPADDR [ip target], ALLOW, PRI 1
+---
+ADD EXTRACT pps, EXTTRAILSOURCE /u01/app/GoldG/dirdat/ext1/lt, PASSIVE
+add rmttrail /u01/app/GoldG/dirdat/pps/rt, extract pps
+edit params pps
+#Thêm các tham số rồi save file
+EXTRACT PPS
+SETENV (NLS_LANG="AMERICAN_AMERICA.AL32UTF8")
+USERID ggate, PASSWORD ggsadmin
+RMTTRAIL /u01/app/GoldG/dirdat/pps/rt
+PASSTHRU
+TABLE SCOTT.*;
+--
+
+#TARGET
+$GGATE/ggsci
+--
+edit params mgr
+thêm: 
+ACCESSRULE,PROG *, IPADDR [ip source], ALLOW, PRI 1
+--
+ADD EXTRACT pps_a, RMTHOST 192.168.202.100, MGRPORT 7809, RMTNAME pps
+start pps_a
+--
