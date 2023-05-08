@@ -143,4 +143,4 @@ start repmysql
 
 ***NOTES:
 OGG-00146  Call to VAMInitialize returned with error status 600: VAM Client Report
--> Add Options: TRANLOGOPTIONS ALTLOGDEST "REMOTE" to extract from SourceD
+-> Add Options: TRANLOGOPTIONS ALTLOGDEST "REMOTE" to extract from SourceDB
