@@ -135,6 +135,10 @@ for file in *.dat ; do mv $file ${file//_22.10./_23.01.} ; done
 
 find . -type f -name *.gz -exec gzip -d {} \;
 
+gunzip *.gz
+
+fix version gen log -> download and use oswbba909.jar: https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=214365106736369&id=301137.1&_adf.ctrl-state=3kv4lnp45_150
+
 -------------------------------------------
 ***Form Backup Rman***
 
