@@ -1,3 +1,9 @@
+-Install PostgreSQL on Oracle Linux 7:
+https://www.support.dbagenesis.com/post/postgresql-installation-on-oracle-enterprise-linux
+
+-Install MySQL on Oracle Linux 7:
+https://webhostinggeeks.com/howto/install-mysql-on-centos-7/
+
 yum error on using -->> dhclient -->> yum update -y
 
 -----------------------------------------------------------
