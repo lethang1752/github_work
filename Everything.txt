@@ -4,6 +4,10 @@ https://www.support.dbagenesis.com/post/postgresql-installation-on-oracle-enterp
 -Install MySQL on Oracle Linux 7:
 https://webhostinggeeks.com/howto/install-mysql-on-centos-7/
 
+-Install GoldenGate on PostgreSQL:
+https://fatdba.com/2021/06/24/data-replication-between-oracle-postgresql-using-golden-gate/
+https://stackoverflow.com/questions/18664074/getting-error-peer-authentication-failed-for-user-postgres-when-trying-to-ge
+
 yum error on using -->> dhclient -->> yum update -y
 
 -----------------------------------------------------------
