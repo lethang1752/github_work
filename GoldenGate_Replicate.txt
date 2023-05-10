@@ -66,7 +66,7 @@ rmttask replicat, group inittest
 table ggadmin.test;
 --
 
--Create defgen for translate schema from Oracle Source to MySql Target
+-Create defgen for translate schema from Oracle Source to MySql Target (InitLoad - Migrate Data)
 *Source:
 ./ggsci
 dblogin userid ggadmin, password ggadmin
@@ -144,3 +144,33 @@ start repmysql
 ***NOTES:
 OGG-00146  Call to VAMInitialize returned with error status 600: VAM Client Report
 -> Add Options: TRANLOGOPTIONS ALTLOGDEST "REMOTE" to extract from SourceDB
+
+***NOTES PostgreSQL:
+//pg_hba.conf//
+# "local" is for Unix domain socket connections only
+local   all             all                                     md5
+# IPv4 local connections:
+host    all             all             0.0.0.0/0            scram-sha-256
+# IPv6 local connections:
+host    all             all             ::1/128                 scram-sha-256
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     peer
+host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256
+
+//odbc.ini//
+[ODBC Data Sources]
+oggpgdb=DataDirect 8.0 PostgreSQL Wire Protocol
+[ODBC]
+IANAAppCodePage=106
+InstallDir=/var/lib/pgsql/ogg
+[oggpgdb]
+Driver=/var/lib/pgsql/ogg/lib/GGpsql25.so
+Description=DataDirect 8.0 PostgreSQL Wire Protocol
+Database=oggpgdb
+HostName=mysql
+PortNumber=5432
+LogonID=pgadm1
+Password=oracle123
+
