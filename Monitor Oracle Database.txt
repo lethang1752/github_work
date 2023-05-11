@@ -1,0 +1,11 @@
+*Monitor Processor, Session, Transaction based-on CPU
+
+-Show info all about processor, session, transaction
+set lines 200
+col RESOURCE_NAME format a20
+col INITIAL_ALLOCATION format a20
+col LIMIT_VALUE format a20
+select * from v$resource_limit where resource_name in ('processes','sessions');
+sho paramter transaction
+
+-
