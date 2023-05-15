@@ -491,7 +491,7 @@ EOF
 
 		#-----Check Java Installation
 
-		if java -version 2>&1 >/dev/null | egrep "\S+\s+version"; then
+		if java -version 2>&1 >/dev/null | $grep "\S+\s+version"; then
 			echo "Java installed!"
 
 			#-----Tar file oswbb840.tar
