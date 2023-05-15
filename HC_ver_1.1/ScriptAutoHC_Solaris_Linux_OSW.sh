@@ -223,7 +223,7 @@ EOF
 		#-----Check_Patches
 
 		echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-		$ORACLE_HOME/OPatch/opatch lsinventory | grep -B 2 "Patch description" | grep -v "Unique" | awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
+		$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
 	{
 		if ($0!=NULL) {
 			print($0,"<br>")
