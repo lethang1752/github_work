@@ -46,8 +46,14 @@ time=$(date +'%d_%m_%Y')
 
 #-----Get Grid home
 
-grid=$($awk -F = ' $1 ~ /^ORA_CRS_HOME$/ {print $2} ' /etc/init.d/init.ohasd)
-[[ ! -z "$grid" ]] && export PATH=$PATH:$grid/bin
+grid_file=/etc/init.d/init.ohasd
+if [[ -f "$grid_file" ]]; then
+	grid=$($awk -F = ' $1 ~ /^ORA_CRS_HOME$/ {print $2} ' /etc/init.d/init.ohasd)
+	export PATH=$PATH:$grid/bin
+else
+	echo "None Grid Environment."
+	grid='N/A'
+fi
 
 #-----Get pwd script
 
@@ -135,182 +141,181 @@ Head() {
 }
 
 Body() {
-	#==#==Option Failed.
+#==#==Option Failed.
 
-	if [[ -z $option || $option < 1 || $option > 3 ]]; then
-		echo
-		echo "=> #Failed! Choose again."
+if [[ -z $option || $option < 1 || $option > 3 ]]; then
+	echo
+	echo "=> #Failed! Choose again."
 
-	#==#==Option 1.(Run collect log)
+#==#==Option 1.(Run collect log)
 
-	elif [ $option == 1 ]; then
-		echo
-		echo "Processing..."
-		echo
+elif [ $option == 1 ]; then
+	echo
+	echo "Processing..."
+	echo
 
-		#-----Alert_log
+#-----Alert_log
 
-		cp $spwd/alert_$ORACLE_SID.log .
-		echo
-		echo "************************"
-		echo "* Copy Alert_log done. *"
-		echo "************************"
-		echo
+cp $spwd/alert_$ORACLE_SID.log .
+echo
+echo "************************"
+echo "* Copy Alert_log done. *"
+echo "************************"
+echo
 
-		#-----HealthCheck
+#-----HealthCheck
 
-		sqlplus / as sysdba <<EOF
+sqlplus / as sysdba <<EOF
 @$pwd/HealthCheck.sql
 EOF
-		echo
-		echo "*************************"
-		echo "* Get HealthCheck done. *"
-		echo "*************************"
-		echo
+echo
+echo "*************************"
+echo "* Get HealthCheck done. *"
+echo "*************************"
+echo
 
-		#-----database_information
+#-----database_information
 
-		sqlplus / as sysdba <<EOF
+sqlplus / as sysdba <<EOF
 @$pwd/database_information.sql
 EOF
-		echo
-		echo "**********************************"
-		echo "* Get Database Information done. *"
-		echo "**********************************"
-		echo
+echo
+echo "**********************************"
+echo "* Get Database Information done. *"
+echo "**********************************"
+echo
 
-		#-----OS_Command
+#-----OS_Command
 
-		file_name='database_information.html'
-		unamestr=$(uname)
-		if [[ "$unamestr" == 'AIX' ]]; then
-			disk_command='df -g'
-		else
-			disk_command='df -h'
-		fi
+file_name='database_information.html'
+unamestr=$(uname)
+if [[ "$unamestr" == 'AIX' ]]; then
+	disk_command='df -g'
+else
+	disk_command='df -h'
+fi
 
-		#-----Disk_Usage
+#-----Disk_Usage
 
-		echo "<p>+ DISK_USAGE</p>" >>$file_name
-		$disk_command -P | $grep -v ^none | (
-			read header
-			echo "$header"
-			sort -rn -k 5
-		) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
-	{
-		if ($2!="0K" && $2!="Size") {
-			print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
-		}
+echo "<p>+ DISK_USAGE</p>" >>$file_name
+$disk_command -P | $grep -v ^none | (
+read header
+echo "$header"
+sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
+{
+	if ($2!="0K" && $2!="Size") {
+		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
 	}
-	END{
-		print("</table><p><p>")
-	}' >>$file_name
+}
+END{
+	print("</table><p><p>")
+}' >>$file_name
 
-		#-----Check_Listener
+#-----Check_Listener
 
-		echo "<p>+ CHECK_LISTENER</p>" >>$file_name
-		lsnrctl stat | awk 'BEGIN{
-	print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><td>")}
-	{
-		if ($0!=NULL) {
-			print($0,"<br>")
-		}
+echo "<p>+ CHECK_LISTENER</p>" >>$file_name
+lsnrctl stat | awk 'BEGIN{
+print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><td>")}
+{
+	if ($0!=NULL) {
+		print($0,"<br>")
 	}
-	END{
-		print("</tr></td></table><p><p>")
-	}' >>$file_name
-
-		#-----Check_Patches
-
-		echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-		$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
-	{
-		if ($0!=NULL) {
-			print($0,"<br>")
-		}
-	}
+}
 	END{
 		print("</tr></td></table><p><p>")
 	}' >>$file_name
 
-		#-----Backup_Policy
+#-----Check_Patches
 
-		echo "<p>+ BACKUP_POLICY</p>" >>$file_name
-		echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
-		rman target / <<EOF | grep CONFIGURE >>$file_name
+echo "<p>+ CHECK_PATCHES</p>" >>$file_name
+$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
+{
+	if ($0!=NULL) {
+		print($0,"<br>")
+	}
+}
+END{
+	print("</tr></td></table><p><p>")
+}' >>$file_name
+
+#-----Backup_Policy
+
+echo "<p>+ BACKUP_POLICY</p>" >>$file_name
+echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
+rman target / <<EOF | grep CONFIGURE >>$file_name
 show retention policy;
 EOF
-		echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
+echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
 
-		#-----No Grid Option
+#-----No Grid Option
 
-		if [ -z "$grid" ]; then
-			echo "<p>+ RESOURCE_CRS</p>" >>$file_name
-			echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-			echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET_SERVER</th><th>STATE_DETAILS</th></tr>" >>$file_name
-			echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
-			echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
-			echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-			echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
-		else
+if [ "$grid" == "N/A" ]; then
+	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
+	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE<th><th>TARGET_SERVER<th><th>STATE_DETAILS</th></tr>" >>$file_name
+	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL<td><tr></table>" >>$file_name
+	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
+	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+	echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th><tr><tr><td>NULL<td><td>NULL</td></tr></table>" >>$file_name
+else
 
-			#-----Resource_Crs
+#-----Resource_Crs
 
-			echo "<p>+ RESOURCE_CRS<p>" >>$file_name
-			crsctl status resource -v |
-				egrep -e "NAME|TARGET|STATE|LAST_SERVER|STATE_DETAILS" |
-				/bin/gawk 'BEGIN {FS="=";}
-    {
-	if ($1=="NAME")  resname=$2; else
-	if ($1=="TARGET") restrg=$2; else
-	if ($1=="STATE")   resst=$2; else
-	if ($1=="LAST_SERVER") {
-	resser=$2
-	} else
-	if ($1=="STATE_DETAILS") {
-	resdet=$2;
-	if(length($3)!=0) { resdet=resdet"="$3 }
-	idxx1=index(resst, " "); tat=substr(resst, 0, idxx1);
-	if (tat=="") {tat="OFFLINE"};
-    printf "%-35s %-20s %-25s %-20s %-10s\n", resname, restrg, tat, resser, resdet}
-	}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'</th><th>'TARGET'</th><th>'STATE'</th><th>'LAST_SERVER'</th><th>'STATE_DETAILS'</th></tr>")}
-	{
-		if ($4!=NULL) {
-			print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,$6,$7,$8,"</td></tr>")
-		}
+echo "<p>+ RESOURCE_CRS<p>" >>$file_name
+crsctl status resource -v |
+egrep -e "NAME|TARGET|STATE|LAST_SERVER|STATE_DETAILS" |
+/bin/gawk 'BEGIN {FS="=";}
+{
+if ($1=="NAME")  resname=$2; else
+if ($1=="TARGET") restrg=$2; else
+if ($1=="STATE")   resst=$2; else
+if ($1=="LAST_SERVER") {
+resser=$2
+} else
+if ($1=="STATE_DETAILS") {
+resdet=$2;
+if(length($3)!=0) { resdet=resdet"="$3 }
+idxx1=index(resst, " "); tat=substr(resst, 0, idxx1);
+if (tat=="") {tat="OFFLINE"};
+printf "%-35s %-20s %-25s %-20s %-10s\n", resname, restrg, tat, resser, resdet}
+}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'<th><th>'TARGET'</th><th>'STATE'</th><th>'LAST_SERVER'</th><th>'STATE_DETAILS'<th></tr>")}
+{
+	if ($4!=NULL) {
+		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"<td><td>",$5,$6,$7,$8,"</td></tr>")
 	}
-	END{
-		print("</table>")
-	}' >>$file_name
+}
+END{
+	print("</table>")
+}' >>$file_name
 
-			#-----Check_Cluster
+#-----Check_Cluster
 
-			echo "<p>+ CHECK_CLUSTER<p>" >>$file_name
-			crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs,"</td><td>")}
-		{
-			if ($0!=NULL) {
-				print($0,"<br>")
-			}
-		}
-	END{
-		print("</td></tr></table>")
-	}' >>$file_name
-		fi
+echo "<p>+ CHECK_CLUSTER<p>" >>$file_name
+crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%'BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
+{
+	if ($0!=NULL) {
+		print($0,"<br>")
+	}
+}
+END{
+	print("</td></tr></table>")
+}' >>$file_name
+fi
 
-		echo
-		echo "************************"
-		echo "* Get OS_Command done. *"
-		echo "************************"
-		echo
+echo
+echo "************************"
+echo "* Get OS_Command done. *"
+echo "************************"
+echo
 
-		#-----Awrrpt
+#-----Awrrpt
 
-		TEMPFILE=/tmp/tmpawr.sql
-		echo "<<=====================================================>>"
-		echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
-		echo "<<=====================================================>>"
-		echo
-		sqlplus -s / as sysdba <<EOF >/dev/null
+TEMPFILE=/tmp/tmpawr.sql
+echo "<<=====================================================>>"
+echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
+echo "<<=====================================================>>"
+echo
+sqlplus -s / as sysdba <<EOF >/dev/null
 set echo off
 set head off
 set feed off
@@ -329,190 +334,211 @@ spool off
 exit
 EOF
 
-		sqlplus -s / as sysdba <<EOF >/dev/null
+sqlplus -s / as sysdba <<EOF >/dev/null
 @$TEMPFILE
 exit
 EOF
 
-		if [ -f "$TEMPFILE" ]; then
-			rm $TEMPFILE
-		fi
+if [ -f "$TEMPFILE" ]; then
+	rm $TEMPFILE
+fi
+echo
+echo "********************"
+echo "* Get Awrrpt done. *"
+echo "********************"
 
-		echo
-		echo "********************"
-		echo "* Get Awrrpt done. *"
-		echo "********************"
+#-----Get information for report file
 
-		#-----Get information for report file
+# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
 
-		# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version, Patch, DB size, Backup status
+# Name: dbname
 
-		# Name: dbname
+# HA/Standalone
 
-		# HA/Standalone
-		rp_ha=$(
-			sqlplus -s / as sysdba <<EOF
+rp_ha=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 SELECT VALUE FROM $parameter WHERE NAME = 'cluster_database';
 exit
 EOF
-		)
-		rp_ha=$(echo $rp_ha | tr -d '[:space:]')
+)
 
-		if [[ "$rp_ha" == 'TRUE' ]]; then
-			rp_ha_last='RAC'
-		else
-			rp_ha_last='Stand Alone'
-		fi
+rp_ha=$(echo $rp_ha | tr -d '[:space:]')
+if [[ "$rp_ha" == 'TRUE' ]]; then
+	rp_ha_last='RAC'
+else
+	rp_ha_last='Stand Alone'
+fi
 
-		# OS
-		os1=$(uname -o)
-		os2=$(uname -m)
-		os_last="$os1 $os2"
+# OS
 
-		#Hardware
-		cpu=$(cat /proc/cpuinfo | grep -c 'core id' | uniq | wc -l)
-		ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
-		ram_last=$(expr "$ram" / 1048576)
-		hw_last="CPU: $cpu cores, RAM: $ram_last GB"
+os1=$(uname -o)
+os2=$(uname -m)
+os_last="$os1 $os2"
 
-		#Filesystem
-		dtf=$(
-			sqlplus -s / as sysdba <<EOF
+#Hardware
+
+if [[ "$os" == 'Linux' ]]; then
+	cpu=$(cat /proc/cpuinfo | grep -c 'core id' | uniq | wc -l)
+	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
+	ram_last=$(expr "$ram" / 1048576)
+else
+	cpu=$(psrinfo -p)
+	ram=$(prtconf | grep Mem | ggrep -E -o '[0-9]+')
+	ram_last=$(expr "$ram" / 1024)
+fi
+hw_last="CPU: $cpu cores, RAM: $ram_last GB"
+
+#Filesystem
+
+dtf=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select name from $datafile where name like '+%' and rownum=1;
 exit
 EOF
-		)
+)
 
-		if [[ $dtf == *[+]* ]]; then
-			dtf_last="ASM"
-		else
-			dtf_last="File System"
-		fi
+if [[ $dtf == *[+]* ]]; then
+	dtf_last="ASM"
+else
+	dtf_last="File System"
+fi
 
-		#Archiving Enabled
-		arc=$(
-			sqlplus -s / as sysdba <<EOF
+#Archiving Enabled
+
+arc=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select log_mode from $database;
 exit
 EOF
-		)
+)
 
-		if [[ "$arc" == 'ARCHIVELOG' ]]; then
-			arc_last='Yes'
-		else
-			arc_last='No'
-		fi
+if [[ "$arc" == 'ARCHIVELOG' ]]; then
+	arc_last='Yes'
+else
+	arc_last='No'
+fi
 
-		#Flashback Enabled
-		fls=$(
-			sqlplus -s / as sysdba <<EOF
+#Flashback Enabled
+
+fls=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select FLASHBACK_ON from $database;
 exit
 EOF
-		)
+)
 
-		if [[ "$fls" == 'YES' ]]; then
-			fls_last='Yes'
-		else
-			fls_last='No'
-		fi
+if [[ "$fls" == 'YES' ]]; then
+	fls_last='Yes'
+else
+	fls_last='No'
+fi
 
-		#Version
-		ver_last=$(
-			sqlplus -s / as sysdba <<EOF
+#Version
+ver_last=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select version from $instance;
 exit
 EOF
-		)
+)
 
-		#Patch
-		pat_last=$($ORACLE_HOME/OPatch/opatch lspatches | $grep "Database" | $awk -v FS=';' '{print $2}')
+#Patch
 
-		#DBsize
-		size=$(
-			sqlplus -s / as sysdba <<EOF
+pat_last=$($ORACLE_HOME/OPatch/opatch lspatches | $grep "Database" | $awk -v FS=';' '{print $2}')
+
+#DBsize
+
+size=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select to_char(sum(bytes/1024/1024/1024), 'fm99D00') from $datafile;
 exit
 EOF
-		)
-		size_last="$size GB"
+)
 
-		#Backup status
-		bkp_last=$(
-			sqlplus -s / as sysdba <<EOF
+size_last="$size GB"
+
+#Backup status
+
+bkp_last=$(
+sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
 select status from $backupjob where rownum=1;
 exit
 EOF
-		)
+)
 
-		#Print table
-		echo "<p>+ REPORT DETAILS</p>" >>$file_name
-		echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-		echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
-		echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
-		echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
-		echo "<tr><td>OS Version</td><td>$os_last</td></tr>" >>$file_name
-		echo "<tr><td>Hardware (CPU,RAM)</td><td>$hw_last</td></tr>" >>$file_name
-		echo "<tr><td>File System/raw devices</td><td>$dtf_last</td></tr>" >>$file_name
-		echo "<tr><td>Archiving Enabled</td><td>$arc_last</td></tr>" >>$file_name
-		echo "<tr><td>Flashback Enabled</td><td>$fls_last</td></tr>" >>$file_name
-		echo "<tr><td>Version</td><td>$ver_last</td></tr>" >>$file_name
-		echo "<tr><td>Patch</td><td>$pat_last</td></tr>" >>$file_name
-		echo "<tr><td>DB Size</td><td>$size_last</td></tr>" >>$file_name
-		echo "<tr><td>Backup status</td><td>$bkp_last</td></tr></table>" >>$file_name
-		echo
-		echo "**************************"
-		echo "* Get Report Infor done. *"
-		echo "**************************"
+#Print table
 
-		echo
-		echo "End of process!"
+echo "<p>+ REPORT DETAILS</p>" >>$file_name
+echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
+echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
+echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
+echo "<tr><td>OS Version</td><td>$os_last</td></tr>" >>$file_name
+echo "<tr><td>Hardware (CPU,RAM)</td><td>$hw_last</td></tr>" >>$file_name
+echo "<tr><td>File System/raw devices</td><td>$dtf_last</td></tr>" >>$file_name
+echo "<tr><td>Archiving Enabled</td><td>$arc_last</td></tr>" >>$file_name
+echo "<tr><td>Flashback Enabled</td><td>$fls_last</td></tr>" >>$file_name
+echo "<tr><td>Version</td><td>$ver_last</td></tr>" >>$file_name
+echo "<tr><td>Patch</td><td>$pat_last</td></tr>" >>$file_name
+echo "<tr><td>DB Size</td><td>$size_last</td></tr>" >>$file_name
+echo "<tr><td>Backup status</td><td>$bkp_last</td></tr></table>" >>$file_name
+echo
+echo "**************************"
+echo "* Get Report Infor done. *"
+echo "**************************"
+echo
+echo "End of process!"
 
-	#==#==Option 2 (OSWatcher).
+#==#==Option 2 (OSWatcher).
 
-	elif [ $option == 2 ]; then
-		echo
-		echo "Setup OSWatcher..."
-		echo
+elif [ $option == 2 ]; then
+	echo
+	echo "Setup OSWatcher..."
+	echo
 
-		#-----Check Java Installation
+#-----Check Java Installation
 
-		if java -version 2>&1 >/dev/null | $grep "\S+\s+version"; then
-			echo "Java installed!"
+if [[ "$os" == 'Linux' ]]; then
+	java_check="\S+\s+version"
+else
+	java_check="version"
+fi
 
-			#-----Tar file oswbb840.tar
+if java -version 2>&1 >/dev/null | $grep "$java_check"; then
+	echo "Java installed!"
 
-			tar -xf $pwd/oswbb840.tar -C $pwd/.
+	#-----Tar file oswbb840.tar
 
-			#-----Create folder for oswbb_log
+	tar -xf $pwd/oswbb840.tar -C $pwd/.
 
-			mkdir -p $pwd/oswbb_log_MPS_$host
+	#-----Create folder for oswbb_log
 
-			#-----Start oswbb840
+	mkdir -p $pwd/oswbb_log_MPS_$host
 
-			cd $pwd/oswbb
-			nohup ./startOSWbb.sh 300 120 None $pwd/oswbb_log_MPS_$host/ >nohup.out 2>&1 &
-			echo
-			echo
+	#-----Start oswbb840
 
-		else
-			echo "Java NOT installed!"
-			echo "Prepare to Install Java!"
-		fi
+	cd $pwd/oswbb
+	nohup ./startOSWbb.sh 300 120 None $pwd/oswbb_log_MPS_$host/ >nohup.out 2>&1 &
+	echo
+	echo
+
+else
+	echo "Java NOT installed!"
+	echo "Prepare to Install Java!"
+fi
 
 	#==#==Option 3 (Exit).
 
