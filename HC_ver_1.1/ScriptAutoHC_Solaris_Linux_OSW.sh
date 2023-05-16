@@ -141,7 +141,7 @@ Head() {
 }
 
 Body() {
-#==#==Option Failed.
+	#==#==Option Failed.
 
 if [[ -z $option || $option < 1 || $option > 3 ]]; then
 	echo
@@ -252,11 +252,11 @@ echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
 if [ "$grid" == "N/A" ]; then
 	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE<th><th>TARGET_SERVER<th><th>STATE_DETAILS</th></tr>" >>$file_name
-	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL<td><tr></table>" >>$file_name
+	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET_SERVER</th><th>STATE_DETAILS</th></tr>" >>$file_name
+	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th><tr><tr><td>NULL<td><td>NULL</td></tr></table>" >>$file_name
+	echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 else
 
 #-----Resource_Crs
