@@ -517,7 +517,8 @@ else
 	java_check="version"
 fi
 
-if java -version 2>&1 >/dev/null | $grep "$java_check"; then
+java_exist=$(java -version 2>&1 >/dev/null | egrep "$java_check")
+if [[ ! -z "$java_exist" ]]; then
 	echo "Java installed!"
 
 	#-----Tar file oswbb840.tar
