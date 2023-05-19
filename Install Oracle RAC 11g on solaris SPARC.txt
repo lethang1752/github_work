@@ -97,7 +97,7 @@ useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/gr
 passwd grid
 OgiAdm29
 
-useradd -u 2010 -g oinstall -G dba,asmdba,backupdba,dgdba,kmdba -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
+useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
 passwd oracle
 DbsAdm29
 
@@ -139,8 +139,7 @@ SID=db
 User Password: DbaAdm29
 Schema Password: DbaAdm29
 
-# create directory
-zfs create rpool/oracle
+# create directoryzfs create rpool/oracle
 zfs set mountpoint=/oracle rpool/oracle
 zfs set quota=200g rpool/oracle
 
@@ -149,10 +148,10 @@ zfs set mountpoint=/u01/app/grid rpool/grid
 zfs set quota=100g rpool/grid
 
 mkdir -p /u01/app
-mkdir -p /oracle/setup
-mkdir -p /oracle/product/12.1.0/db_1
-chown -R oracle:oinstall /oracle
-chmod -R 775 /oracle
+mkdir -p /u01/setup
+mkdir -p /u01/product/19.3.0.0/dbhome_1
+chown -R oracle:oinstall /u01
+chmod -R 775 /u01
 
 mkdir -p /u01/app/grid/
 mkdir -p /u01/app/grid/product/ogi/12.1.0
@@ -161,14 +160,14 @@ chmod -R 775 /grid
 
 #Oracle profile
 umask 022
-export ORACLE_BASE=/oracle/product
-export ORACLE_HOME=$ORACLE_BASE/dbs/11.2.0
-export ORACLE_SID=esams1
-export ORACLE_UNQNAME=esams
+export ORACLE_BASE=/u01/product
+export ORACLE_HOME=$ORACLE_BASE/19.3.0.0/dbhome_1
+export ORACLE_SID=orcl
+export ORACLE_UNQNAME=orcl
 export TEMP=/tmp
 export TMPDIR=/tmp
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib
-export EDITOR=vi
+export EDITOR=vim
  
 export PATH=$PATH:/usr/X11/bin:/usr/openwin/bin:/usr/bin:/usr/sbin:$ORACLE_HOME/bin
 
