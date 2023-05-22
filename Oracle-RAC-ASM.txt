@@ -62,3 +62,9 @@ Grid Standalone.txt
 
 [ INSTALL DATABASE FOR 1 NODE ]
 
+***NOTED:
+redhat using multipath: /dev/mapper/mpathdisk
+
+kpartx -a /dev/mapper/mpathdisk
+fdisk /dev/mapper/mpathdisk
+partprobe (to reload fdisk)
