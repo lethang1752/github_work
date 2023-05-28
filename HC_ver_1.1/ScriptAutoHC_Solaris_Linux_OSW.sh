@@ -38,6 +38,7 @@ if [[ "$os" == 'Linux' ]]; then
 else
 	grep='ggrep'
 	awk='nawk'
+
 fi
 
 #-----Get Date now
