@@ -464,7 +464,7 @@ size=$(
 sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
-select to_char(sum(bytes/1024/1024/1024), 'fm99D00') from $datafile;
+select round(sum(bytes)/1024/1024/1024,2) from $datafile;
 exit
 EOF
 )
