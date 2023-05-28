@@ -149,7 +149,7 @@ Body() {
 
 if [[ -z $option || $option < 1 || $option > 3 ]]; then
 	echo
-	echo "=> #Failed! Choose again."
+	echo "=> #Error! Choose again."
 
 #==#==Option 1.(Run collect log)
 
