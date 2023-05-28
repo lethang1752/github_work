@@ -41,7 +41,6 @@ else
 	grep='ggrep'
 	awk='nawk'
 	java_check="version"
-
 fi
 
 #-----Get Date now
