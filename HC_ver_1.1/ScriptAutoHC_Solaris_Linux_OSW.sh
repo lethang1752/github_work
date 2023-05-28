@@ -14,6 +14,7 @@ os=$(uname)
 #-----Start script
 
 echo
+echo "MAKE SURE SERVER HAS KSH (KORNSHELL)*"
 echo "Set variable for the process..."
 echo "===============>>"
 if [[ "$os" == 'Linux' ]]; then
