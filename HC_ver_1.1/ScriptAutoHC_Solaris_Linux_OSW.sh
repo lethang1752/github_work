@@ -5,7 +5,7 @@
 diag="V\$DIAG_INFO"
 database="V\$DATABASE"
 parameter="V\$PARAMETER"
-datafile="V\$DATAFILE"
+datafile="V\$DATAFILE_HEADER"
 instance="V\$INSTANCE"
 backupjob="V\$RMAN_BACKUP_JOB_DETAILS"
 host=$(hostname)
@@ -131,6 +131,7 @@ Head() {
 	echo "| ==>> 3. Cancel Script.                                      |"
 	echo "|                                                             |"
 	echo "|                                                   Ver_1.2.0 |"
+        echo "|                                                   VictorMPS |"
 	echo "|<<========================<< *** >>========================>>|"
 	echo
 	if [[ "$os" == 'Linux' ]]; then
@@ -517,8 +518,7 @@ else
 	java_check="version"
 fi
 
-java_exist=$(java -version 2>&1 >/dev/null | egrep "$java_check")
-if [[ ! -z "$java_exist" ]]; then
+if java -version 2>&1 >/dev/null | $grep "$java_check"; then
 	echo "Java installed!"
 
 	#-----Tar file oswbb840.tar
