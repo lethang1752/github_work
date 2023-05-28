@@ -36,9 +36,11 @@ echo "<<==============="
 if [[ "$os" == 'Linux' ]]; then
 	grep='grep'
 	awk='awk'
+	java_check="\S+\s+version"
 else
 	grep='ggrep'
 	awk='nawk'
+	java_check="version"
 
 fi
 
@@ -513,12 +515,6 @@ elif [ $option == 2 ]; then
 	echo
 
 #-----Check Java Installation
-
-if [[ "$os" == 'Linux' ]]; then
-	java_check="\S+\s+version"
-else
-	java_check="version"
-fi
 
 if java -version 2>&1 >/dev/null | $grep "$java_check"; then
 	echo "Java installed!"
