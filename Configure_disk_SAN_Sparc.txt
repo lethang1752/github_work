@@ -1,0 +1,17 @@
+-Change type disk (EFI - sector; SMI - cylinder):
+format -e
+/choose disk number/
+format> la (choose type Label: EFI or SMI): 1 (EFI)
+
+-Move sector to part 0 (d0s0):
+format
+/choose disk number/
+format> partition
+partition> modify -> 0 (current partition table -> enter 0 for all)
+
+-Modify sector for part 0:
+partition> 0 (start: 256 - end: disk sectors available-256)
+partition> quit
+
+-Set label for disk:
+format> volname -> data11
