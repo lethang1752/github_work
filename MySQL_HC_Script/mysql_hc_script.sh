@@ -144,31 +144,23 @@ echo "* Copy Alert_log done. *"
 echo "************************"
 echo
 
-#-----HealthCheck
-
-sqlplus / as sysdba <<EOF
-@$pwd/HealthCheck.sql
-EOF
-echo
-echo "*************************"
-echo "* Get HealthCheck done. *"
-echo "*************************"
-echo
-
 #-----database_information
+file_name='database_information.html'
 
-sqlplus / as sysdba <<EOF
-@$pwd/database_information.sql
-EOF
-echo
-echo "**********************************"
-echo "* Get Database Information done. *"
-echo "**********************************"
-echo
+#--Check Table Information
+$cnn_str -H -se "SELECT CONCAT(table_name) as 'TABLE',
+ENGINE,
+CONCAT(ROUND(table_rows/1000000,2), 'M') 'ROWS',
+CONCAT(ROUND(data_length/1024/1024,2)) 'DATA (MB)',
+CONCAT(ROUND(index_length/1024/1024,2)) 'IDX (MB)',
+CONCAT(ROUND(data_length + index_length)/1024/1024,2) 'TOTAL SIZE (MB)',
+ROUND(index_length / data_length,2) IDXFRAC
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA='$dbname'
+ORDER BY data_length + index_length DESC;" >>$file_name
 
 #-----OS_Command
 
-file_name='database_information.html'
 unamestr=$(uname)
 if [[ "$unamestr" == 'AIX' ]]; then
 	disk_command='df -g'
@@ -192,141 +184,13 @@ END{
 	print("</table><p><p>")
 }' >>$file_name
 
-#-----Check_Listener
-
-echo "<p>+ CHECK_LISTENER</p>" >>$file_name
-lsnrctl stat | awk 'BEGIN{
-print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><td>")}
-{
-	if ($0!=NULL) {
-		print($0,"<br>")
-	}
-}
-	END{
-		print("</tr></td></table><p><p>")
-	}' >>$file_name
-
 #-----Check_Patches
 
 echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
-{
-	if ($0!=NULL) {
-		print($0,"<br>")
-	}
-}
-END{
-	print("</tr></td></table><p><p>")
-}' >>$file_name
 
 #-----Backup_Policy
 
 echo "<p>+ BACKUP_POLICY</p>" >>$file_name
-echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
-rman target / <<EOF | grep CONFIGURE >>$file_name
-show retention policy;
-EOF
-echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
-
-#-----No Grid Option
-
-if [ "$grid" == "N/A" ]; then
-	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
-	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET_SERVER</th><th>STATE_DETAILS</th></tr>" >>$file_name
-	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
-	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
-	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
-else
-
-#-----Resource_Crs
-
-echo "<p>+ RESOURCE_CRS<p>" >>$file_name
-crsctl status resource -v |
-egrep -e "NAME|TARGET|STATE|LAST_SERVER|STATE_DETAILS" |
-/bin/gawk 'BEGIN {FS="=";}
-{
-if ($1=="NAME")  resname=$2; else
-if ($1=="TARGET") restrg=$2; else
-if ($1=="STATE")   resst=$2; else
-if ($1=="LAST_SERVER") {
-resser=$2
-} else
-if ($1=="STATE_DETAILS") {
-resdet=$2;
-if(length($3)!=0) { resdet=resdet"="$3 }
-idxx1=index(resst, " "); tat=substr(resst, 0, idxx1);
-if (tat=="") {tat="OFFLINE"};
-printf "%-35s %-20s %-25s %-20s %-10s\n", resname, restrg, tat, resser, resdet}
-}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'<th><th>'TARGET'</th><th>'STATE'</th><th>'LAST_SERVER'</th><th>'STATE_DETAILS'<th></tr>")}
-{
-	if ($4!=NULL) {
-		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"<td><td>",$5,$6,$7,$8,"</td></tr>")
-	}
-}
-END{
-	print("</table>")
-}' >>$file_name
-
-#-----Check_Cluster
-
-echo "<p>+ CHECK_CLUSTER<p>" >>$file_name
-crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
-{
-	if ($0!=NULL) {
-		print($0,"<br>")
-	}
-}
-END{
-	print("</td></tr></table>")
-}' >>$file_name
-fi
-
-echo
-echo "************************"
-echo "* Get OS_Command done. *"
-echo "************************"
-echo
-
-#-----Awrrpt
-
-TEMPFILE=/tmp/tmpawr.sql
-echo "<<=====================================================>>"
-echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
-echo "<<=====================================================>>"
-echo
-sqlplus -s / as sysdba <<EOF >/dev/null
-set echo off
-set head off
-set feed off
-spool ${TEMPFILE}
-select 'define begin_snap = '|| (max(snap_id)-3) from dba_hist_snapshot;
-select 'define end_snap = '|| max(snap_id) from dba_hist_snapshot;
-select 'define report_type = ' || '''html''' from dual;
-select 'define inst_name = ' || INSTANCE_NAME from v\$instance;
-select 'define db_name = ' || name from v\$database;
-select 'define dbid = ' || dbid from v\$database;
-select 'define inst_num = ' || INSTANCE_NUMBER from v\$instance;
-select 'define num_days = 1' from dual;
-select 'define report_name = awrrpt_${time}_' || INSTANCE_NAME from v\$instance;
-select '@$ORACLE_HOME/rdbms/admin/awrrpt.sql' from dual;
-spool off
-exit
-EOF
-
-sqlplus -s / as sysdba <<EOF >/dev/null
-@$TEMPFILE
-exit
-EOF
-
-if [ -f "$TEMPFILE" ]; then
-	rm $TEMPFILE
-fi
-echo
-echo "********************"
-echo "* Get Awrrpt done. *"
-echo "********************"
 
 #-----Get information for report file
 
@@ -335,22 +199,6 @@ echo "********************"
 # Name: dbname
 
 # HA/Standalone
-
-rp_ha=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-SELECT VALUE FROM $parameter WHERE NAME = 'cluster_database';
-exit
-EOF
-)
-
-rp_ha=$(echo $rp_ha | tr -d '[:space:]')
-if [[ "$rp_ha" == 'TRUE' ]]; then
-	rp_ha_last='RAC'
-else
-	rp_ha_last='Stand Alone'
-fi
 
 # OS
 
@@ -373,94 +221,17 @@ hw_last="CPU: $cpu cores, RAM: $ram_last GB"
 
 #Filesystem
 
-dtf=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select name from $datafile where name like '+%' and rownum=1;
-exit
-EOF
-)
-
-if [[ $dtf == *[+]* ]]; then
-	dtf_last="ASM"
-else
-	dtf_last="File System"
-fi
-
 #Archiving Enabled
-
-arc_last=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select (
-CASE LOG_MODE
-WHEN 'ARCHIVELOG' THEN
-'Yes'
-ELSE
-'No'
-END
-) ARCHIVELOG from $database;
-exit
-EOF
-)
 
 #Flashback Enabled
 
-fls_last=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select (
-CASE FLASHBACK_ON 
-WHEN 'YES' THEN
-'Yes'
-ELSE
-'No'
-END
-) FLASHBACK_MODE from $database;
-exit
-EOF
-)
-
 #Version
-ver_last=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select version from $instance;
-exit
-EOF
-)
 
 #Patch
 
-pat_last=$($ORACLE_HOME/OPatch/opatch lspatches | $grep "Database" | $awk -v FS=';' '{print $2}')
-
 #DBsize
 
-size=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select round(sum(bytes)/1024/1024/1024,2) from $datafile;
-exit
-EOF
-)
-
-size_last="$size GB"
-
 #Backup status
-
-bkp_last=$(
-sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
-select status from $backupjob where rownum=1;
-exit
-EOF
-)
 
 #Print table
 
