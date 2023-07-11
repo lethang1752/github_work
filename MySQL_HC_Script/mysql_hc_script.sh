@@ -147,13 +147,6 @@ echo
 #-----database_information
 file_name='database_information.html'
 touch database_information.html
-echo "<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<meta name="generator" content="SQL*Plus 12.2.0">
-<TITLE>DATABASE INFORMATION</TITLE>  <STYLE TYPE='TEXT/CSS'>  <!-- BODY {BACKGROUND: #FFFFE6} -->  </STYLE>
-</head>
-<body TEXT='#FF0000'>" >>$file_name
 
 #--Check Table Information
 $cnn_str -H -se "SELECT CONCAT(table_name) as 'TABLE',
