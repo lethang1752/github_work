@@ -55,7 +55,7 @@ fi
 #-----Get db_name (all)
 
 dbnames=$(
-	$cnn_str -se "SELECT schema_name from INFORMATION_SCHEMA.SCHEMATA  WHERE schema_name NOT IN('information_schema', 'mysql', 'performance_schema');"
+	$cnn_str -se "SELECT schema_name from INFORMATION_SCHEMA.SCHEMATA  WHERE schema_name NOT IN('information_schema', 'mysql', 'performance_schema', 'sys');"
 )
 
 #-----Get database home(data directory)
@@ -77,7 +77,6 @@ Head() {
     else
 	read dbname?" <> DATABASE_NAME : "
     fi
-    cnn_str_db="mysql -u $user -p"$pass $dbname
     echo "<<==============="
     #-----Create folder
 
@@ -95,7 +94,7 @@ Head() {
     echo " <> List DB    :" $dbnames
 	echo " <> DB Name    :" $dbname
 	echo " <> DB Home    :" $dbhome
-	echo " <> Alert Log  :" $spwd
+#	echo " <> Alert Log  :" $spwd
 	echo " <> OSWbb Log  :" $pwd/oswbb_log_MPS_$host
 	echo
 	echo "|<<=======================<<  ***  >>=======================>>|"
@@ -148,17 +147,45 @@ echo
 file_name='database_information.html'
 touch database_information.html
 
+#--Header
+echo "<html>
+<head>
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=US-ASCII\">
+<meta name=generator content=\"SQL*Plus 12.2.0\">
+<TITLE>DATABASE INFORMATION</TITLE>  <STYLE TYPE='TEXT/CSS'></STYLE>
+</head>
+<body TEXT='#FF0000'>" >>$file_name
+
+#--Check Database Name & Size
+
+echo "<p>+ DATABASE_INFORMATION</p>"
+$cnn_str -H -se ""
+
 #--Check Table Information
+echo "<p>+ TABLE</p>" >>$file_name
 $cnn_str -H -se "SELECT CONCAT(table_name) as 'TABLE',
 ENGINE,
 CONCAT(ROUND(table_rows/1000000,2), 'M') 'ROWS',
 CONCAT(ROUND(data_length/1024/1024,2)) 'DATA (MB)',
 CONCAT(ROUND(index_length/1024/1024,2)) 'IDX (MB)',
 CONCAT(ROUND(data_length + index_length)/1024/1024,2) 'TOTAL SIZE (MB)',
-ROUND(index_length / data_length,2) IDXFRAC
+ROUND(index_length / data_length,2) IDXFRAC,
+ROUND(data_free/(index_length+data_length)*100) 'FRAG RATIO'
 FROM information_schema.TABLES
 WHERE TABLE_SCHEMA='$dbname'
 ORDER BY data_length + index_length DESC;" >>$file_name
+
+
+
+
+
+
+
+
+
+
+
+
 
 #-----OS_Command
 
