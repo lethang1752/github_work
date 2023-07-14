@@ -36,7 +36,7 @@ echo "<<==============="
 if [[ "$os" == 'Linux' ]]; then
 	grep='grep'
 	awk='awk'
-	java_check="\S+\s+version"
+	java_check="version"
 else
 	grep='ggrep'
 	awk='nawk'
