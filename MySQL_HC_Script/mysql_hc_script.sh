@@ -1,9 +1,9 @@
 #!/bin/ksh
 
 #-----Declare variable for script
-
 host=$(hostname)
 os=$(uname)
+fmy=$(mysql --help | grep /my.cnf | xargs ls)
 
 if [[ "$os" == 'Linux' ]]; then
 	grep='grep'
@@ -16,7 +16,6 @@ else
 fi
 
 #-----Start script
-
 echo
 echo "MAKE SURE SERVER HAS KSH (KORNSHELL)*"
 echo "Set variable for the process..."
@@ -34,16 +33,13 @@ export PATH=$ORACLE_HOME/bin:$PATH
 echo "<<==============="
 
 #-----Get Date now
-
 time=$(date +'%d_%m_%Y')
 
 #-----Get pwd script
-
 SCRIPT=$(readlink -f "$0")
 pwd=$(dirname "$SCRIPT")
 
 #-----Check connection
-
 if
 	echo "exit;" | $cnn_str 2>&1 | grep -q "MySQL"
 then
@@ -53,24 +49,23 @@ else
 fi
 
 #-----Get db_name (all)
-
 dbnames=$(
 	$cnn_str -se "SELECT schema_name from INFORMATION_SCHEMA.SCHEMATA  WHERE schema_name NOT IN('information_schema', 'mysql', 'performance_schema', 'sys');"
 )
 
 #-----Get database home(data directory)
-
 dbhome=$(
 	$cnn_str -se "SELECT CONCAT(@@datadir);"
 )
 
 #-----Get alert log path
-
 spwd=$(
 	$cnn_str -se "SELECT CONCAT(@@datadir);"
 )
 
 Head() {
+
+	#-----Choose Database
     echo "===============>>"
     if [[ "$os" == 'Linux' ]]; then
 	read -p " <> DATABASE_NAME : " dbname
@@ -78,8 +73,8 @@ Head() {
 	read dbname?" <> DATABASE_NAME : "
     fi
     echo "<<==============="
-    #-----Create folder
 
+    #-----Create folder
     mkdir -p $pwd/${dbname}
     cd $pwd/${dbname}
 
@@ -88,14 +83,15 @@ Head() {
 	echo "<<========================<<  MPS  >>========================>>"
 	echo ">>--------------------------- *** ---------------------------<<"
 	echo
-	echo " <> OS Machine :" $os
-	echo " <> Date Time  :" $time
-	echo " <> Script     :" $pwd
-    echo " <> List DB    :" $dbnames
-	echo " <> DB Name    :" $dbname
-	echo " <> DB Home    :" $dbhome
-#	echo " <> Alert Log  :" $spwd
-	echo " <> OSWbb Log  :" $pwd/oswbb_log_MPS_$host
+	echo " <> OS Machine  :" $os
+	echo " <> Date Time   :" $time
+	echo " <> Script      :" $pwd
+    echo " <> List DB     :" $dbnames
+	echo " <> DB Name     :" $dbname
+	echo " <> Data Dir    :" $dbhome/$dbname
+	echo " <> File my.cnf :" $fmy
+#	echo " <> Alert Log   :" $spwd
+	echo " <> OSWbb Log   :" $pwd/oswbb_log_MPS_$host
 	echo
 	echo "|<<=======================<<  ***  >>=======================>>|"
 	echo "|                                                             |"
