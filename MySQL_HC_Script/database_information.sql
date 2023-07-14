@@ -46,7 +46,7 @@ ORDER BY
 
 */
 echo "<p>+ DB_FILE_SIZE</p>" >>$file_name
-du -sh $dbhome/$dbname/* | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
+du -sh $dbhome/$dbname/* | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
 {
 	print("<tr><td>",$2,"</td><td>",$1,"</td></tr>")
 }
@@ -90,19 +90,13 @@ FROM
     INFORMATION_SCHEMA.TABLES
 WHERE
     TABLE_SCHEMA='oggdb1'
-ORDER BY 
-    UPDATE_TIME DESC;
+    AND UPDATE_TIME IS NOT NULL
+UNION ALL 
+    SELECT 
+        'NULL',
+        '01/01/2000 01:00'
+    FROM 
+        DUAL
+ORDER BY ISNULL('DATE'), 'DATE' DESC;
 
-SELECT
-  UPDATE_TIME,
-  TABLE_SCHEMA,
-  TABLE_NAME
-FROM
-  information_schema.tables
-WHERE
-  1 = 1
-  AND TABLE_SCHEMA = 'oggdb1'
-ORDER BY
-  UPDATE_TIME DESC,
-  TABLE_SCHEMA,
-  TABLE_NAME;
+--Check backup
