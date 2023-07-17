@@ -43,7 +43,6 @@ ORDER BY
     DATA_LENGTH+INDEX_LENGTH DESC;
 
 --Check Database File Information
-
 */
 echo "<p>+ DB_FILE_SIZE</p>" >>$file_name
 du -sh $dbhome/$dbname/* | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
@@ -89,7 +88,7 @@ SELECT
 FROM
     INFORMATION_SCHEMA.TABLES
 WHERE
-    TABLE_SCHEMA='oggdb1'
+    TABLE_SCHEMA='$dbname'
     AND UPDATE_TIME IS NOT NULL
 UNION ALL 
     SELECT 
@@ -99,4 +98,25 @@ UNION ALL
         DUAL
 ORDER BY ISNULL('DATE'), 'DATE' DESC;
 
+--Check unused_indexes
+SELECT
+    object_schema 'DATABASE',
+    object_name 'TABLE NAME',
+    index_name 'INDEX NAME'
+FROM 
+    sys.schema_unused_indexes 
+WHERE 
+    index_name NOT LIKE 'fk_%'
+    AND object_schema='$dbname';
+
 --Check backup
+
+--Performance Reports / MySQL Workbench
+---Top memory by Event
+select * from sys.`x$memory_global_by_current_bytes`;
+---Top I/O 
+---Top SQL Statements by Runtime
+select * from sys.`x$statements_with_runtimes_in_95th_percentile`;
+---Wait Class by total wait time
+select * from sys.`x$wait_classes_global_by_latency`;
+select * from sys.`x$wait_classes_global_by_avg_latency`;
