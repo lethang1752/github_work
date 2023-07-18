@@ -67,6 +67,7 @@ Head() {
 
 	#-----Choose Database
     echo "===============>>"
+	echo " <> List DB     :" $dbnames
     if [[ "$os" == 'Linux' ]]; then
 	read -p " <> DATABASE_NAME : " dbname
     else
@@ -88,7 +89,7 @@ Head() {
 	echo " <> Script      :" $pwd
     echo " <> List DB     :" $dbnames
 	echo " <> DB Name     :" $dbname
-	echo " <> Data Dir    :" $dbhome/$dbname
+	echo " <> Data Dir    :" $dbhome$dbname
 	echo " <> File my.cnf :" $fmy
 #	echo " <> Alert Log   :" $spwd
 	echo " <> OSWbb Log   :" $pwd/oswbb_log_MPS_$host
@@ -130,15 +131,6 @@ elif [ $option == 1 ]; then
 	echo "Processing..."
 	echo
 
-#-----Alert_log
-
-cp $spwd/alert_$ORACLE_SID.log .
-echo
-echo "************************"
-echo "* Copy Alert_log done. *"
-echo "************************"
-echo
-
 #-----database_information
 file_name='database_information.html'
 touch database_information.html
@@ -154,34 +146,128 @@ echo "<html>
 
 #--Check Database Name & Size
 
-echo "<p>+ DATABASE_INFORMATION</p>"
-$cnn_str -H -se ""
+echo "<p>+ DATABASE_INFORMATION</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+    TABLE_SCHEMA 'DATABASE NAME', 
+    (SELECT mysql_version FROM sys.version) 'VERSION',
+    CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
+FROM 
+    INFORMATION_SCHEMA.TABLES 
+WHERE 
+    TABLE_SCHEMA='$dbname';" >>$file_name
+
+#--Check Log Variable Status
+echo "<p>+ LOG_VARIABLE</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+    VARIABLE_NAME 'LOG TYPE',
+    VARIABLE_VALUE 'LOG STATUS'
+FROM
+    performance_schema.global_variables
+WHERE
+    VARIABLE_NAME IN ('log_error','binlog_error_action','general_log','general_log_file','slow_query_log','slow_query_log_file');" >>$file_name
+
+#--Check Error Log
+echo "<p>+ ERROR_LOG</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+    *
+FROM
+    performance_schema.error_log
+ORDER BY
+    LOGGED DESC LIMIT 30;" >>$file_name
 
 #--Check Table Information
-echo "<p>+ TABLE</p>" >>$file_name
-$cnn_str -H -se "SELECT CONCAT(table_name) as 'TABLE',
-ENGINE,
-CONCAT(ROUND(table_rows/1000000,2), 'M') 'ROWS',
-CONCAT(ROUND(data_length/1024/1024,2)) 'DATA (MB)',
-CONCAT(ROUND(index_length/1024/1024,2)) 'IDX (MB)',
-CONCAT(ROUND(data_length + index_length)/1024/1024,2) 'TOTAL SIZE (MB)',
-ROUND(index_length / data_length,2) IDXFRAC,
-ROUND(data_free/(index_length+data_length)*100) 'FRAG RATIO'
-FROM information_schema.TABLES
-WHERE TABLE_SCHEMA='$dbname'
-ORDER BY data_length + index_length DESC;" >>$file_name
+echo "<p>+ TABLE_INFORMATION</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+    CONCAT(TABLE_NAME) as 'TABLE',
+    ENGINE,
+    CONCAT(ROUND(TABLE_ROWS/1000000,2), 'M') 'ROWS',
+    CONCAT(ROUND(DATA_LENGTH/1024/1024,2)) 'DATA (MB)',
+    CONCAT(ROUND(INDEX_LENGTH/1024/1024,2)) 'IDX (MB)',
+    CONCAT(ROUND(DATA_LENGTH + INDEX_LENGTH)/1024/1024,2) 'TOTAL SIZE (MB)',
+    ROUND(INDEX_LENGTH/DATA_LENGTH,2) IDXFRAC,
+    ROUND(DATA_FREE/(INDEX_LENGTH+DATA_LENGTH)*100) 'FRAG RATIO (%)'
+FROM 
+    INFORMATION_SCHEMA.TABLES
+WHERE 
+    TABLE_SCHEMA='$dbname'
+ORDER BY 
+    DATA_LENGTH+INDEX_LENGTH DESC;" >>$file_name
 
+#--Check Database File System Information
+echo "<p>+ DATABASE_FILE_SIZE</p>" >>$file_name
+echo "<p>+ DB_FILE_SIZE</p>" >>$file_name
+du -sh $dbhome/$dbname/* | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
+{
+	print("<tr><td>",$2,"</td><td>",$1,"</td></tr>")
+}
+END{
+	print("</table><p><p>")
+}' >>$file_name
 
+#--Check Table Partition Status
+echo "<p>+ TABLE_PARTITION</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+    TABLE_NAME 'TABLE OWNER',
+    PARTITION_NAME 'PARTITION NAME',
+    CONCAT(ROUND(DATA_LENGTH/1024/1024,2)) 'DATA SIZE (MB)',
+    CONCAT(ROUND(INDEX_LENGTH/1024/1024,2)) 'INDEX SIZE (MB)',
+    CONCAT(ROUND(DATA_FREE/1024/1024,2)) 'DATA FREE (MB)'
+FROM
+    INFORMATION_SCHEMA.PARTITIONS
+WHERE
+    TABLE_SCHEMA='$dbname'
+ORDER BY
+    DATA_FREE DESC;" >>$file_name
 
+#--Check Invalid View
+echo "<p>+ INVALID_VIEW</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+    TABLE_NAME
+FROM 
+    INFORMATION_SCHEMA.TABLES
+WHERE
+    TABLE_SCHEMA='$dbname'
+    AND TABLE_TYPE='view'
+    AND TABLE_ROWS IS NULL
+    AND TABLE_COMMENT LIKE '%invalid%';" >>$file_name
 
+#--Check Table Statistics
+echo "<p>+ TABLE_STATISTICS</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+    TABLE_NAME 'TABLE NAME',
+    UPDATE_TIME 'DATE'
+FROM
+    INFORMATION_SCHEMA.TABLES
+WHERE
+    TABLE_SCHEMA='$dbname'
+    AND UPDATE_TIME IS NOT NULL
+UNION ALL 
+    SELECT 
+        'NULL',
+        '01/01/2000 01:00'
+    FROM 
+        DUAL
+ORDER BY ISNULL('DATE'), 'DATE' DESC;" >>$file_name
 
-
-
-
-
-
-
-
+#--Check Unused Indexes
+echo "<p>+ UNUSED INDEXES</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+    object_schema 'DATABASE',
+    object_name 'TABLE NAME',
+    index_name 'INDEX NAME'
+FROM 
+    sys.schema_unused_indexes 
+WHERE 
+    index_name NOT LIKE 'fk_%'
+    AND object_schema='$dbname';" >>$file_name
 
 #-----OS_Command
 
@@ -198,7 +284,7 @@ echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
 echo "$header"
-sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
+sort -rn -k 5 ) | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
 {
 	if ($2!="0K" && $2!="Size") {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
@@ -208,78 +294,11 @@ END{
 	print("</table><p><p>")
 }' >>$file_name
 
-#-----Check_Patches
-
-echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-
-#-----Backup_Policy
-
-echo "<p>+ BACKUP_POLICY</p>" >>$file_name
-
 echo "</body>" >>$file_name
 
-#-----Get information for report file
+sed -i 's/table BORDER=1/table WIDTH=90% BORDER=1/g' $file_name
+sed -i 's/TABLE BORDER=1/table WIDTH=90% BORDER=1/g' $file_name
 
-# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
-
-# Name: dbname
-
-# HA/Standalone
-
-# OS
-
-os1=$(uname -o)
-os2=$(uname -m)
-os_last="$os1 $os2"
-
-#Hardware
-
-if [[ "$os" == 'Linux' ]]; then
-	cpu=$(cat /proc/cpuinfo | grep -c 'core id' | uniq | wc -l)
-	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
-	ram_last=$(expr "$ram" / 1048576)
-else
-	cpu=$(psrinfo -p)
-	ram=$(prtconf | grep Mem | ggrep -E -o '[0-9]+')
-	ram_last=$(expr "$ram" / 1024)
-fi
-hw_last="CPU: $cpu cores, RAM: $ram_last GB"
-
-#Filesystem
-
-#Archiving Enabled
-
-#Flashback Enabled
-
-#Version
-
-#Patch
-
-#DBsize
-
-#Backup status
-
-#Print table
-
-echo "<p>+ REPORT DETAILS</p>" >>$file_name
-echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
-echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
-echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
-echo "<tr><td>OS Version</td><td>$os_last</td></tr>" >>$file_name
-echo "<tr><td>Hardware (CPU,RAM)</td><td>$hw_last</td></tr>" >>$file_name
-echo "<tr><td>File System/raw devices</td><td>$dtf_last</td></tr>" >>$file_name
-echo "<tr><td>Archiving Enabled</td><td>$arc_last</td></tr>" >>$file_name
-echo "<tr><td>Flashback Enabled</td><td>$fls_last</td></tr>" >>$file_name
-echo "<tr><td>Version</td><td>$ver_last</td></tr>" >>$file_name
-echo "<tr><td>Patch</td><td>$pat_last</td></tr>" >>$file_name
-echo "<tr><td>DB Size</td><td>$size_last</td></tr>" >>$file_name
-echo "<tr><td>Backup status</td><td>$bkp_last</td></tr></table>" >>$file_name
-echo
-echo "**************************"
-echo "* Get Report Infor done. *"
-echo "**************************"
-echo
 echo "End of process!"
 
 #==#==Option 2 (OSWatcher).
