@@ -67,12 +67,20 @@ Head() {
 
 	#-----Choose Database
     echo "===============>>"
-	echo " <> List DB     :" $dbnames
+	echo " <> LIST DATABASE :" $dbnames " / 1: Exit"
     if [[ "$os" == 'Linux' ]]; then
 	read -p " <> DATABASE_NAME : " dbname
     else
 	read dbname?" <> DATABASE_NAME : "
     fi
+
+	if [[ "$dbname" == 1 ]]; then
+	echo
+	exit
+	else
+	dbname=$dbname
+	fi
+
     echo "<<==============="
 
     #-----Create folder
