@@ -207,7 +207,7 @@ ORDER BY
 
 #--Check Database File System Information
 echo "<p>+ DATABASE_FILE_SIZE</p>" >>$file_name
-du -sh $dbhome$dbname/* | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
+du -sBM $dbhome$dbname/* | sort -nr | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
 {
 	print("<tr><td>",$2,"</td><td>",$1,"</td></tr>")
 }
