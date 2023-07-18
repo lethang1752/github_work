@@ -227,10 +227,15 @@ SELECT
 FROM
     INFORMATION_SCHEMA.PARTITIONS
 WHERE
-    TABLE_SCHEMA='$dbname'
+    TABLE_SCHEMA='oggdb1'
 	AND PARTITION_NAME NOT LIKE 'NULL'
+UNION ALL
+	SELECT 
+        'NULL','NULL',0.00,0.00,0.00
+    FROM 
+        DUAL
 ORDER BY
-    DATA_FREE DESC;" >>$file_name
+    ISNULL('TABLE OWNER'), 'DATA FREE (MB)' DESC;" >>$file_name
 
 #--Check Invalid View
 echo "<p>+ INVALID_VIEW</p>" >>$file_name
