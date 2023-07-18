@@ -207,7 +207,7 @@ ORDER BY
 
 #--Check Database File System Information
 echo "<p>+ DATABASE_FILE_SIZE</p>" >>$file_name
-du -sBM $dbhome$dbname/* | sort -nr | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
+du -sBM $dbhome$dbname/* | sort -nr | $awk 'BEGIN{print("<TABLE BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
 {
 	print("<tr><td>",$2,"</td><td>",$1,"</td></tr>")
 }
@@ -243,7 +243,13 @@ WHERE
     TABLE_SCHEMA='$dbname'
     AND TABLE_TYPE='view'
     AND TABLE_ROWS IS NULL
-    AND TABLE_COMMENT LIKE '%invalid%';" >>$file_name
+    AND TABLE_COMMENT LIKE '%invalid%'
+UNION ALL 
+    SELECT 
+        'NULL'
+    FROM 
+        DUAL
+ORDER BY ISNULL(TABLE_NAME) DESC;" >>$file_name
 
 #--Check Table Statistics
 echo "<p>+ TABLE_STATISTICS</p>" >>$file_name
@@ -292,7 +298,7 @@ echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
 echo "$header"
-sort -rn -k 5 ) | $awk 'BEGIN{print("<table BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
+sort -rn -k 5 ) | $awk 'BEGIN{print("<TABLE BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
 {
 	if ($2!="0K" && $2!="Size") {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
@@ -304,8 +310,7 @@ END{
 
 echo "</body>" >>$file_name
 
-sed -i 's/table BORDER=1/table WIDTH=90% BORDER=1/g' $file_name
-sed -i 's/TABLE BORDER=1/table WIDTH=90% BORDER=1/g' $file_name
+sed -i 's/TABLE BORDER=1/TABLE WIDTH=90% BORDER=1/g' $file_name
 
 echo "End of process!"
 
