@@ -436,17 +436,13 @@ ver_last=$($cnn_str -se "SELECT mysql_version FROM sys.version;")
 
 #DBsize
 
-size=$(
-$cnn_str -se "SELECT CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH+DATA_FREE)/1024/1024/1024,2)) FROM INFORMATION_SCHEMA.TABLES;
-)
+size=$($cnn_str -se "SELECT CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH+DATA_FREE)/1024/1024/1024,2)) FROM INFORMATION_SCHEMA.TABLES;")
 
 size_last="$size GB"
 
 #Backup status
 
-bkp_last=$(
-$cnn_str -se "SELECT last_error from mysql.backup_history order by backup_id desc limit 1;
-)
+bkp_last=$($cnn_str -se "SELECT last_error from mysql.backup_history order by backup_id desc limit 1;")
 
 #Print table
 
