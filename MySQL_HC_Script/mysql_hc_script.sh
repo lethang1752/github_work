@@ -155,57 +155,16 @@ echo "<html>
 echo "<p>===========SOFTWARE_PART===========</p>" >>$file_name
 #--Check Database Software Information
 
-
-echo "<p>+ WAITS_CLASS</p>" >>$file_name
+#----Check Software Information
+echo "<p>+ SOFTWARE_INFORMATION</p>" >>$file_name
 $cnn_str -H -se "
-SELECT 
-	events 'EVENTS',
-	total 'TOTAL',
-	cast(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
-	cast(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
-	cast(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)'
+SELECT
+	(SELECT mysql_version FROM sys.version) 'VERSION',
+	CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH+DATA_FREE)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
 FROM 
- 	sys.\`x\$waits_global_by_latency\`
-ORDER BY 
-	avg_latency DESC LIMIT 10;" >>$file_name
+    INFORMATION_SCHEMA.TABLES;" >>$file_name
 
-echo "<p>+ SQL_COMMAND</p>" >>$file_name
-$cnn_str -H -se "
-WITH RECURSIVE cte AS (
-    SELECT 1 AS n
-    UNION ALL
-    SELECT n + 1 FROM cte WHERE n < 10
-)
-SELECT n FROM cte
-UNION ALL
-SELECT 
-	exec_count 'TOTAL EXECUTED',
-	cast(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
-	cast(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
-	cast(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)',
-	SUBSTRING(`query`, 1, 50) 'SQL TEXT'
-FROM 
-	sys.`x$statement_analysis`
-ORDER BY 
-	avg_latency DESC LIMIT 10;" >>$file_name
-
-
-echo "<p>===========DATABASE_PART===========</p>" >>$file_name
-
-#--Check Database Name & Size
-
-echo "<p>+ DATABASE_INFORMATION</p>" >>$file_name
-$cnn_str -H -se "
-SELECT 
-    TABLE_SCHEMA 'DATABASE NAME', 
-    (SELECT mysql_version FROM sys.version) 'VERSION',
-    CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
-FROM 
-    INFORMATION_SCHEMA.TABLES 
-WHERE 
-    TABLE_SCHEMA='$dbname';" >>$file_name
-
-#--Check Log Variable Status
+#----Check Log location
 echo "<p>+ LOG_VARIABLE</p>" >>$file_name
 $cnn_str -H -se "
 SELECT
@@ -216,7 +175,7 @@ FROM
 WHERE
     VARIABLE_NAME IN ('log_error','binlog_error_action','general_log','general_log_file','slow_query_log','slow_query_log_file');" >>$file_name
 
-#--Check Error Log
+#----Check Error Log
 echo "<p>+ ERROR_LOG</p>" >>$file_name
 $cnn_str -H -se "
 SELECT
@@ -225,6 +184,77 @@ FROM
     performance_schema.error_log
 ORDER BY
     LOGGED DESC LIMIT 30;" >>$file_name
+
+#----Check Wait Class
+echo "<p>+ WAITS_CLASS</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+	events 'EVENTS',
+	total 'TOTAL',
+	CAST(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
+	CAST(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
+	CAST(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)'
+FROM 
+	sys.\`x\$waits_global_by_latency\`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
+#----Check SQL Average Running
+echo "<p>+ SQL_AVG_RUNNING</p>" >>$file_name
+$cnn_str -H -se "
+SET @id=0;
+SELECT 
+	@id:=@id+1 AS 'NUM ID',
+	exec_count 'TOTAL EXECUTED',
+	CAST(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
+	CAST(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
+	CAST(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)',
+	SUBSTRING(query, 1, 50) 'SQL TEXT'
+FROM 
+	sys.\`x\$statement_analysis\`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
+#----Check SQL Command Details
+echo "<p>+ SQL_COMMAND_DETAILS</p>" >>$file_name
+$cnn_str -H -se "
+SET @id=0;
+SELECT 
+	@id:=@id+1 AS 'NUM ID',
+	db 'DATABASE',
+	query 'SQL TEXT'
+FROM 
+	sys.\`x\$statement_analysis\`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
+#----Check Backup
+echo "<p>+ BACKUP_DETAILS</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+	backup_id 'BACKUP ID',
+	tool_name 'TOOL NAME',
+	engines 'ENGINE',
+	DATE_FORMAT(start_time, '%e/%m/%Y %H:%i') 'START TIME',
+	DATE_FORMAT(end_time, '%e/%m/%Y %H:%i') 'END TIME',
+	TIMEDIFF(end_time,start_time) 'TIME TAKEN',
+	last_error 'LAST ERROR',
+	DAYNAME(start_time) 'DAY OF WEEK'
+FROM
+	mysql.backup_history;" >>$file_name
+
+echo "<p>===========DATABASE_PART===========</p>" >>$file_name
+
+#--Check Database Name & Size
+echo "<p>+ DATABASE_INFORMATION</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+    TABLE_SCHEMA 'DATABASE NAME', 
+    CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
+FROM 
+    INFORMATION_SCHEMA.TABLES 
+WHERE 
+    TABLE_SCHEMA='$dbname';" >>$file_name
 
 #--Check Table Information
 echo "<p>+ TABLE_INFORMATION</p>" >>$file_name
@@ -309,11 +339,11 @@ WHERE
     TABLE_SCHEMA='$dbname'
     AND UPDATE_TIME IS NOT NULL
 UNION ALL 
-    SELECT 
-        'NULL',
-        '01/01/2000 01:00'
-    FROM 
-        DUAL
+SELECT 
+    'NULL',
+    '01/01/2000 01:00'
+FROM 
+    DUAL
 ORDER BY ISNULL('DATE'), 'DATE' DESC;" >>$file_name
 
 #--Check Unused Indexes
@@ -324,10 +354,17 @@ SELECT
     object_name 'TABLE NAME',
     index_name 'INDEX NAME'
 FROM 
-    sys.schema_unused_indexes 
+    sys.schema_unused_indexes
 WHERE 
     index_name NOT LIKE 'fk_%'
-    AND object_schema='$dbname';" >>$file_name
+    AND object_schema='$dbname'
+UNION ALL
+SELECT
+	'NULL',
+	'NULL',
+	'NULL'
+FROM
+	DUAL;" >>$file_name
 
 #-----OS_Command
 
@@ -357,6 +394,80 @@ END{
 echo "</body>" >>$file_name
 
 sed -i 's/TABLE BORDER=1/TABLE WIDTH=90% BORDER=1/g' $file_name
+
+#==================================================================================
+#-----Get information for report file
+
+# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
+
+# Name: dbname
+
+# HA/Standalone
+
+rp_ha=$($cnn_str -se "SHOW SLAVE HOSTS;")
+
+if [[ "$rp_ha" == '' ]]; then
+	rp_ha_last='Stand Alone'
+else
+	rp_ha_last='Cluster'
+fi
+
+# OS
+
+os1=$(uname -o)
+os2=$(uname -m)
+os_last="$os1 $os2"
+
+#Hardware
+
+if [[ "$os" == 'Linux' ]]; then
+	cpu=$(lscpu | grep -E '^CPU\(s\):' | tr -dc '0-9')
+	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
+	ram_last=$(expr "$ram" / 1048576)
+else
+	cpu=$(psrinfo -p)
+	ram=$(prtconf | grep Mem | ggrep -E -o '[0-9]+')
+	ram_last=$(expr "$ram" / 1024)
+fi
+hw_last="CPU: $cpu cores, RAM: $ram_last GB"
+
+#Version
+ver_last=$($cnn_str -se "SELECT mysql_version FROM sys.version;")
+
+#DBsize
+
+size=$(
+$cnn_str -se "SELECT CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH+DATA_FREE)/1024/1024/1024,2)) FROM INFORMATION_SCHEMA.TABLES;
+)
+
+size_last="$size GB"
+
+#Backup status
+
+bkp_last=$(
+$cnn_str -se "SELECT last_error from mysql.backup_history order by backup_id desc limit 1;
+)
+
+#Print table
+
+echo "<p>+ REPORT DETAILS</p>" >>$file_name
+echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
+echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
+echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
+echo "<tr><td>OS Version</td><td>$os_last</td></tr>" >>$file_name
+echo "<tr><td>Hardware (CPU,RAM)</td><td>$hw_last</td></tr>" >>$file_name
+echo "<tr><td>Version</td><td>$ver_last</td></tr>" >>$file_name
+echo "<tr><td>DB Size</td><td>$size_last</td></tr>" >>$file_name
+echo "<tr><td>Backup status</td><td>$bkp_last</td></tr></table>" >>$file_name
+echo
+echo "**************************"
+echo "* Get Report Infor done. *"
+echo "**************************"
+echo
+echo "End of process!"
+
+#=========================================================================================
 
 echo "End of process!"
 
