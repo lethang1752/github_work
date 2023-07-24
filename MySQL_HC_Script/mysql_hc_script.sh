@@ -185,6 +185,22 @@ FROM
 ORDER BY
     LOGGED DESC LIMIT 30;" >>$file_name
 
+#----Check I/O By User/Thread
+
+echo "<p>+ I/O_BY_USER/THREAD</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+	user 'USER/THREAD',
+	thread_id 'THREAD ID',
+	CAST(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
+	CAST(min_latency/1000/1000/1000 as decimal(10,2)) 'MIN TIME (ms)',
+	CAST(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
+	CAST(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)'
+FROM
+	sys.\`x\$io_by_thread_by_latency\`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
 #----Check Wait Class
 echo "<p>+ WAITS_CLASS</p>" >>$file_name
 $cnn_str -H -se "
@@ -262,9 +278,9 @@ $cnn_str -H -se "
 SELECT 
     CONCAT(TABLE_NAME) as 'TABLE',
     ENGINE,
-    CONCAT(ROUND(TABLE_ROWS/1000000,2), 'M') 'ROWS',
+    CONCAT(ROUND(TABLE_ROWS/1000000,2), ) 'ROWS (Mil)',
     CONCAT(ROUND(DATA_LENGTH/1024/1024,2)) 'DATA (MB)',
-    CONCAT(ROUND(INDEX_LENGTH/1024/1024,2)) 'IDX (MB)',
+    CONCAT(ROUND(INDEX_LENGTH/1024/1024,2)) 'INDEX (MB)',
     CONCAT(ROUND((DATA_LENGTH + INDEX_LENGTH)/1024/1024,2)) 'TOTAL SIZE (MB)',
     ROUND(INDEX_LENGTH/DATA_LENGTH,2) IDXFRAC,
     ROUND(DATA_FREE/(INDEX_LENGTH + DATA_LENGTH + DATA_FREE)*100) 'FRAG RATIO (%)'
@@ -278,7 +294,7 @@ ORDER BY
 
 #--Check Database File System Information
 echo "<p>+ DATABASE_FILE_SIZE</p>" >>$file_name
-du -sBM $dbhome$dbname/* | sort -nr | $awk 'BEGIN{print("<TABLE BORDER='1'><tr><th>'FILENAME'</th><th>'SIZE'</th></tr>")}
+du -sBM $dbhome$dbname/* | sort -nr | $awk 'BEGIN{print("<TABLE BORDER='1'><tr><th>'FILE_NAME'</th><th>'SIZE'</th></tr>")}
 {
 	print("<tr><td>",$2,"</td><td>",$1,"</td></tr>")
 }
@@ -407,7 +423,7 @@ sed -i 's/TABLE BORDER=1/TABLE WIDTH=90% BORDER=1/g' $file_name
 rp_ha=$($cnn_str -se "SHOW SLAVE HOSTS;")
 
 if [[ "$rp_ha" == '' ]]; then
-	rp_ha_last='Stand Alone'
+	rp_ha_last='Single Instance'
 else
 	rp_ha_last='Cluster'
 fi
@@ -449,7 +465,7 @@ bkp_last=$($cnn_str -se "SELECT last_error from mysql.backup_history order by ba
 echo "<p>+ REPORT DETAILS</p>" >>$file_name
 echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
 echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
-echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
+echo "<tr><td>Database Name</td><td>$dbname</td></tr>" >>$file_name
 echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
 echo "<tr><td>OS Version</td><td>$os_last</td></tr>" >>$file_name
 echo "<tr><td>Hardware (CPU,RAM)</td><td>$hw_last</td></tr>" >>$file_name
