@@ -384,7 +384,7 @@ os_last="$os1 $os2"
 #Hardware
 
 if [[ "$os" == 'Linux' ]]; then
-	cpu=$(cat /proc/cpuinfo | grep -c 'core id' | uniq | wc -l)
+	cpu=$(lscpu | grep -E '^CPU\(s\):' | tr -dc '0-9')
 	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
 	ram_last=$(expr "$ram" / 1048576)
 else
