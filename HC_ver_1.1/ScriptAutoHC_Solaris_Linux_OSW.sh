@@ -86,10 +86,21 @@ EOF
 )
 dbname=$(echo $dbname | tr -d '[:space:]')
 
+#-----Get instance_name
+insname=$(
+	sqlplus -s / as sysdba <<EOF
+set head off
+set feed off
+show parameter instance_name;
+exit
+EOF
+)
+insname=$(echo $insname | awk -v FS=' ' '{print $3}')
+
 #-----Create folder
 
-mkdir -p $pwd/${dbname}
-cd $pwd/${dbname}
+mkdir -p $pwd/${insname}
+cd $pwd/${insname}
 
 #-----Get Trace Log path
 
