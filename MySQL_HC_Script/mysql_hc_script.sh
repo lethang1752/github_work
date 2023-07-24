@@ -152,18 +152,45 @@ echo "<html>
 </head>
 <body TEXT='#FF0000'>" >>$file_name
 
+echo "<p>===========SOFTWARE_PART===========</p>" >>$file_name
 #--Check Database Software Information
 
-echo "<p>+ I/O_EVENT_WAIT</p>" >>$file_name
+
+echo "<p>+ WAITS_CLASS</p>" >>$file_name
 $cnn_str -H -se "
 SELECT 
-    TABLE_SCHEMA 'DATABASE NAME', 
-    (SELECT mysql_version FROM sys.version) 'VERSION',
-    CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
+	events 'EVENTS',
+	total 'TOTAL',
+	cast(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
+	cast(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
+	cast(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)'
 FROM 
-    INFORMATION_SCHEMA.TABLES 
-WHERE 
-    TABLE_SCHEMA='$dbname';" >>$file_name
+ 	sys.\`x\$waits_global_by_latency\`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
+echo "<p>+ SQL_COMMAND</p>" >>$file_name
+$cnn_str -H -se "
+WITH RECURSIVE cte AS (
+    SELECT 1 AS n
+    UNION ALL
+    SELECT n + 1 FROM cte WHERE n < 10
+)
+SELECT n FROM cte
+UNION ALL
+SELECT 
+	exec_count 'TOTAL EXECUTED',
+	cast(total_latency/1000/1000/1000 as decimal(10,2)) 'TOTAL TIME (ms)',
+	cast(avg_latency/1000/1000/1000 as decimal(10,2)) 'AVG TIME (ms)',
+	cast(max_latency/1000/1000/1000 as decimal(10,2)) 'MAX TIME (ms)',
+	SUBSTRING(`query`, 1, 50) 'SQL TEXT'
+FROM 
+	sys.`x$statement_analysis`
+ORDER BY 
+	avg_latency DESC LIMIT 10;" >>$file_name
+
+
+echo "<p>===========DATABASE_PART===========</p>" >>$file_name
 
 #--Check Database Name & Size
 
