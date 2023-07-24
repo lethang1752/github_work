@@ -186,7 +186,21 @@ FROM
 ORDER BY
     LOGGED DESC LIMIT 30;" >>$file_name
 
-#----Check I/O By User/Thread
+#----Check Top 10 Memory By Event
+
+echo "<p>+ MEMORY_BY_EVENT</p>" >>$file_name
+$cnn_str -H -se "
+SELECT
+	event_name 'EVENT NAME',
+	high_count 'MAX COUNT',
+	CAST(high_alloc/1024/1024 as decimal(10,2)) 'MAX ALLOCATE (MB)',
+	CAST(high_avg_alloc/1024/1024 as decimal(10,2)) 'MAX AVG ALLOCATE (MB)'
+FROM
+	sys.\`x\$memory_global_by_current_bytes\`
+ORDER BY
+	high_avg_alloc DESC LIMIT 10;" >>$file_name
+
+#----Check Top 10 I/O By User/Thread
 
 echo "<p>+ I/O_BY_USER/THREAD</p>" >>$file_name
 $cnn_str -H -se "
