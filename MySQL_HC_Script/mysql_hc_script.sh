@@ -84,8 +84,6 @@ Head() {
     echo "<<==============="
 
     #-----Create folder
-    mkdir -p $pwd/${dbname}
-    cd $pwd/${dbname}
 
 	echo
 	echo ">>--------------------------- *** ---------------------------<<"
@@ -99,7 +97,6 @@ Head() {
 	echo " <> DB Name     :" $dbname
 	echo " <> Data Dir    :" $dbhome$dbname
 	echo " <> File my.cnf :" $fmy
-#	echo " <> Alert Log   :" $spwd
 	echo " <> OSWbb Log   :" $pwd/oswbb_log_MPS_$host
 	echo
 	echo "|<<=======================<<  ***  >>=======================>>|"
@@ -140,8 +137,8 @@ elif [ $option == 1 ]; then
 	echo
 
 #-----database_information
-file_name='database_information.html'
-touch database_information.html
+file_name='database_information_'$dbname'.html'
+touch $file_name
 
 #--Header
 echo "<html>
