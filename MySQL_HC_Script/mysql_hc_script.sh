@@ -152,6 +152,19 @@ echo "<html>
 </head>
 <body TEXT='#FF0000'>" >>$file_name
 
+#--Check Database Software Information
+
+echo "<p>+ I/O_EVENT_WAIT</p>" >>$file_name
+$cnn_str -H -se "
+SELECT 
+    TABLE_SCHEMA 'DATABASE NAME', 
+    (SELECT mysql_version FROM sys.version) 'VERSION',
+    CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH)/1024/1024/1024,2)) 'DATABASE SIZE (GB)'
+FROM 
+    INFORMATION_SCHEMA.TABLES 
+WHERE 
+    TABLE_SCHEMA='$dbname';" >>$file_name
+
 #--Check Database Name & Size
 
 echo "<p>+ DATABASE_INFORMATION</p>" >>$file_name
