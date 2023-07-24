@@ -67,11 +67,11 @@ Head() {
 
 	#-----Choose Database
     echo "===============>>"
-	echo " <> LIST DATABASE :" $dbnames " / 1: Exit"
+	echo " <> LIST DATABASE IN MYSQL  :" $dbnames " / 1: Exit"
     if [[ "$os" == 'Linux' ]]; then
-	read -p " <> DATABASE_NAME : " dbname
+	read -p " <> DATABASE NAME (Or Exit) : " dbname
     else
-	read dbname?" <> DATABASE_NAME : "
+	read dbname?" <> DATABASE NAME (Or Exit) : "
     fi
 
 	if [[ "$dbname" == 1 ]]; then
