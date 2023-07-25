@@ -64,7 +64,6 @@ spwd=$(
 )
 
 Head() {
-
 	#-----Choose Database
     echo "===============>>"
 	echo " <> LIST DATABASE IN MYSQL  :" $dbnames " / 1: Exit"
@@ -84,7 +83,6 @@ Head() {
     echo "<<==============="
 
     #-----Create folder
-
 	echo
 	echo ">>--------------------------- *** ---------------------------<<"
 	echo "<<========================<<  MPS  >>========================>>"
@@ -130,7 +128,6 @@ if [[ -z $option || $option < 1 || $option > 3 ]]; then
 	echo "=> #Error! Choose again."
 
 #==#==Option 1.(Run collect log)
-
 elif [ $option == 1 ]; then
 	echo
 	echo "Processing..."
@@ -150,8 +147,8 @@ echo "<html>
 <body TEXT='#FF0000'>" >>$file_name
 
 echo "<p>===========SOFTWARE_PART===========</p>" >>$file_name
-#--Check Database Software Information
 
+#--Check Database Software Information
 #----Check Software Information
 echo "<p>+ SOFTWARE_INFORMATION</p>" >>$file_name
 $cnn_str -H -se "
@@ -184,7 +181,6 @@ ORDER BY
     LOGGED DESC LIMIT 30;" >>$file_name
 
 #----Check Top 10 Memory By Event
-
 echo "<p>+ MEMORY_BY_EVENT</p>" >>$file_name
 $cnn_str -H -se "
 SELECT
@@ -198,7 +194,6 @@ ORDER BY
 	high_avg_alloc DESC LIMIT 10;" >>$file_name
 
 #----Check Top 10 I/O By User/Thread
-
 echo "<p>+ I/O_BY_USER/THREAD</p>" >>$file_name
 $cnn_str -H -se "
 SELECT
@@ -395,7 +390,6 @@ FROM
 	DUAL;" >>$file_name
 
 #-----OS_Command
-
 unamestr=$(uname)
 if [[ "$unamestr" == 'AIX' ]]; then
 	disk_command='df -g'
@@ -404,7 +398,6 @@ else
 fi
 
 #-----Disk_Usage
-
 echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
@@ -426,12 +419,7 @@ sed -i 's/TABLE BORDER=1/TABLE WIDTH=90% BORDER=1/g' $file_name
 #==================================================================================
 #-----Get information for report file
 
-# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
-
-# Name: dbname
-
 # HA/Standalone
-
 rp_ha=$($cnn_str -se "SHOW SLAVE HOSTS;")
 
 if [[ "$rp_ha" == '' ]]; then
@@ -447,7 +435,6 @@ os2=$(uname -m)
 os_last="$os1 $os2"
 
 #Hardware
-
 if [[ "$os" == 'Linux' ]]; then
 	cpu=$(lscpu | grep -E '^CPU\(s\):' | tr -dc '0-9')
 	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
@@ -463,17 +450,14 @@ hw_last="CPU: $cpu cores, RAM: $ram_last GB"
 ver_last=$($cnn_str -se "SELECT mysql_version FROM sys.version;")
 
 #DBsize
-
 size=$($cnn_str -se "SELECT CONCAT(ROUND(SUM(INDEX_LENGTH+DATA_LENGTH+DATA_FREE)/1024/1024/1024,2)) FROM INFORMATION_SCHEMA.TABLES;")
 
 size_last="$size GB"
 
 #Backup status
-
 bkp_last=$($cnn_str -se "SELECT last_error from mysql.backup_history order by backup_id desc limit 1;")
 
 #Print table
-
 echo "<p>+ REPORT DETAILS</p>" >>$file_name
 echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
 echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
@@ -496,27 +480,22 @@ echo "End of process!"
 echo "End of process!"
 
 #==#==Option 2 (OSWatcher).
-
 elif [ $option == 2 ]; then
 	echo
 	echo "Setup OSWatcher..."
 	echo
 
 #-----Check Java Installation
-
 if java -version 2>&1 >/dev/null | $grep "$java_check"; then
 	echo "Java installed!"
 
 	#-----Tar file oswbb840.tar
-
 	tar -xf $pwd/oswbb840.tar -C $pwd/.
 
 	#-----Create folder for oswbb_log
-
 	mkdir -p $pwd/oswbb_log_MPS_$host
 
 	#-----Start oswbb840
-
 	cd $pwd/oswbb
 	nohup ./startOSWbb.sh 300 120 None $pwd/oswbb_log_MPS_$host/ >nohup.out 2>&1 &
 	echo
@@ -528,7 +507,6 @@ else
 fi
 
 	#==#==Option 3 (Exit).
-
 	elif [ $option == 3 ]; then
 		echo
 		exit
@@ -536,7 +514,6 @@ fi
 }
 
 #=====MainStream
-
 Head
 while :; do
 	Body
