@@ -170,7 +170,7 @@ FROM
 WHERE
     VARIABLE_NAME IN ('log_error','binlog_error_action','general_log','general_log_file','slow_query_log','slow_query_log_file');" >>$file_name
 
-#----Check Error Log
+#----Check Error Log ***
 echo "<p>+ ERROR_LOG</p>" >>$file_name
 $cnn_str -H -se "
 SELECT
