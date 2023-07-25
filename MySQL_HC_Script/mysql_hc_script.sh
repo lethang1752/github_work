@@ -335,7 +335,9 @@ ORDER BY
 echo "<p>+ INVALID_VIEW</p>" >>$file_name
 $cnn_str -H -se "
 SELECT 
-    TABLE_NAME
+    TABLE_NAME 'TABLE NAME',
+	CONCAT(ROUND((DATA_LENGTH + INDEX_LENGTH)/1024/1024,2)) 'TOTAL SIZE (MB)'
+
 FROM 
     INFORMATION_SCHEMA.TABLES
 WHERE
@@ -345,7 +347,8 @@ WHERE
     AND TABLE_COMMENT LIKE '%invalid%'
 UNION ALL 
     SELECT 
-        'NULL'
+        'NULL',
+		0.00
     FROM 
         DUAL
 ORDER BY ISNULL(TABLE_NAME) DESC;" >>$file_name
