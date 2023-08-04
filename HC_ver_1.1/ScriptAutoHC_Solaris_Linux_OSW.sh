@@ -171,7 +171,7 @@ elif [ $option == 1 ]; then
 
 #-----Alert_log
 
-cp $spwd/alert_$ORACLE_SID.log .
+tail -n 20000 $spwd/alert_$ORACLE_SID.log > $pwd/${insname}/alert_$ORACLE_SID.log
 echo
 echo "************************"
 echo "* Copy Alert_log done. *"
