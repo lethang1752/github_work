@@ -21,8 +21,8 @@ echo "MAKE SURE SERVER HAS KSH (KORNSHELL)*"
 echo "Set variable for the process..."
 echo "===============>>"
 if [[ "$os" == 'Linux' ]]; then
-	read -p " <> USERNAME : " user	
-	read -p " <> PASSWORD : " pass
+	read -p " <> USERNAME : " user
+	read -s -p " <> PASSWORD : " pass
 else
 	read user?" <> USERNAME : "
 	read pass?" <> PASSWORD : "
