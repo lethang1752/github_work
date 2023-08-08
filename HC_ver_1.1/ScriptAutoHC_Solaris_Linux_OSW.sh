@@ -312,7 +312,7 @@ set echo off
 set head off
 set feed off
 spool ${TEMPFILE}
-select 'define begin_snap = '|| (max(snap_id)-3) from dba_hist_snapshot;
+select 'define begin_snap = '|| (max(snap_id)-24) from dba_hist_snapshot;
 select 'define end_snap = '|| max(snap_id) from dba_hist_snapshot;
 select 'define report_type = ' || '''html''' from dual;
 select 'define inst_name = ' || INSTANCE_NAME from v\$instance;
