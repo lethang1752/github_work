@@ -1,4 +1,5 @@
 --Check database size in Source DB 
+/*
 select
 ( select sum(bytes)/1024/1024/1024 data_size from dba_data_files ) +
 ( select nvl(sum(bytes),0)/1024/1024/1024 temp_size from dba_temp_files ) +
@@ -6,16 +7,65 @@ select
 ( select sum(BLOCK_SIZE*FILE_SIZE_BLKS)/1024/1024/1024 controlfile_size from v$controlfile) “Size in GB”
 from
 dual;
+*/
 
 --Check schema objects are placed in which tablespaces except default schemas
+/*
 set pagesize 130
 break on Tablespace on Owner
 column Objects format A20
-select Tablespace_Name,Owner,COUNT(*)||’ tables’ Objects
+select Tablespace_Name,Owner,COUNT(*)|| ' tables' Objects
 from DBA_TABLES
 group by Tablespace_Name,Owner
 union
-select Tablespace_Name, Owner, COUNT(*)||’ indexes’ Objects
+select Tablespace_Name, Owner, COUNT(*)||' indexes' Objects
 from DBA_INDEXES
 group by Tablespace_Name, Owner;
+*/
+
+--Get DDL of all the tablespaces except default tablespaces
+/*
+SET heading OFF;
+SET echo OFF;
+SET pages 990;
+SET long 90009;
+
+spool ddl_tablespace.sql
+SELECT dbms_metadata.get_ddl(‘TABLESPACE', tb.tablespace_name)
+FROM dba_tablespaces tbas;
+
+spool OFF
+/*
+
+--Compile invalid objects if any in Source
+/*
+@?/rdbms/admin/utlrp.sql
+*/
+
+--Check the invalid object count in Source
+/*
+select count(*) from dba_objects where status='INVALID';
+*/
+
+--Check estimate size of dumpfile
+/*
+expdp directory=MOM_DIR full=Y nologfile=Y estimate_only=Y
+/*
+
+--Export Roles & Privileges
+/*
+expdp directory=MOM_DIR dumpfile=WINDOWS_LINUX_ROLES.DMP logfile=WINDOWS_LINUX_ROLES.log full=Y INCLUDE=USER,ROLE,ROLE_GRANT,PROFILE
+*/
+
+--Export the database in full and exclude default schema
+/*
+expdp directory=MOM_DIR dumpfile=EXP_WINDOWS_LINUX_FULL.DMP logfile=EXP_WINDOWS_LINUX_FULL.log full=Y EXCLUDE=SCHEMA:\”IN \(\'ANONYMOUS\', \'APEX_030200\', \'APEX_PUBLIC_USER\', \'APPQOSSYS\', \'CTXSYS\', \'DBSNMP\', \'DIP\', \'EXFSYS\', \'FLOWS_FILES\', \'MDDATA\', \'MDSYS\', \'MGMT_VIEW\', \'OLAPSYS\', \'ORACLE_OCM\', \'ORDDATA\', \'ORDPLUGINS\', \'ORDSYS\', \'OUTLN\', \'OWBSYS\', \'OWBSYS_AUDIT\', \'SCOTT\', \'SI_INFORMTN_SCHEMA\', \'SPATIAL_CSW_ADMIN_USR\', \'SPATIAL_WFS_ADMIN_USR\', \'SYS\', \'SYSMAN\', \'SYSTEM\', \'WMSYS\', \'XDB\', \'XS$NULL\'\)\”
+*/
+
+--Create target db with same name with source db, create tablespace like source db in target db
+/*
+
+*/
+
+--
 
