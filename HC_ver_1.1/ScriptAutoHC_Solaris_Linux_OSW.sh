@@ -283,7 +283,7 @@ END{
 
 #-----Check_Cluster
 echo "<p>+ CHECK_CLUSTER<p>" >>$file_name
-crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%'BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
+crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
