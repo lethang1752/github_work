@@ -65,7 +65,7 @@ Selinux permissive
 
 Create folder #
 
-mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
+mkdir -p /u01/app/oracle/product/19.0.0.0/dbhome_1
 mkdir -p /u02/oradata
 chown -R oracle:oinstall /u01
 chmod -R 775 /u01
