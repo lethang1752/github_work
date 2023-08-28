@@ -1,6 +1,7 @@
 #!/bin/ksh
 
 #-----Declare variable for script
+
 diag="V\$DIAG_INFO"
 database="V\$DATABASE"
 parameter="V\$PARAMETER"
@@ -11,6 +12,7 @@ host=$(hostname)
 os=$(uname)
 
 #-----Start script
+
 echo
 echo "MAKE SURE SERVER HAS KSH (KORNSHELL)*"
 echo "Set variable for the process..."
@@ -30,6 +32,7 @@ export PATH=$ORACLE_HOME/bin:$PATH
 echo "<<==============="
 
 #-----Declare variable for OS Machine
+
 if [[ "$os" == 'Linux' ]]; then
 	grep='grep'
 	awk='awk'
@@ -41,9 +44,11 @@ else
 fi
 
 #-----Get Date now
+
 time=$(date +'%d_%m_%Y')
 
 #-----Get Grid home
+
 grid_file=/etc/init.d/init.ohasd
 if [[ -f "$grid_file" ]]; then
 	grid=$($awk -F = ' $1 ~ /^ORA_CRS_HOME$/ {print $2} ' /etc/init.d/init.ohasd)
@@ -54,10 +59,12 @@ else
 fi
 
 #-----Get pwd script
+
 SCRIPT=$(readlink -f "$0")
 pwd=$(dirname "$SCRIPT")
 
 #-----Check connection
+
 if
 	echo "exit;" | sqlplus / as sysdba 2>&1 | grep -q "Connected to:"
 then
@@ -68,6 +75,7 @@ else
 fi
 
 #-----Get db_name
+
 dbname=$(
 	sqlplus -s / as sysdba <<EOF
 set head off
@@ -87,7 +95,7 @@ show parameter instance_name;
 exit
 EOF
 )
-insname=$(echo $insname | awk -v FS=' ' '{print $3}')
+insname=$(echo $insname | $awk -v FS=' ' '{print $3}')
 
 #-----Create folder
 mkdir -p $pwd/${insname}
@@ -146,20 +154,22 @@ Head() {
 }
 
 Body() {
+	#==#==Option Failed.
 
-#==#==Option Failed.
 if [[ -z $option || $option < 1 || $option > 3 ]]; then
 	echo
 	echo "=> #Error! Choose again."
 
 #==#==Option 1.(Run collect log)
+
 elif [ $option == 1 ]; then
 	echo
 	echo "Processing..."
 	echo
 
 #-----Alert_log
-tail -n 20000 $spwd/alert_$ORACLE_SID.log > $pwd/${insname}/alert_$ORACLE_SID.log
+
+cp $spwd/alert_$ORACLE_SID.log .
 echo
 echo "************************"
 echo "* Copy Alert_log done. *"
@@ -167,6 +177,7 @@ echo "************************"
 echo
 
 #-----HealthCheck
+
 sqlplus / as sysdba <<EOF
 @$pwd/HealthCheck.sql
 EOF
@@ -177,6 +188,7 @@ echo "*************************"
 echo
 
 #-----database_information
+
 sqlplus / as sysdba <<EOF
 @$pwd/database_information.sql
 EOF
@@ -187,6 +199,7 @@ echo "**********************************"
 echo
 
 #-----OS_Command
+
 file_name='database_information.html'
 unamestr=$(uname)
 if [[ "$unamestr" == 'AIX' ]]; then
@@ -196,6 +209,7 @@ else
 fi
 
 #-----Disk_Usage
+
 echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
@@ -211,6 +225,7 @@ END{
 }' >>$file_name
 
 #-----Check_Listener
+
 echo "<p>+ CHECK_LISTENER</p>" >>$file_name
 lsnrctl stat | awk 'BEGIN{
 print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><td>")}
@@ -224,6 +239,7 @@ print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><
 	}' >>$file_name
 
 #-----Check_Patches
+
 echo "<p>+ CHECK_PATCHES</p>" >>$file_name
 $ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
 {
@@ -236,6 +252,7 @@ END{
 }' >>$file_name
 
 #-----Backup_Policy
+
 echo "<p>+ BACKUP_POLICY</p>" >>$file_name
 echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
 rman target / <<EOF | grep CONFIGURE >>$file_name
@@ -244,6 +261,7 @@ EOF
 echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
 
 #-----No Grid Option
+
 if [ "$grid" == "N/A" ]; then
 	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
@@ -255,6 +273,7 @@ if [ "$grid" == "N/A" ]; then
 else
 
 #-----Resource_Crs
+
 echo "<p>+ RESOURCE_CRS<p>" >>$file_name
 crsctl status resource -v |
 egrep -e "NAME|TARGET|STATE|LAST_SERVER|STATE_DETAILS" |
@@ -283,8 +302,9 @@ END{
 }' >>$file_name
 
 #-----Check_Cluster
+
 echo "<p>+ CHECK_CLUSTER<p>" >>$file_name
-crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
+crsctl check crs | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%'BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
@@ -302,6 +322,7 @@ echo "************************"
 echo
 
 #-----Awrrpt
+
 TEMPFILE=/tmp/tmpawr.sql
 echo "<<=====================================================>>"
 echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
@@ -342,9 +363,11 @@ echo "********************"
 #-----Get information for report file
 
 # Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
+
 # Name: dbname
 
 # HA/Standalone
+
 rp_ha=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -361,12 +384,14 @@ else
 	rp_ha_last='Stand Alone'
 fi
 
-#OS
-os1=$(uname -o)
+# OS
+
+os1=$(uname -s)
 os2=$(uname -m)
 os_last="$os1 $os2"
 
 #Hardware
+
 if [[ "$os" == 'Linux' ]]; then
 	cpu=$(lscpu | grep -E '^CPU\(s\):' | tr -dc '0-9')
 	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
@@ -379,6 +404,7 @@ fi
 hw_last="CPU: $cpu cores, RAM: $ram_last GB"
 
 #Filesystem
+
 dtf=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -395,6 +421,7 @@ else
 fi
 
 #Archiving Enabled
+
 arc=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -411,6 +438,7 @@ else
 fi
 
 #Flashback Enabled
+
 fls=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -437,9 +465,11 @@ EOF
 )
 
 #Patch
+
 pat_last=$($ORACLE_HOME/OPatch/opatch lspatches | $grep "Database" | $awk -v FS=';' '{print $2}')
 
 #DBsize
+
 size=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -452,6 +482,7 @@ EOF
 size_last="$size GB"
 
 #Backup status
+
 bkp_last=$(
 sqlplus -s / as sysdba <<EOF
 set head off
@@ -462,6 +493,7 @@ EOF
 )
 
 #Print table
+
 echo "<p>+ REPORT DETAILS</p>" >>$file_name
 echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
 echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
@@ -484,22 +516,27 @@ echo
 echo "End of process!"
 
 #==#==Option 2 (OSWatcher).
+
 elif [ $option == 2 ]; then
 	echo
 	echo "Setup OSWatcher..."
 	echo
 
 #-----Check Java Installation
+
 if java -version 2>&1 >/dev/null | $grep "$java_check"; then
 	echo "Java installed!"
 
 	#-----Tar file oswbb840.tar
+
 	tar -xf $pwd/oswbb840.tar -C $pwd/.
 
 	#-----Create folder for oswbb_log
+
 	mkdir -p $pwd/oswbb_log_MPS_$host
 
 	#-----Start oswbb840
+
 	cd $pwd/oswbb
 	nohup ./startOSWbb.sh 300 120 None $pwd/oswbb_log_MPS_$host/ >nohup.out 2>&1 &
 	echo
@@ -511,6 +548,7 @@ else
 fi
 
 	#==#==Option 3 (Exit).
+
 	elif [ $option == 3 ]; then
 		echo
 		exit
@@ -518,6 +556,7 @@ fi
 }
 
 #=====MainStream
+
 Head
 while :; do
 	Body
