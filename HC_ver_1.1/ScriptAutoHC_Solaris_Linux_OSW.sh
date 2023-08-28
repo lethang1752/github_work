@@ -1,7 +1,6 @@
 #!/bin/ksh
 
 #-----Declare variable for script
-
 diag="V\$DIAG_INFO"
 database="V\$DATABASE"
 parameter="V\$PARAMETER"
@@ -12,7 +11,6 @@ host=$(hostname)
 os=$(uname)
 
 #-----Start script
-
 echo
 echo "MAKE SURE SERVER HAS KSH (KORNSHELL)*"
 echo "Set variable for the process..."
@@ -32,7 +30,6 @@ export PATH=$ORACLE_HOME/bin:$PATH
 echo "<<==============="
 
 #-----Declare variable for OS Machine
-
 if [[ "$os" == 'Linux' ]]; then
 	grep='grep'
 	awk='awk'
@@ -44,11 +41,9 @@ else
 fi
 
 #-----Get Date now
-
 time=$(date +'%d_%m_%Y')
 
 #-----Get Grid home
-
 grid_file=/etc/init.d/init.ohasd
 if [[ -f "$grid_file" ]]; then
 	grid=$($awk -F = ' $1 ~ /^ORA_CRS_HOME$/ {print $2} ' /etc/init.d/init.ohasd)
@@ -59,12 +54,10 @@ else
 fi
 
 #-----Get pwd script
-
 SCRIPT=$(readlink -f "$0")
 pwd=$(dirname "$SCRIPT")
 
 #-----Check connection
-
 if
 	echo "exit;" | sqlplus / as sysdba 2>&1 | grep -q "Connected to:"
 then
@@ -75,7 +68,6 @@ else
 fi
 
 #-----Get db_name
-
 dbname=$(
 	sqlplus -s / as sysdba <<EOF
 set head off
