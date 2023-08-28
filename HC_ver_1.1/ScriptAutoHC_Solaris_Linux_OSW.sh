@@ -510,10 +510,10 @@ else
 fi
 
 #==#==Option 3 (Exit).
-	elif [ $option == 3 ]; then
-		echo
-		exit
-	fi
+elif [ $option == 3 ]; then
+	echo
+	exit
+fi
 }
 
 #=====MainStream
