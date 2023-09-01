@@ -17,7 +17,7 @@ p13390677_112040_Linux-x86-64_7of7.zip -> deinstall
 - Listener: LISTENER_DG4MSSQL
 
 //MSSQL server:
-- IP Address: 192.168.11.158
+- IP: 192.168.11.158
 - Instance name: SQLEXPRESS
 - Port: 3506
 - Database name: mssdb
