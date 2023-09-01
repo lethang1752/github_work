@@ -1,0 +1,106 @@
+p13390677_112040_Linux-x86-64_1of7.zip -> db
+p13390677_112040_Linux-x86-64_2of7.zip -> db
+p13390677_112040_Linux-x86-64_3of7.zip -> grid
+p13390677_112040_Linux-x86-64_4of7.zip -> client
+p13390677_112040_Linux-x86-64_5of7.zip -> gateway
+p13390677_112040_Linux-x86-64_6of7.zip -> example
+p13390677_112040_Linux-x86-64_7of7.zip -> deinstall
+
+***Server Information:
+//Oracle database server:
+- IP: 192.168.160.136 -> Hostname:primary / PORT: 1521
+
+//Gateway server:
+- IP: 192.168.160.137 -> Hostname:gateway / PORT: 1521
+- ORACLE_HOME: /u01/app/oracle/sqlgateway
+- ORACLE_SID: dg4msql
+- Listener: LISTENER_DG4MSSQL
+
+//MSSQL server:
+- IP Address: 192.168.11.158
+- Instance name: SQLEXPRESS
+- Port: 3506
+- Database name: mssdb
+- User & Password: sa / admin
+
+***Install Gateway:
+- Step by step ...
+
+***Configure listener, tnsnames, init
+//listener.ora from Gateway site:
+*Note: 
+- Declare SID_NAME in SID_LIST_LISTENER to register gateway in listener
+- Declare ORACLE_HOME to run listener successfully (both in listener.ora and .bash_profile (oracle user))
+- Start listener with listener name same as registered name in listener.ora (LISTENER_DG4MSSQL)
+=======================
+ADR_BASE_LISTENER_DG4MSSQL = /u01/app/oracle/sqlgateway
+
+LISTENER_DG4MSSQL =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS_LIST =
+        (ADDRESS = (PROTOCOL = TCP)(HOST = gateway)(PORT = 1521))
+      )
+    )
+  )
+
+SID_LIST_LISTENER_DG4MSSQL =
+  (SID_LIST =
+    (SID_DESC =
+      (SID_NAME=dg4msql)
+      (ORACLE_HOME=/u01/app/oracle/sqlgateway)
+      (PROGRAM=dg4msql)
+      (ENV="LD_LIBRARY_PATH=/u01/app/oracle/sqlgateway/dg4msql/driver/lib:/u01/app/oracle/sqlgateway/lib")
+    )
+  )
+=======================
+
+//tnsnames.ora from Oracle Database site:
+*Note: 
+- Declare tnsnames header and SID same as SID_NAME in listener.ora from Gateway site
+- Test tnsping to check connection
+=======================
+DG4MSQL =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = gateway)(PORT = 1521))
+    (CONNECT_DATA =
+      (SID = DG4MSQL)
+    )
+    (HS = OK)
+  )
+=======================
+
+//initdg4msql.ora from Gateway site (/u01/app/oracle/sqlgateway/dg4msql/admin)
+=======================
+HS_FDS_CONNECT_INFO=192.168.11.158:3506//mssdb
+# alternate connect format is hostname/serverinstance/databasename
+HS_FDS_TRACE_LEVEL=ON
+HS_FDS_RECOVERY_ACCOUNT=RECOVER
+HS_FDS_RECOVERY_PWD=RECOVER
+HS_NLS_NCHAR=UCS2
+=======================
+
+*Note:
+- User & Password for MSSQL:
+    + Microsoft SQL Server Management Studio 
+        -> Security 
+            -> Logins 
+                -> User want to use (General to set password / Status to Enable login)
+    + Restart MSSQL to apply
+- Port for MSSQL:
+    + Sql Server Configuration Manager
+        -> SQL Server Network Configuration
+            -> Protocols for $INSTANCE_NAME: Enable all Protocol Name (right screen)
+                -> Double click TCP/IP
+                    -> Protocol: Enable (Yes)
+                    -> IP Addresses: IPAll (TCP Port: 3506) / IP16: 192.168.11.158 (Enable: Yes)
+    + Restart MSSQL to apply
+- Port for firewall:
+    + Windows Defender firewall
+        -> Advanced settings
+            -> Inbound Rules
+                -> New Rule... (Port / Specific local ports: 3506)
+
+//Database link from Oracle Server site:
+create database link sqlserver
+connect to "sa" identified by "admin" using 'dg4msql';
