@@ -104,3 +104,5 @@ HS_NLS_NCHAR=UCS2
 //Database link from Oracle Server site:
 create database link sqlserver
 connect to "sa" identified by "admin" using 'dg4msql';
+
+select * from "table"@sqlserver;
