@@ -11,7 +11,7 @@ p13390677_112040_Linux-x86-64_7of7.zip -> deinstall
 - IP: 192.168.160.136 -> Hostname:primary / PORT: 1521
 
 //Gateway server:
-- IP: 192.168.160.137 -> Hostname:gateway / PORT: 1521
+- IP: 192.168.160.137 -> Hostname:gateway / PORT: 1521 (use another port if install in Oracle Database Server)
 - ORACLE_HOME: /u01/app/oracle/sqlgateway
 - ORACLE_SID: dg4msql
 - Listener: LISTENER_DG4MSSQL
