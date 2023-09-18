@@ -1,3 +1,11 @@
+--Create destination database (dbca)
+
+--Create user with dba privileges in both "source" and "dest" db
+/*
+create user dbamgr identified by oracle123;
+grant dba to dbamgr;
+/*
+
 --Check database size in Source DB 
 /*
 select
@@ -8,37 +16,49 @@ select
 from dual;
 */
 
---Check schema objects are placed in which tablespaces except default schemas
+--Check object in SYSTEM, SYSAUX
 /*
-set pagesize 130
-break on Tablespace on Owner
-column Objects format A20
-select Tablespace_Name,Owner,COUNT(*)|| ' tables' Objects
-from DBA_TABLES
-group by Tablespace_Name,Owner
-union
-select Tablespace_Name, Owner, COUNT(*)||' indexes' Objects
-from DBA_INDEXES
-group by Tablespace_Name, Owner;
+set lines 200
+col USER format A20
+col "SEGMENT NAME" format A30 
+col TYPE format a20
+SELECT OWNER "USER",SEGMENT_NAME "SEGMENT NAME",SEGMENT_TYPE "TYPE",BYTES/1024/1024 "SIZE_MB"
+FROM DBA_SEGMENTS
+WHERE TABLESPACE_NAME IN ('SYSTEM','SYSAUX') AND OWNER IN (
+        SELECT USERNAME
+        FROM DBA_USERS
+        WHERE ACCOUNT_STATUS='OPEN' AND TRUNC(CREATED) > (
+                SELECT TRUNC(CREATED)
+                FROM DBA_USERS
+                WHERE USERNAME='SYS'
+            )
+    ) AND OWNER NOT IN ('SYSMAN','ANONYMOUS','APEX_050100','APEX_PUBLIC_USER','APPQOSSYS','AUDSYS','CTXSYS','DBSFWUSER','DBSNMP','DIP','DVSYS','DVF','FLOWS_FILES','GGSYS','GSMADMIN_INTERNAL','GSMCATUSER','GSMUSER','LBACSYS','MDDATA','MDSYS','OUTLN','ORACLE_OCM','REMOTE_SCHEDULER_AGENT','SYSBACKUP','SYS$UMF','XDB','WMSYS','XS$NULL');
 */
 
---Get DDL of all the tablespaces except default tablespaces
+--Create new tablespace with new datafile and mv above object to new tablespace
 /*
-SET heading OFF;
-SET echo OFF;
-SET pages 990;
-SET long 90009;
+sqlplus / as sysdba
+create tablespace migrate_tbs datafile '?/dbs/migrate_tbs.dbf' size 100M autoextend on;
+commit;
+*****
+select 'alter table '||owner||'.'||segment_name||' move tablespace migrate_tbs;' from dba_segments WHERE TABLESPACE_NAME IN ('SYSTEM','SYSAUX') AND OWNER IN (
+        SELECT USERNAME
+        FROM DBA_USERS
+        WHERE ACCOUNT_STATUS='OPEN' AND TRUNC(CREATED) > (
+                SELECT TRUNC(CREATED)
+                FROM DBA_USERS
+                WHERE USERNAME='SYS'
+            )
+    ) AND OWNER NOT IN ('SYSMAN','ANONYMOUS','APEX_050100','APEX_PUBLIC_USER','APPQOSSYS','AUDSYS','CTXSYS','DBSFWUSER','DBSNMP','DIP','DVSYS','DVF','FLOWS_FILES','GGSYS','GSMADMIN_INTERNAL','GSMCATUSER','GSMUSER','LBACSYS','MDDATA','MDSYS','OUTLN','ORACLE_OCM','REMOTE_SCHEDULER_AGENT','SYSBACKUP','SYS$UMF','XDB','WMSYS','XS$NULL');
+-->
 
-spool ddl_tablespace.sql
-SELECT dbms_metadata.get_ddl(‘TABLESPACE', tb.tablespace_name)
-FROM dba_tablespaces tbas;
+<--
+*/
 
-spool OFF
-/*
-
+--Check datafile exclude from system, sysaux
 --Compile invalid objects if any in Source
 /*
-@?/rdbms/admin/utlrp.sql
+@?/rdbms/admin/utlrp.sql 8
 */
 
 --Check the invalid object count in Source
