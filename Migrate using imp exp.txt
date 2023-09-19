@@ -56,6 +56,15 @@ select 'alter table '||owner||'.'||segment_name||' move tablespace migrate_tbs;'
 */
 
 --Check datafile exclude from system, sysaux
+/*
+sqlplus / as sysdba
+set lines 200
+set pages 999
+col file_name format A70 
+col tablespace_name format a30
+select tablespace_name, file_name from dba_data_files;
+*/
+
 --Compile invalid objects if any in Source
 /*
 @?/rdbms/admin/utlrp.sql 8
@@ -66,25 +75,10 @@ select 'alter table '||owner||'.'||segment_name||' move tablespace migrate_tbs;'
 select count(*) from dba_objects where status='INVALID';
 */
 
---Check estimate size of dumpfile
+--Download script and unzip as xtt folder in both env
 /*
-expdp directory=MOM_DIR full=Y nologfile=Y estimate_only=Y
-/*
-
---Export Roles & Privileges
-/*
-expdp directory=MOM_DIR dumpfile=WINDOWS_LINUX_ROLES.DMP logfile=WINDOWS_LINUX_ROLES.log full=Y INCLUDE=USER,ROLE,ROLE_GRANT,PROFILE
+https://support.oracle.com/epmos/main/downloadattachmentprocessor?attachid=2471245.1%3ARMAN_XTTS_VER4&docType=REFERENCE&action=download
 */
 
---Export the database in full and exclude default schema
-/*
-expdp directory=MOM_DIR dumpfile=EXP_WINDOWS_LINUX_FULL.DMP logfile=EXP_WINDOWS_LINUX_FULL.log full=Y EXCLUDE=SCHEMA:\”IN \(\'ANONYMOUS\', \'APEX_030200\', \'APEX_PUBLIC_USER\', \'APPQOSSYS\', \'CTXSYS\', \'DBSNMP\', \'DIP\', \'EXFSYS\', \'FLOWS_FILES\', \'MDDATA\', \'MDSYS\', \'MGMT_VIEW\', \'OLAPSYS\', \'ORACLE_OCM\', \'ORDDATA\', \'ORDPLUGINS\', \'ORDSYS\', \'OUTLN\', \'OWBSYS\', \'OWBSYS_AUDIT\', \'SCOTT\', \'SI_INFORMTN_SCHEMA\', \'SPATIAL_CSW_ADMIN_USR\', \'SPATIAL_WFS_ADMIN_USR\', \'SYS\', \'SYSMAN\', \'SYSTEM\', \'WMSYS\', \'XDB\', \'XS$NULL\'\)\”
-*/
 
---Create target db with same name with source db, create tablespace like source db in target db
-/*
-
-*/
-
---
 
