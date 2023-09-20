@@ -55,14 +55,14 @@ select 'alter table '||owner||'.'||segment_name||' move tablespace migrate_tbs;'
 <--
 */
 
---Check datafile exclude from system, sysaux
+--Check datafile exclude from system, sysaux, undotbs1, undotbs2
 /*
 sqlplus / as sysdba
 set lines 200
 set pages 999
 col file_name format A70 
 col tablespace_name format a30
-select tablespace_name, file_name from dba_data_files;
+select tablespace_name, file_name from dba_data_files where tablespace_name not in ('SYSTEM','SYSAUX','UNDOTBS1','UNDOTBS2');
 */
 
 --Compile invalid objects if any in Source
@@ -80,5 +80,35 @@ select count(*) from dba_objects where status='INVALID';
 https://support.oracle.com/epmos/main/downloadattachmentprocessor?attachid=2471245.1%3ARMAN_XTTS_VER4&docType=REFERENCE&action=download
 */
 
+--Create directory for backup
+*Source (src_scratch_location): /home/oracle/src_backups/
+*Destination (dest_scratch_location): /export/home/oracle/dest_backups/
 
+--Modify information in xtt.properties and scp xtt folder from source to destination
++ tablespaces
++ platformid
++ src_scratch_location 
++ dest_scratch_location
++ dest_datafile_location
++ usermantransport=1 - It is recommended this be set if the source database is running 12c or higher.
 
+scp -r /home/oracle/xtt dest:/export/home/oracle/xtt
+
+--Set TMPDIR environment
+*Source: export TMPDIR=/home/oracle/xtt
+*Destination: export TMPDIR=/export/home/oracle/xtt
+
+--Follow docs 2471245.1
+
+--Run backup on source and scp to destination (cd xtt folder)
+/*
+$ORACLE_HOME/perl/bin/perl /home/oracle/xtt/xttdriver.pl --backup --debug 3
+*/
+
+scp /home/oracle/src_backups/* dest:/export/home/oracle/dest_backups/
+scp res.txt dest:/home/oracle/xtt
+
+--Restore datafile on destination (cd xtt folder)
+/*
+$ORACLE_HOME/perl/bin/perl /export/home/oracle/xtt/xttdriver.pl --restore --debug 3
+*/
