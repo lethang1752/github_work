@@ -4,7 +4,14 @@
 /*
 create user dbamgr identified by oracle123;
 grant dba to dbamgr;
+*/
+
+--Create user in destination same as source
 /*
+select 'create user '||username||' identified by oracle123;' FROM dba_users u WHERE EXISTS (SELECT 1 FROM dba_objects o
+WHERE o.owner = u.username ) AND default_tablespace not in
+('SYSTEM','SYSAUX') and ACCOUNT_STATUS = 'OPEN';
+*/
 
 --Check database size in Source DB 
 /*
