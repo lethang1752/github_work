@@ -97,7 +97,7 @@ useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/gr
 passwd grid
 OgiAdm29
 
-useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
+useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
 passwd oracle
 DbsAdm29
 
