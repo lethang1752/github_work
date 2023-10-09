@@ -90,22 +90,26 @@ groupadd -g 2014 kmdba
 groupadd -g 2015 asmadmin
 groupadd -g 2016 asmoper
 
-projadd group.dba
-projects -l group.dba
+projadd user.grid
+projadd user.oracle
 
 useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=group.dba grid
 passwd grid
-OgiAdm29
 
 useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
 passwd oracle
-DbsAdm29
 
-projmod -sK "project.max-shm-memory=(privileged,20G,deny)" group.dba 
-projmod -sK "project.max-sem-ids=(privileged,100,deny)" group.dba
-projmod -sK "project.max-shm-ids=(privileged,100,deny)" group.dba
-projmod -sK "project.max-sem-nsems=(privileged,256,deny)" group.dba
-projmod -sK "process.max-file-descriptor=(privileged,65536,deny)" group.dba
+projmod -sK "project.max-shm-memory=(privileged,4G,deny)" user.oracle 
+projmod -sK "project.max-sem-ids=(privileged,100,deny)" user.oracle
+projmod -sK "project.max-shm-ids=(privileged,100,deny)" user.oracle
+projmod -sK "project.max-sem-nsems=(privileged,256,deny)" user.oracle
+projmod -sK "process.max-file-descriptor=(privileged,65536,deny)" user.oracle
+
+projmod -sK "project.max-shm-memory=(privileged,2G,deny)" user.grid 
+projmod -sK "project.max-sem-ids=(privileged,100,deny)" user.grid
+projmod -sK "project.max-shm-ids=(privileged,100,deny)" user.grid
+projmod -sK "project.max-sem-nsems=(privileged,256,deny)" user.grid
+projmod -sK "process.max-file-descriptor=(privileged,65536,deny)" user.oracgridle
 
 cat /etc/project
 
