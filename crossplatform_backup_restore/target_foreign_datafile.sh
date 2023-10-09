@@ -9,7 +9,7 @@ else
 	awk='nawk'
 fi
 
-sh migrate.properties
+. migrate.properties
 
 sqlplus -S "/ as sysdba" << !
 create table foreign_datafile
