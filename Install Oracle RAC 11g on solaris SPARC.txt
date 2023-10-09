@@ -153,16 +153,12 @@ zfs create rpool/grid
 zfs set mountpoint=/u01/app/grid rpool/grid
 zfs set quota=100g rpool/grid
 
-mkdir -p /u01/app
-mkdir -p /u01/setup
-mkdir -p /u01/product/19.3.0.0/dbhome_1
-chown -R oracle:oinstall /u01
-chmod -R 775 /u01
-
+mkdir -p /u01/app/oracle/product/12.2.0.1/dbhome_1
+mkdir -p /u01/app/12.2.0.1/grid
 mkdir -p /u01/app/grid/
-mkdir -p /u01/app/grid/product/ogi/12.1.0
-chown -R grid:oinstall /grid
-chmod -R 775 /grid
+chown -R grid:oinstall /u01
+chmod -R 775 /u01
+chown -R oracle:oinstall /u01/app/oracle
 
 #Oracle profile
 umask 022
