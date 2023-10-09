@@ -2,29 +2,22 @@
 
 . migrate.properties
 
+file_name=`date '+%Y.%m.%d_%H.%M.%S'`
+
+recover_seq=`ls | grep inc_recover | wc -l`
+recover_seq=$((recover_seq+1))
+
 sqlplus -S "/ as sysdba" << !
-spool target_foreign_datafile.sql
+spool target_foreign_datafile_inc${recover_seq}.sql
 set linesize 250
 set pagesize 0
 set heading off
 set trimspool on
 set feedback off
 set term off
-select 'create table foreign_datafile
-(
-	file_id number not null, 
-	name varchar(200),
-	constraint file_id_pk primary key (file_id)
-) tablespace system;' from dual
-union all
 select 'insert into foreign_datafile values (' ||file_id|| ','''||file_name||''');' from dba_data_files where tablespace_name not in ('SYSTEM','SYSAUX')
 /
 !
-
-file_name=`date '+%Y.%m.%d_%H.%M.%S'`
-
-recover_seq=`ls | grep inc_recover | wc -l`
-recover_seq=$((recover_seq+1))
 
 sqlplus -S "/ as sysdba" << !
 spool inc_backup.rman
