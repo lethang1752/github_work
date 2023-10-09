@@ -162,10 +162,10 @@ chown -R oracle:oinstall /u01/app/oracle
 
 #Oracle profile
 umask 022
-export ORACLE_BASE=/u01/product
-export ORACLE_HOME=$ORACLE_BASE/19.3.0.0/dbhome_1
-export ORACLE_SID=orcl
-export ORACLE_UNQNAME=orcl
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/12.2.0.1/dbhome_1
+export ORACLE_SID=vctr
+export ORACLE_UNQNAME=vctr
 export TEMP=/tmp
 export TMPDIR=/tmp
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib
