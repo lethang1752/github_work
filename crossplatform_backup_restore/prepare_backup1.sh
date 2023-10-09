@@ -8,18 +8,6 @@ recover_seq=`ls | grep inc_recover | wc -l`
 recover_seq=$((recover_seq+1))
 
 sqlplus -S "/ as sysdba" << !
-spool target_foreign_datafile_inc${recover_seq}.sql
-set linesize 250
-set pagesize 0
-set heading off
-set trimspool on
-set feedback off
-set term off
-select 'insert into foreign_datafile values (' ||file_id|| ','''||file_name||''');' from dba_data_files where tablespace_name not in ('SYSTEM','SYSAUX')
-/
-!
-
-sqlplus -S "/ as sysdba" << !
 spool inc_backup.rman
 set linesize 250
 set pagesize 0
@@ -62,9 +50,7 @@ select 'allocate channel c' || level || ' device type disk;'
 from dual
 connect by rownum<=${target_parallel_degree}
 union all
-select 'recover from platform ''${src_platform_name}'' foreign datafilecopy ' || ' ''${target_datafile_dest}/' ||
-       lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) ||
-       '.dbf'' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
+select 'recover from platform ''${src_platform_name}'' foreign datafilecopy  '''|| file_name ||''' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
 from dba_data_files f, dba_Tablespaces t
 where f.tablespace_name=t.tablespace_name
 and   t.CONTENTS='PERMANENT'
