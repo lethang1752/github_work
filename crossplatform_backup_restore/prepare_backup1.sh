@@ -50,9 +50,8 @@ select 'allocate channel c' || level || ' device type disk;'
 from dual
 connect by rownum<=${target_parallel_degree}
 union all
-select 'recover from platform ''${src_platform_name}'' foreign datafilecopy ' || ' ''${target_datafile_dest}/' ||
-       lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) ||
-       '.dbf'' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
+select 'recover from platform ''${src_platform_name}'' foreign datafilecopy ' || file_id ||
+       ' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
 from dba_data_files f, dba_Tablespaces t
 where f.tablespace_name=t.tablespace_name
 and   t.CONTENTS='PERMANENT'
