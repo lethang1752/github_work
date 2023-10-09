@@ -93,10 +93,10 @@ groupadd -g 2016 asmoper
 projadd user.grid
 projadd user.oracle
 
-useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=group.dba grid
+useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=user.grid grid
 passwd grid
 
-useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=group.dba oracle
+useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
 passwd oracle
 
 projmod -sK "project.max-shm-memory=(privileged,4G,deny)" user.oracle 
