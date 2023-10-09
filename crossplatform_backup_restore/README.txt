@@ -1,3 +1,7 @@
+
+
+
+
 - Run initial_restore.rman with command:
 rman target / @initial_restore.rman > rman_output_restore_full.log
 
