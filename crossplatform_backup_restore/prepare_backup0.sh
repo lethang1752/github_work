@@ -47,12 +47,9 @@ select 'allocate channel c' || level || ' device type disk;'
 from dual
 connect by rownum<=${target_parallel_degree}
 union all
-select 'set newname for datafile ' || file_id || ' to ''${target_datafile_dest}'';' from dba_data_files f, dba_Tablespaces t
-where f.tablespace_name=t.tablespace_name
-and   t.CONTENTS='PERMANENT'
-and   t.tablespace_name not in ('SYSTEM','SYSAUX')
-union all
-select 'restore from platform ''${src_platform_name}'' foreign datafile ' || file_id || ' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
+select 'restore from platform ''${src_platform_name}'' foreign datafile ' || file_id || ' format ''${target_datafile_dest}/' ||
+       lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) ||
+       '.dbf'' from backupset ''${target_backup_dest}/' || lower(t.tablespace_name) || trim(to_char(row_number() over (partition by t.tablespace_name order by f.file_id),'00')) || '_${file_name}'';'
 from dba_data_files f, dba_Tablespaces t
 where f.tablespace_name=t.tablespace_name
 and   t.CONTENTS='PERMANENT'
