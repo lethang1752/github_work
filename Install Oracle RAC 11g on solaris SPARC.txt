@@ -181,9 +181,9 @@ ulimit -v unlimited
  
 # Grid profile
 umask 022
-export ORACLE_BASE=/grid/product
-export ORACLE_HOME=/grid/product/ogi/12.1.0
-export ORACLE_SID=+ASM1
+export ORACLE_BASE=/u01/app/grid/
+export ORACLE_HOME=/u01/app/12.2.0.1/grid
+export ORACLE_SID=+ASM
 export TEMP=/tmp
 export TMPDIR=/tmp
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib
