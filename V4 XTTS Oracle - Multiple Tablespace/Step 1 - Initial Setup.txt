@@ -1,3 +1,12 @@
+**NOTE:
+- In Source /home/oracle/src_script/ have: xtt_src.env
+    + $XTT_src_script_01 -> /home/oracle/src_script/xtt_01
+    + $XTT_src_backup_01 -> /home/oracle/src_backup/xtt_01
+    + $XTT_dest_script_01 -> /export/home/oracle/dest_script/xtt_01
+    + $XTT_dest_backup_01 -> /export/home/oracle/dest_backup/xtt_01
+- In Destination /export/home/oracle/dest_script/ have: xtt_dest.env same as Source
+- Run these env file to use alias
+
 Linux - Source:
 - Create folder for script:
 mkdir -p /home/oracle/src_script/xtt_01
@@ -11,6 +20,36 @@ mkdir -p /home/oracle/src_backup/xtt_02
 mkdir -p /home/oracle/src_backup/xtt_03
 mkdir -p /home/oracle/src_backup/xtt_04
 
+- Create env file for xtt src backup (using as alias)
+
+touch /home/oracle/src_script/xtt_src.env
+echo "# XTT_src_script_0x -> location for script for each xtts
+export XTT_src_script_01=/home/oracle/src_script/xtt_01;
+export XTT_src_script_02=/home/oracle/src_script/xtt_02;
+export XTT_src_script_03=/home/oracle/src_script/xtt_03;
+export XTT_src_script_04=/home/oracle/src_script/xtt_04;
+
+# XTT_src_backup_0x -> location for src backup file
+export XTT_src_backup_01=/home/oracle/src_backup/xtt_01;
+export XTT_src_backup_02=/home/oracle/src_backup/xtt_02;
+export XTT_src_backup_03=/home/oracle/src_backup/xtt_03;
+export XTT_src_backup_04=/home/oracle/src_backup/xtt_04;
+
+# XTT_dest_script_0x -> location for dest script file
+export XTT_dest_script_01=/export/home/oracle/dest_script/xtt_01;
+export XTT_dest_script_02=/export/home/oracle/dest_script/xtt_02;
+export XTT_dest_script_03=/export/home/oracle/dest_script/xtt_03;
+export XTT_dest_script_04=/export/home/oracle/dest_script/xtt_04;
+
+# XTT_dest_backup_0x -> location for dest backup file
+export XTT_dest_backup_01=/export/home/oracle/dest_backup/xtt_01;
+export XTT_dest_backup_02=/export/home/oracle/dest_backup/xtt_02;
+export XTT_dest_backup_03=/export/home/oracle/dest_backup/xtt_03;
+export XTT_dest_backup_04=/export/home/oracle/dest_backup/xtt_04;" > /home/oracle/src_script/xtt_src.env
+
+- Scp this env file from Source to Destination
+scp /home/oracle/src_script/xtt_src.env oracle@thang-solaris:/export/home/oracle/dest_script/xtt_dest.env
+----------------------------------------------------------------------------------------------------------------
 Solaris - Dest:
 - Create folder for script:
 mkdir -p /export/home/oracle/dest_script
@@ -20,8 +59,9 @@ mkdir -p /export/home/oracle/dest_backup/xtt_01
 mkdir -p /export/home/oracle/dest_backup/xtt_02
 mkdir -p /export/home/oracle/dest_backup/xtt_03
 mkdir -p /export/home/oracle/dest_backup/xtt_04
-
-- Modify information in xtt script:
+----------------------------------------------------------------------------------------------------------------
+Linux - Source:
+- Modify information in xtt script from Source database:
 tablespaces=TS1,TS2
 platformid=13
 src_scratch_location=/src_backups/
@@ -56,5 +96,5 @@ sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/s
 sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_04/@g' /home/oracle/src_script/xtt_04/xtt.properties
 sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' /home/oracle/src_script/xtt_04/xtt.properties
 
-- Scp all xtt script to dest_server:
+- Scp all xtt script to Dest database:
 scp -r /home/oracle/src_script/* thang-solaris:/export/home/oracle/dest_script/
