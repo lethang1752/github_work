@@ -61,7 +61,7 @@ mkdir -p /export/home/oracle/dest_backup/xtt_03
 mkdir -p /export/home/oracle/dest_backup/xtt_04
 ----------------------------------------------------------------------------------------------------------------
 Linux - Source:
-- Modify information in xtt script from Source database:
+- Modify these information in xtt script from Source database:
 tablespaces=TS1,TS2
 platformid=13
 src_scratch_location=/src_backups/
