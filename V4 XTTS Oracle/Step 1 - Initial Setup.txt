@@ -1,0 +1,60 @@
+Linux - Source:
+- Create folder for script:
+mkdir -p /home/oracle/src_script/xtt_01
+mkdir -p /home/oracle/src_script/xtt_02
+mkdir -p /home/oracle/src_script/xtt_03
+mkdir -p /home/oracle/src_script/xtt_04
+
+- Create folder for src_backup (src_scratch_location):
+mkdir -p /home/oracle/src_backup/xtt_01
+mkdir -p /home/oracle/src_backup/xtt_02
+mkdir -p /home/oracle/src_backup/xtt_03
+mkdir -p /home/oracle/src_backup/xtt_04
+
+Solaris - Dest:
+- Create folder for script:
+mkdir -p /export/home/oracle/dest_script
+
+- Create folder for dest_backup (dest_scratch_location):
+mkdir -p /export/home/oracle/dest_backup/xtt_01
+mkdir -p /export/home/oracle/dest_backup/xtt_02
+mkdir -p /export/home/oracle/dest_backup/xtt_03
+mkdir -p /export/home/oracle/dest_backup/xtt_04
+
+- Modify information in xtt script:
+tablespaces=TS1,TS2
+platformid=13
+src_scratch_location=/src_backups/
+dest_scratch_location=/dest_backups/
+dest_datafile_location=/oradata/dest_datafiles/
+
+|| xtt_01 ||
+sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' /home/oracle/src_script/xtt_01/xtt.properties
+sed -i 's/platformid=13/platformid=13/g' /home/oracle/src_script/xtt_01/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_01/@g' /home/oracle/src_script/xtt_01/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_01/@g' /home/oracle/src_script/xtt_01/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' /home/oracle/src_script/xtt_01/xtt.properties
+
+|| xtt_02 ||
+sed -i 's/tablespaces=TS1,TS2/tablespaces=DATA01/g' /home/oracle/src_script/xtt_02/xtt.properties
+sed -i 's/platformid=13/platformid=13/g' /home/oracle/src_script/xtt_02/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_02/@g' /home/oracle/src_script/xtt_02/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_02/@g' /home/oracle/src_script/xtt_02/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' /home/oracle/src_script/xtt_02/xtt.properties
+
+|| xtt_03 ||
+sed -i 's/tablespaces=TS1,TS2/tablespaces=TBS1/g' /home/oracle/src_script/xtt_03/xtt.properties
+sed -i 's/platformid=13/platformid=13/g' /home/oracle/src_script/xtt_03/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_03/@g' /home/oracle/src_script/xtt_03/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_03/@g' /home/oracle/src_script/xtt_03/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' /home/oracle/src_script/xtt_03/xtt.properties
+
+|| xtt_04 ||
+sed -i 's/tablespaces=TS1,TS2/tablespaces=TB2/g' /home/oracle/src_script/xtt_04/xtt.properties
+sed -i 's/platformid=13/platformid=13/g' /home/oracle/src_script/xtt_04/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_04/@g' /home/oracle/src_script/xtt_04/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_04/@g' /home/oracle/src_script/xtt_04/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' /home/oracle/src_script/xtt_04/xtt.properties
+
+- Scp all xtt script to dest_server:
+scp -r /home/oracle/src_script/* thang-solaris:/export/home/oracle/dest_script/

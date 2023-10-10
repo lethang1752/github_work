@@ -1,0 +1,48 @@
+**Source Database:
+- Create directory in Source database
+create directory dpump_tts as '/home/oracle/src_script';
+GRANT READ, WRITE ON DIRECTORY dpump_tts TO system;
+
+- Create export parameter file in Source database
+touch /home/oracle/src_script/exp.par
+-------------
+dumpfile=xttdump.dmp
+directory=dpump_tts
+exclude=statistics
+transport_tablespaces=USERS,DATA01,TBS1,TB2
+transport_full_check=yes
+logfile=tts_export.log 
+-------------
+
+- Run expdp with system user
+expdp system/oracle123 parfile=/home/oracle/src_script/exp.par
+
+- Scp xttdump.dmp to destination database
+scp /home/oracle/src_script/xttdump.dmp oracle@thang-solaris:/export/home/oracle/dest_script/
+
+**Destination Database:
+- Create directory in Destination database
+create directory dpump_tts as '/export/home/oracle/dest_script';
+GRANT READ, WRITE ON DIRECTORY dpump_tts TO system;
+
+- Create import parameter file in Destination database
+touch /export/home/oracle/dest_script/manual_imp.par
+-------------
+dumpfile= xttdump.dmp
+directory=dpump_tts
+transport_datafiles='+DATA/data01_5.dbf','+DATA/tb2_8.dbf','+DATA/tbs1_2.dbf','+DATA/users_7.dbf'
+logfile=tts_import.log
+-------------
+
+- Run impdp with system user
+impdp system/oracle123 parfile=/export/home/oracle/dest_script/manual_imp.par
+
+- Check tablespace for corruption
+rman target /
+validate tablespace USERS,DATA01,TBS1,TB2 check logical;
+
+- Open read write for tablespace in Destination database
+alter tablespace USERS read write;
+alter tablespace DATA01 read write;
+alter tablespace TBS1 read write;
+alter tablespace TB2 read write;

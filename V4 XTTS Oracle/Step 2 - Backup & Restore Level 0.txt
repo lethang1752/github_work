@@ -1,0 +1,58 @@
+- Start backup level 0 one by one from source database:
+
+|| xtt_01 ||
+**Source:
+export TMPDIR=/home/oracle/src_script/xtt_01
+cd /home/oracle/src_script/xtt_01
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
+
+scp /home/oracle/src_backup/xtt_01/* oracle@thang-solaris:/export/home/oracle/dest_backup/xtt_01/
+scp res.txt oracle@thang-solaris:/export/home/oracle/dest_script/xtt_01/
+
+**Destination:
+export TMPDIR=/export/home/oracle/dest_script/xtt_01
+cd /export/home/oracle/dest_script/xtt_01
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
+-------------------------------------------------------------------------------------------------
+|| xtt_02 ||
+**Source:
+export TMPDIR=/home/oracle/src_script/xtt_02
+cd /home/oracle/src_script/xtt_02
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
+
+scp /home/oracle/src_backup/xtt_02/* oracle@thang-solaris:/export/home/oracle/dest_backup/xtt_02/
+scp res.txt oracle@thang-solaris:/export/home/oracle/dest_script/xtt_02/
+
+**Destination:
+export TMPDIR=/export/home/oracle/dest_script/xtt_02
+cd /export/home/oracle/dest_script/xtt_02
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
+--------------------------------------------------------------------------------------------------
+|| xtt_03 ||
+**Source:
+export TMPDIR=/home/oracle/src_script/xtt_03
+cd /home/oracle/src_script/xtt_03
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
+
+scp /home/oracle/src_backup/xtt_03/* oracle@thang-solaris:/export/home/oracle/dest_backup/xtt_03/
+scp res.txt oracle@thang-solaris:/export/home/oracle/dest_script/xtt_03/
+
+**Destination:
+export TMPDIR=/export/home/oracle/dest_script/xtt_03
+cd /export/home/oracle/dest_script/xtt_03
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
+--------------------------------------------------------------------------------------------------
+|| xtt_04 ||
+**Source:
+export TMPDIR=/home/oracle/src_script/xtt_04
+cd /home/oracle/src_script/xtt_04
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
+
+scp /home/oracle/src_backup/xtt_04/* oracle@thang-solaris:/export/home/oracle/dest_backup/xtt_04/
+scp res.txt oracle@thang-solaris:/export/home/oracle/dest_script/xtt_04/
+
+**Destination:
+export TMPDIR=/export/home/oracle/dest_script/xtt_04
+cd /export/home/oracle/dest_script/xtt_04
+$ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
+--------------------------------------------------------------------------------------------------
