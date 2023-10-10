@@ -23,7 +23,8 @@ mkdir -p /home/oracle/src_backup/xtt_04
 - Create env file for xtt src backup (using as alias)
 
 touch /home/oracle/src_script/xtt_src.env
-echo "# XTT_src_script_0x -> location for script for each xtts
+echo "### xtt_src.env provide alias to use in each Step ###
+# XTT_src_script_0x -> location for script for each xtts
 export XTT_src_script_01=/home/oracle/src_script/xtt_01;
 export XTT_src_script_02=/home/oracle/src_script/xtt_02;
 export XTT_src_script_03=/home/oracle/src_script/xtt_03;
