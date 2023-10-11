@@ -1,7 +1,7 @@
 **Source Database:
 - Create directory in Source database
 create directory dpump_tts as '/home/oracle/src_script';
-GRANT READ, WRITE ON DIRECTORY dpump_tts TO system;
+grant read, write to directory dpump_tts to system;
 
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
@@ -24,7 +24,7 @@ scp /home/oracle/src_script/xttdump.dmp oracle@thang-solaris:/export/home/oracle
 **Destination Database:
 - Create directory in Destination database
 create directory dpump_tts as '/export/home/oracle/dest_script';
-GRANT READ, WRITE ON DIRECTORY dpump_tts TO system;
+grant read, write to directory dpump_tts to system;
 
 - Create import parameter file in Destination database
 touch /export/home/oracle/dest_script/manual_imp.par
