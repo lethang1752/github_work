@@ -9,7 +9,7 @@ usermod -a -G asmdba oracle
 useradd -u 54323 -g oinstall -G asmadmin,asmdba grid
 passwd grid
 
-useradd -g oinstall -G dba,oper,backupdba,dgdba,kmdba,racdba oracle
+usermod -g oinstall -G dba,oper,backupdba,dgdba,kmdba,racdba,asmadmin oracle
 
 [ CREATE DIRECTORY & INSTALL ORACLE GRID ]
 
