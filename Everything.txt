@@ -398,7 +398,7 @@ cd $ORACLE_HOME/bin
 ./asmcmd afd_unlabel DATA1 -f --init
 
 --delete log using ADRCI
-set home diag/rdbms/fncrmyd/FNCRMYD1;
+set home ...;
 purge -age 360 -type ALERT;
 purge -age 360 -type INCIDENT;
 purge -age 360 -type TRACE;
