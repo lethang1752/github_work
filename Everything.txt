@@ -396,3 +396,13 @@ where s.obj# = o.object_id
 cd $ORACLE_HOME/bin
 ./asmcmd afd_lslbl
 ./asmcmd afd_unlabel DATA1 -f --init
+
+--delete log using ADRCI
+set home diag/rdbms/fncrmyd/FNCRMYD1;
+purge -age 360 -type ALERT;
+purge -age 360 -type INCIDENT;
+purge -age 360 -type TRACE;
+purge -age 360 -type CDUMP;
+purge -age 360 -type HM;
+purge -age 360 -type UTSCDMP;
+purge -age 360 -type LOG;
