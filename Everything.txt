@@ -406,3 +406,8 @@ purge -age 360 -type CDUMP;
 purge -age 360 -type HM;
 purge -age 360 -type UTSCDMP;
 purge -age 360 -type LOG;
+
+--note 11.2.0.4
+Opatch: https://updates.oracle.com/Orion/PatchDetails/handle_plat_lang_change?release=80112000&plat_lang=46P&patch_file=&file_id=&password_required=&password_required_readme=&merged_trans=&aru=25318250&patch_num=6880880&patch_num_id=1136314&default_release=80112000&default_plat_lang=226P&default_compatible_with=&patch_password=&orderby=&direction=&no_header=0&sortcolpressed=&tab_number=&email=anhdx9698%40gmail.com&userid=o-anhdx9698%40gmail.com
+
+./opatch napply -oh /u01/app/12.2.0.1/grid -local /u01/app/12.2.0.1/grid/patch/31718723
