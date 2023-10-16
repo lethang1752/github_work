@@ -1,0 +1,79 @@
+restore_zdlra
+=============
+export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1
+export ORACLE_SID=CMISTEST
+export PATH=$PATH:$ORACLE_HOME/bin
+export NLS_DATE_FORMAT='yyyy-mm-dd hh24:mi:ss'
+export today=`date "+%Y%m%d"`
+rman target / catalog VPC_CMIS3/oracle_4U@zdl0db-scan1:1521/zdl0db log=/export/home/oracle/restore_ZDLRA_CMIS3_$today.log <<EOF
+run{
+ALLOCATE CHANNEL c1 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c2 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c3 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c4 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c5 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c6 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c7 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c8 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c9 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c10 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c11 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c12 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c13 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c14 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c15 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c16 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c17 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c18 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c19 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c20 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c21 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c22 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c23 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c24 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c25 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c26 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c27 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c28 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c29 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c30 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c31 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+ALLOCATE CHANNEL c32 DEVICE TYPE 'SBT_TAPE' FORMAT   '%d_%U' PARMS  "SBT_LIBRARY=/u01/app/oracle/product/12.2.0/dbhome_1/lib/libra.so, SBT_PARMS=(_RA_NO_SSL=TRUE,RA_WALLET='location=file:/u01/app/oracle/product/12.2.0/dbhome_1/dbs/zdlra credential_alias=zdl0db-scan1:1521/zdl0db:dedicated')";
+set newname for database to '+DATA';
+restore database;
+switch datafile all;
+recover database;
+RELEASE CHANNEL c1;
+RELEASE CHANNEL c2;
+RELEASE CHANNEL c3;
+RELEASE CHANNEL c4;
+RELEASE CHANNEL c5;
+RELEASE CHANNEL c6;
+RELEASE CHANNEL c7;
+RELEASE CHANNEL c8;
+RELEASE CHANNEL c9;
+RELEASE CHANNEL c10;
+RELEASE CHANNEL c11;
+RELEASE CHANNEL c12;
+RELEASE CHANNEL c13;
+RELEASE CHANNEL c14;
+RELEASE CHANNEL c15;
+RELEASE CHANNEL c16;
+RELEASE CHANNEL c17;
+RELEASE CHANNEL c18;
+RELEASE CHANNEL c19;
+RELEASE CHANNEL c20;
+RELEASE CHANNEL c21;
+RELEASE CHANNEL c22;
+RELEASE CHANNEL c23;
+RELEASE CHANNEL c24;
+RELEASE CHANNEL c25;
+RELEASE CHANNEL c26;
+RELEASE CHANNEL c27;
+RELEASE CHANNEL c28;
+RELEASE CHANNEL c29;
+RELEASE CHANNEL c30;
+RELEASE CHANNEL c31;
+RELEASE CHANNEL c32;
+}
+EOF
