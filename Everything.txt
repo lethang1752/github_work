@@ -412,3 +412,47 @@ purge -age 360 -type LOG;
 Opatch: https://updates.oracle.com/Orion/PatchDetails/handle_plat_lang_change?release=80112000&plat_lang=46P&patch_file=&file_id=&password_required=&password_required_readme=&merged_trans=&aru=25318250&patch_num=6880880&patch_num_id=1136314&default_release=80112000&default_plat_lang=226P&default_compatible_with=&patch_password=&orderby=&direction=&no_header=0&sortcolpressed=&tab_number=&email=anhdx9698%40gmail.com&userid=o-anhdx9698%40gmail.com
 
 ./opatch napply -oh /u01/app/12.2.0.1/grid -local /u01/app/12.2.0.1/grid/patch/31718723
+
+--recreate voting disk ASM
+#AS root
+#start cluster voi exclusive mode & no crs
+./crsctl start crs -excl -nocrs
+
+#as Grid
+sqlplus / as sysasm
+set lines 150
+col name format a40
+col path format a60
+select name, path, HEADER_STATUS, MODE_STATUS,MOUNT_STATUS from v$asm_disk;
+/*Diskgroup tao moi phai dung voi diskgroup dang dat OCR file(check log cua grid)*/
+create diskgroup CRS_NEW normal redundancy disk 'ORCL:CRS01','ORCL:CRS02','ORCL:CRS03' ATTRIBUTE 'compatible.asm' = '11.2';
+#Restore OCR
+()
+find $GRID_HOME -name "*.ocr"
+./ocrconfig -showbackup
+./ocrconfig -restore file_name
+(Note: file_name la ban automatic backup hoac manual, ban export khong su dung duoc)
+
+#recreate votedisk
+./crsctl replace votedisk +CRS_NEW
+
+#restore ASM_spfile
+spget
+spcopy backup_init_file spfile_current
+
+hoac recreate tu pfile:
+/*asm-pfile
++ASM2.asm_diskgroups='DATA','RECO','CRS_NEW'#Manual Mount
++ASM1.asm_diskgroups='DATA','RECO','CRS_NEW'#Manual Mount
+*.asm_power_limit=1
+*.diagnostic_dest='/u01/app/grid'
+*.instance_type='asm'
+*.large_pool_size=12M
+*.remote_login_passwordfile='EXCLUSIVE'
+*/
+
+# Restart cluster
+./crsctl stop crs -f
+./crsctl start crs
+
+#
