@@ -178,7 +178,8 @@ set newname for tempfile 1 to '+DATA';
 restore database from service CMIS3DR;
 backup spfile;
 switch datafile all;
-switch tempfile all; }
+switch tempfile all; 
+}
 
 -> switch database to copy -> clear logfile -> recover standby database -> open database
 -ORA-01152
