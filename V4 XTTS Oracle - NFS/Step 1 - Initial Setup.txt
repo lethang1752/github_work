@@ -5,14 +5,21 @@
     + $XTT_dest_script_01 -> /export/home/oracle/dest_script/xtt_01
     + $XTT_dest_backup_01 -> /data_share/xtt_01
 - In Destination /export/home/oracle/dest_script/ have: xtt_dest.env same as Source
-- Run these env file to use alias
+- Run env file to use alias
+    + . /home/oracle/src_script/xtt_src.env
+    + . /export/home/oracle/src_script/xtt_dest.env
 
 Linux - Source:
-- Create folder for script:
+- Create folder for script and unzip file rman_xttconvert_VER4.3.zip:
 mkdir -p /home/oracle/src_script/xtt_01
 mkdir -p /home/oracle/src_script/xtt_02
 mkdir -p /home/oracle/src_script/xtt_03
 mkdir -p /home/oracle/src_script/xtt_04
+
+unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_01
+unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_02
+unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_03
+unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_04
 
 - Create folder for src_backup (src_scratch_location):
 mkdir -p /data_share/xtt_01
