@@ -59,7 +59,7 @@ pwd=$(dirname "$SCRIPT")
 
 #-----Check connection
 if
-	echo "exit;" | sqlplus / as sysdba 2>&1 | grep -q "Connected to:"
+	echo "exit;" | sqlplus / as sysdba 2>&1 | $grep -q "Connected to:"
 then
 	echo Connect Database OK
 else
