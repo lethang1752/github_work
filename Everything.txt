@@ -455,4 +455,5 @@ hoac recreate tu pfile:
 ./crsctl stop crs -f
 ./crsctl start crs
 
-#
+--nfs share mountpoint
+https://docs.oracle.com/en/learn/create_nfs_linux/#add-another-share
