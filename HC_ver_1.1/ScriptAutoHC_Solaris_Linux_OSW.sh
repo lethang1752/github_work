@@ -224,7 +224,7 @@ print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><
 
 #-----Check_Patches
 echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
+$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | $grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
@@ -237,7 +237,7 @@ END{
 #-----Backup_Policy
 echo "<p>+ BACKUP_POLICY</p>" >>$file_name
 echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
-rman target / <<EOF | grep CONFIGURE >>$file_name
+rman target / <<EOF | $grep CONFIGURE >>$file_name
 show retention policy;
 EOF
 echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
@@ -366,12 +366,12 @@ os_last="$os1 $os2"
 
 #Hardware
 if [[ "$os" == 'Linux' ]]; then
-	cpu=$(lscpu | grep -E '^CPU\(s\):' | tr -dc '0-9')
-	ram=$(cat /proc/meminfo | grep MemTotal | tr -dc '0-9')
+	cpu=$(lscpu | $grep -E '^CPU\(s\):' | tr -dc '0-9')
+	ram=$(cat /proc/meminfo | $grep MemTotal | tr -dc '0-9')
 	ram_last=$(expr "$ram" / 1048576)
 else
 	cpu=$(psrinfo -p)
-	ram=$(prtconf | grep Mem | ggrep -E -o '[0-9]+')
+	ram=$(prtconf | $grep Mem | $grep -E -o '[0-9]+')
 	ram_last=$(expr "$ram" / 1024)
 fi
 hw_last="CPU: $cpu cores, RAM: $ram_last GB"
