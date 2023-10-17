@@ -70,33 +70,34 @@ dest_scratch_location=/dest_backups/
 dest_datafile_location=/oradata/dest_datafiles/
 
 . /home/oracle/src_script/xtt_src.env
+
 || xtt_01 ||
 sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' $XTT_src_script_01/xtt_01/xtt.properties
 sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' $XTT_src_script_01/xtt_01/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_01/xtt_01/xtt.properties
 -------------------------------------------------------------------------------------------------
 || xtt_02 ||
 sed -i 's/tablespaces=TS1,TS2/tablespaces=DATA01/g' $XTT_src_script_02/xtt_02/xtt.properties
 sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' $XTT_src_script_02/xtt_02/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_02/xtt_02/xtt.properties
 -------------------------------------------------------------------------------------------------
 || xtt_03 ||
 sed -i 's/tablespaces=TS1,TS2/tablespaces=TBS1/g' $XTT_src_script_03/xtt_03/xtt.properties
 sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' $XTT_src_script_03/xtt_03/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_03/xtt_03/xtt.properties
 -------------------------------------------------------------------------------------------------
 || xtt_04 ||
 sed -i 's/tablespaces=TS1,TS2/tablespaces=TB2/g' $XTT_src_script_04/xtt_04/xtt.properties
 sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/home/oracle/src_backup/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/export/home/oracle/dest_backup/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA@g' $XTT_src_script_04/xtt_04/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_04/xtt_04/xtt.properties
 
 - Scp all xtt script to Dest database:
 scp -r /home/oracle/src_script/* thang-solaris:/export/home/oracle/dest_script/
