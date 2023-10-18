@@ -75,36 +75,38 @@ platformid=13
 src_scratch_location=/src_backups/
 dest_scratch_location=/dest_backups/
 dest_datafile_location=/oradata/dest_datafiles/
+#asm_home=/u01/app/11.2.0.4/grid
+#asm_sid=+ASM1
+parallel=3
+## allowstandby=1
 
 . /home/oracle/src_script/xtt_src.env
 
 || xtt_01 ||
-sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt_01/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_01/xtt_01/xtt.properties
+sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' $XTT_src_script_01/xtt.properties
+sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_01/xtt.properties
+sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt.properties
+sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_01/xtt.properties
+sed -i 's@#asm_home=/u01/app/11.2.0.4/grid@asm_home=/u01/app/grid/product/11.2.0/grid@g' $XTT_src_script_01/xtt.properties
+sed -i 's@#asm_sid=+ASM1@asm_sid=+ASM@g' $XTT_src_script_01/xtt.properties
+sed -i 's@parallel=3@parallel=4@g' $XTT_src_script_01/xtt.properties
+sed -i 's@## allowstandby=1@allowstandby=1@g' $XTT_src_script_01/xtt.properties
 -------------------------------------------------------------------------------------------------
 || xtt_02 ||
-sed -i 's/tablespaces=TS1,TS2/tablespaces=DATA01/g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt_02/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_02/xtt_02/xtt.properties
+cp $XTT_src_script_01/xtt_01/xtt.properties $XTT_src_script_02/xtt.properties
+sed -i 's/tablespaces=TS1,TS2/tablespaces=DATA01/g' $XTT_src_script_02/xtt.properties
+
 -------------------------------------------------------------------------------------------------
 || xtt_03 ||
-sed -i 's/tablespaces=TS1,TS2/tablespaces=TBS1/g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt_03/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_03/xtt_03/xtt.properties
+cp $XTT_src_script_01/xtt_01/xtt.properties $XTT_src_script_03/xtt.properties
+sed -i 's/tablespaces=TS1,TS2/tablespaces=TBS1/g' $XTT_src_script_03/xtt.properties
+
 -------------------------------------------------------------------------------------------------
 || xtt_04 ||
-sed -i 's/tablespaces=TS1,TS2/tablespaces=TB2/g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt_04/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_04/xtt_04/xtt.properties
+cp $XTT_src_script_01/xtt_01/xtt.properties $XTT_src_script_04/xtt.properties
+sed -i 's/tablespaces=TS1,TS2/tablespaces=TB2/g' $XTT_src_script_04/xtt.properties
+
 
 - Scp all xtt script to Dest database:
 scp -r /home/oracle/src_script/* thang-solaris:/export/home/oracle/dest_script/
