@@ -14,7 +14,7 @@ export TMPDIR=$XTT_src_script_01
 cd $XTT_src_script_01
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 
-scp res.txt oracle@thang-solaris:$XTT_dest_script_01
+scp res.txt $Dest_Host:$XTT_dest_script_01
 
 **Destination:
 . /export/home/oracle/src_script/xtt_dest.env
@@ -29,7 +29,7 @@ export TMPDIR=$XTT_src_script_02
 cd $XTT_src_script_02
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 
-scp res.txt oracle@thang-solaris:$XTT_dest_script_02
+scp res.txt $Dest_Host:$XTT_dest_script_02
 
 **Destination:
 . /export/home/oracle/src_script/xtt_dest.env
@@ -44,7 +44,7 @@ export TMPDIR=$XTT_src_script_03
 cd $XTT_src_script_03
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 
-scp res.txt oracle@thang-solaris:$XTT_dest_script_03
+scp res.txt $Dest_Host:$XTT_dest_script_03
 
 **Destination:
 . /export/home/oracle/src_script/xtt_dest.env
@@ -59,7 +59,7 @@ export TMPDIR=$XTT_src_script_04
 cd $XTT_src_script_04
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 
-scp res.txt oracle@thang-solaris:$XTT_dest_script_04
+scp res.txt $Dest_Host:$XTT_dest_script_04
 
 **Destination:
 . /export/home/oracle/src_script/xtt_dest.env

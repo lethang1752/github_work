@@ -128,7 +128,7 @@ sed -i 's@src_scratch_location=/data_share/xtt_01/@src_scratch_location=/data_sh
 sed -i 's@dest_scratch_location=/data_share/xtt_01/@dest_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt.properties
 
 - Scp all xtt script to Dest database:
-scp -r /home/oracle/src_script/* ldom02:/export/home/oracle/dest_script/
+scp -r /home/oracle/src_script/* $Dest_Host:/export/home/oracle/dest_script/
 
 
 
