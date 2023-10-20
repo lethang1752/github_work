@@ -1,7 +1,7 @@
 - Check and modify /etc/exports for share NFS-server:
 /data_share  10.193.1.65(rw,sync,no_root_squash,nohide,no_subtree_check,all_squash,anonuid=0,anongid=0)
 
-- Enable archive log mode on standby
+- Enable archive log mode on standby (source database)
 
 - alter events on destination database
 sqlplus / as sysdba <<EOF
