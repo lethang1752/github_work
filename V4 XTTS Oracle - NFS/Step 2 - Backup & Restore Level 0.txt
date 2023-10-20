@@ -37,7 +37,6 @@ scp res.txt oracle@ldom02:$XTT_dest_script_02
 
 **Destination:
 . /export/home/oracle/dest_script/xtt_src.env
-chown oracle:oinstall $XTT_dest_backup_02/*
 export TMPDIR=$XTT_dest_script_02
 cd $XTT_dest_script_02
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
