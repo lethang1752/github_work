@@ -50,7 +50,7 @@ mkdir -p $XTT_src_script_04
 
 unzip /home/oracle/rman_xttconvert_VER4.3.zip -d $XTT_src_script_01
 
-- Create folder for src_backup (src_scratch_location):
+- Create folder for src_backup & dest_backup (src_scratch_location + dest_scratch_location):
 mkdir -p $XTT_dest_backup_01
 mkdir -p $XTT_dest_backup_02
 mkdir -p $XTT_dest_backup_03
@@ -59,12 +59,6 @@ mkdir -p $XTT_dest_backup_04
 Solaris - Dest:
 - Create folder for script:
 mkdir -p /export/home/oracle/dest_script
-
-- Create folder for dest_backup (dest_scratch_location):
-mkdir -p /data_share/xtt_01
-mkdir -p /data_share/xtt_02
-mkdir -p /data_share/xtt_03
-mkdir -p /data_share/xtt_04
 ----------------------------------------------------------------------------------------------------------------
 Linux - Source:
 - Modify these information in xtt script from Source database:
