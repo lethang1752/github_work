@@ -10,19 +10,6 @@
     + . /export/home/oracle/src_script/xtt_dest.env
 
 Linux - Source:
-- Create folder for script and unzip file rman_xttconvert_VER4.3.zip:
-mkdir -p /home/oracle/src_script/xtt_01
-mkdir -p /home/oracle/src_script/xtt_02
-mkdir -p /home/oracle/src_script/xtt_03
-mkdir -p /home/oracle/src_script/xtt_04
-
-unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_01
-
-- Create folder for src_backup (src_scratch_location):
-mkdir -p /data_share/xtt_01
-mkdir -p /data_share/xtt_02
-mkdir -p /data_share/xtt_03
-mkdir -p /data_share/xtt_04
 
 - Create env file for xtt src backup (using as alias)
 
@@ -54,6 +41,23 @@ export XTT_dest_backup_04=/data_share/xtt_04;" > /home/oracle/src_script/xtt_src
 
 - Scp this env file from Source to Destination
 scp /home/oracle/src_script/xtt_src.env oracle@thang-solaris:/export/home/oracle/dest_script/xtt_dest.env
+
+- Run env file before create folder
+. /home/oracle/src_script/xtt_src.env
+
+- Create folder for script and unzip file rman_xttconvert_VER4.3.zip:
+mkdir -p $XTT_src_script_01
+mkdir -p $XTT_src_script_02
+mkdir -p $XTT_src_script_03
+mkdir -p $XTT_src_script_04
+
+unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_01
+
+- Create folder for src_backup (src_scratch_location):
+mkdir -p $XTT_dest_backup_01
+mkdir -p $XTT_dest_backup_02
+mkdir -p $XTT_dest_backup_03
+mkdir -p $XTT_dest_backup_04
 ----------------------------------------------------------------------------------------------------------------
 Solaris - Dest:
 - Create folder for script:
