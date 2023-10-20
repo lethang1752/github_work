@@ -3,6 +3,9 @@
 
 - Enable archive log mode on standby
 
+- alter events on destination database
+alter system set events '10298 trace name context forever, level 32';
+
 - Start backup level 0 one by one from source database:
 
 || xtt_01 ||
@@ -16,6 +19,7 @@ scp res.txt oracle@ldom02:$XTT_dest_script_01
 
 **Destination:
 . /export/home/oracle/dest_script/xtt_src.env
+chown oracle:oinstall $XTT_dest_backup_01/*
 export TMPDIR=$XTT_dest_script_01
 cd $XTT_dest_script_01
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
