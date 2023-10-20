@@ -1,3 +1,12 @@
+** PRIMARY DATABASE:
+- Shutdown connection from application to database
+- Read Only tablespace
+- Alter system archive log current;
+
+**Source (standby database):
+- Convert standby database to snapshot database (if using Broker):
+convert database vctrdr to snapshot standby;
+
 - Alter tablespace read only on Source database:
 
 select 'alter tablespace '||tablespace_name||' read only;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1','UNDOTBS2');
