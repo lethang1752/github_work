@@ -17,9 +17,6 @@ mkdir -p /home/oracle/src_script/xtt_03
 mkdir -p /home/oracle/src_script/xtt_04
 
 unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_01
-unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_02
-unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_03
-unzip /home/oracle/rman_xttconvert_VER4.3.zip -d /home/oracle/src_script/xtt_04
 
 - Create folder for src_backup (src_scratch_location):
 mkdir -p /data_share/xtt_01
