@@ -18,7 +18,7 @@ logfile=tts_export.log
 expdp system/oracle123 parfile=/home/oracle/src_script/exp.par
 
 - Scp xttdump.dmp to destination database
-scp /home/oracle/src_script/xttdump.dmp oracle@thang-solaris:/export/home/oracle/dest_script/
+scp /home/oracle/src_script/xttdump.dmp $Dest_Host:/export/home/oracle/dest_script/
 
 ------------------------------------------------------------------------------------------------------
 **Destination Database:
