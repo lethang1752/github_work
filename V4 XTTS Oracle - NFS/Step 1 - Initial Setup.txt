@@ -87,7 +87,7 @@ sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' $XTT_src_script_01/xtt.proper
 sed -i 's/platformid=13/platformid=13/g' $XTT_src_script_01/xtt.properties
 sed -i 's@src_scratch_location=/src_backups/@src_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt.properties
 sed -i 's@dest_scratch_location=/dest_backups/@dest_scratch_location=/data_share/xtt_01/@g' $XTT_src_script_01/xtt.properties
-sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/DATAFILE@g' $XTT_src_script_01/xtt.properties
+sed -i 's@dest_datafile_location=/oradata/dest_datafiles/@dest_datafile_location=+DATA/vctr/datafile@g' $XTT_src_script_01/xtt.properties
 sed -i 's@#asm_home=/u01/app/11.2.0.4/grid@asm_home=/u01/app/grid/product/11.2.0/grid@g' $XTT_src_script_01/xtt.properties
 sed -i 's@#asm_sid=+ASM1@asm_sid=+ASM@g' $XTT_src_script_01/xtt.properties
 sed -i 's@parallel=3@parallel=4@g' $XTT_src_script_01/xtt.properties
