@@ -1,4 +1,4 @@
-** PRIMARY DATABASE:
+**PRIMARY DATABASE:
 - Shutdown connection from application to database
 - Read Only tablespace
 - Alter system archive log current;
