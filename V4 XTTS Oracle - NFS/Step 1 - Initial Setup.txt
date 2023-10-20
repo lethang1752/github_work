@@ -142,3 +142,8 @@ rm -rf $XTT_src_script_01/*
 rm -rf $XTT_src_script_02/*
 rm -rf $XTT_src_script_03/*
 rm -rf $XTT_src_script_04/*
+
+rm -rf $XTT_dest_script_01/*
+rm -rf $XTT_dest_script_02/*
+rm -rf $XTT_dest_script_03/*
+rm -rf $XTT_dest_script_04/*
