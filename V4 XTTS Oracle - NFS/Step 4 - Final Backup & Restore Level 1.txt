@@ -3,9 +3,11 @@
 select 'alter tablespace '||tablespace_name||' read only;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1','UNDOTBS2');
 -------------
 alter tablespace USERS read only;
-alter tablespace DATA01 read only;
-alter tablespace TBS1 read only;
-alter tablespace TB2 read only;
+alter tablespace EXAMPLE read only;
+alter tablespace TBS01 read only;
+alter tablespace TBS02 read only;
+alter tablespace TBS03 read only;
+alter tablespace TBS04 read only;
 -------------
 
 - Final incremental backup from Source database:
