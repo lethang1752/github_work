@@ -6,6 +6,7 @@
 alter database recover managed standby database cancel;
 - Create restore point before activate standby database:
 create restore point before_dr_open guarantee flashback database;
+select name, time, scn from v$restore_point;
 - Check incarnation before activate standby database:
 RMAN> list incarnation of database;
 
@@ -24,7 +25,7 @@ alter database set standby database to maximize performance;
 alter database open;
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-**FLASHBACK STANDBY DATABASE  TO RESTORE POINT:
+**FLASHBACK STANDBY DATABASE TO RESTORE POINT:
 - On standby:
 shutdown immediate;
 startup mount;
