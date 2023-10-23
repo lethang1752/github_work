@@ -170,3 +170,4 @@ rm -rf /export/home/oracle/dest_script/xtt_01/*.lck
 rm -rf /export/home/oracle/dest_script/xtt_02/*.lck
 rm -rf /export/home/oracle/dest_script/xtt_03/*.lck
 rm -rf /export/home/oracle/dest_script/xtt_04/*.lck
+=================================================================================================
