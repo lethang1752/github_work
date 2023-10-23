@@ -494,19 +494,19 @@ ORDER BY Physical_READS DESC;
 PROMPT
 PROMPT + Redo logs
 
-COL member          FORMAT A100
-col mbytes          format 999,999
+COL member FORMAT A100
+col mbytes format 999,999
 
 SELECT l.thread#,l.group#,round(bytes/1048576) mbytes,f.member
 FROM   v$log l, v$logfile f
 WHERE  l.group# = f.group#
 ORDER  BY thread#,group#,member;
 
-COL member          CLEAR
+COL member CLEAR
 
 set pagesize 0
 PROMPT
-PROMPT  all threads
+PROMPT all threads
 PROMPT
 
 with sw as
