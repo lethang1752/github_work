@@ -10,7 +10,7 @@ $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 scp res.txt $Dest_Host:$XTT_dest_script_01
 
 **Destination:
-. /export/home/oracle/src_script/xtt_src.env
+. /export/home/oracle/dest_script/xtt_src.env
 export TMPDIR=$XTT_dest_script_01
 cd $XTT_dest_script_01
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
@@ -25,7 +25,7 @@ $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 scp res.txt $Dest_Host:$XTT_dest_script_02
 
 **Destination:
-. /export/home/oracle/src_script/xtt_src.env
+. /export/home/oracle/dest_script/xtt_src.env
 export TMPDIR=$XTT_dest_script_02
 cd $XTT_dest_script_02
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
@@ -40,7 +40,7 @@ $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 scp res.txt $Dest_Host:$XTT_dest_script_03
 
 **Destination:
-. /export/home/oracle/src_script/xtt_src.env
+. /export/home/oracle/dest_script/xtt_src.env
 export TMPDIR=$XTT_dest_script_03
 cd $XTT_dest_script_03
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
@@ -55,7 +55,7 @@ $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
 scp res.txt $Dest_Host:$XTT_dest_script_04
 
 **Destination:
-. /export/home/oracle/src_script/xtt_src.env
+. /export/home/oracle/dest_script/xtt_src.env
 export TMPDIR=$XTT_dest_script_04
 cd $XTT_dest_script_04
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
