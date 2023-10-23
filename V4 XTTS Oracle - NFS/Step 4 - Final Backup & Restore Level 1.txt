@@ -31,8 +31,10 @@ shutdown immediate;
 startup mount;
 select name, time, scn from v$restore_point;
 flashback database to restore point before_dr_open;
-RMAN> list incarnation of database;
 alter database convert to physical standby;
+shutdown immediate;
+startup mount;
+RMAN> list incarnation of database; (match with previous)
 alter database recover managed standby database disconnect from session;
 
 - On primary:
