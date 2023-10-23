@@ -5,7 +5,7 @@
 
 - alter events on destination database
 sqlplus / as sysdba <<EOF
-alter system set events '10298 trace name context forever, level 32' scope=both;
+alter system set events '10298 trace name context forever, level 32';
 exit
 EOF
 
