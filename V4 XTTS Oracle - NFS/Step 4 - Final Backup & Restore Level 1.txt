@@ -1,11 +1,46 @@
 **PRIMARY DATABASE:
 - Shutdown connection from application to database
-- Read Only tablespace
-- Alter system archive log current;
 
-**Source (standby database):
-- Convert standby database to snapshot database (if using Broker):
-convert database vctrdr to snapshot standby;
+**STANDBY DATABASE:
+- Cancel recover process:
+alter database recover managed standby database cancel;
+- Create restore point before activate standby database:
+create restore point before_dr_open guarantee flashback database;
+- Check incarnation before activate standby database:
+RMAN> list incarnation of database;
+
+**PRIMARY DATABASE:
+- Switch all log to standby:
+alter system archive log current;
+- Stop archive_dest process:
+alter system set log_archive_dest_state_&a=defer;
+
+**STANDBY DATABASE:
+- Activate standby database:
+alter database activate standby database;
+shutdown immediate;
+startup mount;
+alter database set standby database to maximize performance;
+alter database open;
+
+**FLASHBACK STANDBY DATABASE  TO RESTORE POINT:
+- On standby:
+shutdown immediate;
+startup mount;
+select name, time, scn from v$restore_point;
+flashback database to restore point before_dr_open;
+RMAN> list incarnation of database;
+alter database convert to physical standby;
+alter database recover managed standby database disconnect from session;
+
+- On primary:
+alter system set log_archive_dest_state_&a=enable;
+alter system archive log current;
+
+- On standby:
+alter database recover managed standby database cancel;
+alter database open;
+alter database recover managed standby database disconnect from session;
 
 - Alter tablespace read only on Source database:
 
