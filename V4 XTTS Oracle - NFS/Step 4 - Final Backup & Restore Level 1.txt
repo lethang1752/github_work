@@ -23,6 +23,7 @@ startup mount;
 alter database set standby database to maximize performance;
 alter database open;
 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 **FLASHBACK STANDBY DATABASE  TO RESTORE POINT:
 - On standby:
 shutdown immediate;
@@ -41,6 +42,7 @@ alter system archive log current;
 alter database recover managed standby database cancel;
 alter database open;
 alter database recover managed standby database disconnect from session;
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 - Alter tablespace read only on Source database:
 
