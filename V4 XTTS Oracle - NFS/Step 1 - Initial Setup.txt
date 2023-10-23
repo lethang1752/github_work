@@ -130,10 +130,6 @@ sed -i 's@dest_scratch_location=/data_share/xtt_01/@dest_scratch_location=/data_
 - Scp all xtt script to Dest database:
 scp -r /home/oracle/src_script/* $Dest_Host:/export/home/oracle/dest_script/
 
-
-
-
-
 =================================================================================================
 rm -rf $XTT_src_script_01/*
 rm -rf $XTT_src_script_02/*
@@ -144,3 +140,33 @@ rm -rf $XTT_dest_script_01/*
 rm -rf $XTT_dest_script_02/*
 rm -rf $XTT_dest_script_03/*
 rm -rf $XTT_dest_script_04/*
+-------------------------------------------------------------------------------------------------
+rm -rf /home/oracle/src_script/xtt_01/*.txt
+rm -rf /home/oracle/src_script/xtt_02/*.txt
+rm -rf /home/oracle/src_script/xtt_03/*.txt
+rm -rf /home/oracle/src_script/xtt_04/*.txt
+
+rm -rf /home/oracle/src_script/xtt_01/backup*
+rm -rf /home/oracle/src_script/xtt_02/backup*
+rm -rf /home/oracle/src_script/xtt_03/backup*
+rm -rf /home/oracle/src_script/xtt_04/backup*
+
+rm -rf /home/oracle/src_script/xtt_01/rmanconvert.cmd
+rm -rf /home/oracle/src_script/xtt_02/rmanconvert.cmd
+rm -rf /home/oracle/src_script/xtt_03/rmanconvert.cmd
+rm -rf /home/oracle/src_script/xtt_04/rmanconvert.cmd
+-----------------------------------------------------
+rm -rf /export/home/oracle/dest_script/xtt_01/*.txt
+rm -rf /export/home/oracle/dest_script/xtt_02/*.txt
+rm -rf /export/home/oracle/dest_script/xtt_03/*.txt
+rm -rf /export/home/oracle/dest_script/xtt_04/*.txt
+
+rm -rf /export/home/oracle/dest_script/xtt_01/restore_*
+rm -rf /export/home/oracle/dest_script/xtt_02/restore_*
+rm -rf /export/home/oracle/dest_script/xtt_03/restore_*
+rm -rf /export/home/oracle/dest_script/xtt_04/restore_*
+
+rm -rf /export/home/oracle/dest_script/xtt_01/*.lck
+rm -rf /export/home/oracle/dest_script/xtt_02/*.lck
+rm -rf /export/home/oracle/dest_script/xtt_03/*.lck
+rm -rf /export/home/oracle/dest_script/xtt_04/*.lck
