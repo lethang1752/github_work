@@ -36,6 +36,7 @@ $ORACLE_HOME/perl/bin/perl xttdriver.pl --restore --debug 3
 export TMPDIR=$XTT_src_script_03
 cd $XTT_src_script_03
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
+chmod -R 777 $XTT_dest_backup_03
 
 scp res.txt $Dest_Host:$XTT_dest_script_03
 
