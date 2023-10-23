@@ -502,11 +502,7 @@ FROM   v$log l, v$logfile f
 WHERE  l.group# = f.group#
 ORDER  BY thread#,group#,member;
 
-<<<<<<< HEAD
-COL member          CLEAR
-=======
 COL member CLEAR
->>>>>>> 7f387834cbdc5d76710058101ad4bd8f382994db
 set pagesize 0
 PROMPT
 PROMPT all threads
