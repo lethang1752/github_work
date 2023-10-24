@@ -31,7 +31,7 @@ touch /export/home/oracle/dest_script/manual_imp.par
 =============
 echo "dumpfile=xttdump.dmp
 directory=dpump_tts
-transport_datafiles='+DATA/data01_5.dbf','+DATA/tb2_8.dbf','+DATA/tbs1_2.dbf','+DATA/users_7.dbf'
+transport_datafiles='+DATA/vctr/datafile/example_5.dbf','+DATA/vctr/datafile/tbs01_6.dbf','+DATA/vctr/datafile/tbs02_7.dbf','+DATA/vctr/datafile/tbs03_8.dbf','+DATA/vctr/datafile/tbs04_9.dbf','+DATA/vctr/datafile/users_4.dbf'
 logfile=tts_import.log" > /export/home/oracle/dest_script/manual_imp.par
 =============
 
@@ -40,9 +40,10 @@ impdp system/oracle123 parfile=/export/home/oracle/dest_script/manual_imp.par
 
 - Check tablespace for corruption
 rman target /
-validate tablespace USERS,DATA01,TBS1,TB2 check logical;
+validate tablespace USERS,EXAMPLE,TBS01,TBS02,TBS03,TBS04 check logical;
 
 - Open read write for tablespace in Destination database
+select 'alter tablespace '||tablespace_name||' read write;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1');
 alter tablespace USERS read write;
 alter tablespace DATA01 read write;
 alter tablespace TBS1 read write;
