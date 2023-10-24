@@ -76,7 +76,7 @@ Linux - Source:
     ## allowstandby=1
 
 . /home/oracle/src_script/xtt_src.env
-
+# -------------------------------------------------------------------------------------------------
 || xtt_01 ||
 # --Tablespace
 sed -i 's/tablespaces=TS1,TS2/tablespaces=USERS/g' $XTT_src_script_01/xtt.properties
@@ -104,24 +104,23 @@ sed -i 's@parallel=3@parallel=4@g' $XTT_src_script_01/xtt.properties
 
 # --Allow standby option for backup from standby source
 sed -i 's@## allowstandby=1@allowstandby=1@g' $XTT_src_script_01/xtt.properties
-
--------------------------------------------------------------------------------------------------
-|| xtt_02 ||
+# -------------------------------------------------------------------------------------------------
+# --|| xtt_02 ||
 tablespace=$(cat $XTT_src_script_01/xtt.properties | grep 'tablespaces=')
 cp $XTT_src_script_01/* $XTT_src_script_02/
 sed -i 's/'"${tablespace}"'/tablespaces=EXAMPLE,TBS01/g' $XTT_src_script_02/xtt.properties
 sed -i 's@src_scratch_location=/data_share/xtt_01/@src_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt.properties
 sed -i 's@dest_scratch_location=/data_share/xtt_01/@dest_scratch_location=/data_share/xtt_02/@g' $XTT_src_script_02/xtt.properties
 
--------------------------------------------------------------------------------------------------
-|| xtt_03 ||
+# -------------------------------------------------------------------------------------------------
+# --|| xtt_03 ||
 cp $XTT_src_script_01/* $XTT_src_script_03/
 sed -i 's/'"${tablespace}"'/tablespaces=TBS02,TBS03/g' $XTT_src_script_03/xtt.properties
 sed -i 's@src_scratch_location=/data_share/xtt_01/@src_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt.properties
 sed -i 's@dest_scratch_location=/data_share/xtt_01/@dest_scratch_location=/data_share/xtt_03/@g' $XTT_src_script_03/xtt.properties
 
--------------------------------------------------------------------------------------------------
-|| xtt_04 ||
+# -------------------------------------------------------------------------------------------------
+# --|| xtt_04 ||
 cp $XTT_src_script_01/* $XTT_src_script_04/
 sed -i 's/'"${tablespace}"'/tablespaces=TBS04/g' $XTT_src_script_04/xtt.properties
 sed -i 's@src_scratch_location=/data_share/xtt_01/@src_scratch_location=/data_share/xtt_04/@g' $XTT_src_script_04/xtt.properties
