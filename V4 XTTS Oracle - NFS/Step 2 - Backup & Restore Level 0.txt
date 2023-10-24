@@ -5,7 +5,7 @@ showmount -e
 
 - Modify permission for NFS folder (using root)
 chown -R oracle:oinstall /data_share
-chmod -R 775 /data_share
+chmod -R 777 /data_share
 *Solaris:
 mount -o rw,bg,hard,noac,nointr,proto=tcp,vers=3,rsize=131072,wsize=131072,timeo=600 10.192.1.202:/data_share /data_share
 
