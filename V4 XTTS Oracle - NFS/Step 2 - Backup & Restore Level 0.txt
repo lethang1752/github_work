@@ -1,6 +1,11 @@
 - Check and modify /etc/exports for share NFS-server:
 /data_share  10.193.1.65(rw,sync,no_subtree_check,no_root_squash,anonuid=1002,anongid=1001)
-chown oracle:oinstall /data_share
+exportfs -r
+showmount -e
+
+- Modify permission for NFS folder
+chown -R oracle:oinstall /data_share
+chown -R 775 /data_share
 *Solaris:
 mount -o rw,bg,hard,noac,nointr,proto=tcp,vers=3,rsize=131072,wsize=131072,timeo=600 10.192.1.202:/data_share /data_share
 
