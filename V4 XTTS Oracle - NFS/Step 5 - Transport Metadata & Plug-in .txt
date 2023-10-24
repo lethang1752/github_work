@@ -29,7 +29,7 @@ grant read, write on directory dpump_tts to system;
 - Create import parameter file in Destination database
 touch /export/home/oracle/dest_script/manual_imp.par
 =============
-echo "dumpfile= xttdump.dmp
+echo "dumpfile=xttdump.dmp
 directory=dpump_tts
 transport_datafiles='+DATA/data01_5.dbf','+DATA/tb2_8.dbf','+DATA/tbs1_2.dbf','+DATA/users_7.dbf'
 logfile=tts_import.log" > /export/home/oracle/dest_script/manual_imp.par
