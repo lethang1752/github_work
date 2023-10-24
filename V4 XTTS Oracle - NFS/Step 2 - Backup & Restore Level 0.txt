@@ -25,7 +25,7 @@ EOF
 export TMPDIR=$XTT_src_script_01
 cd $XTT_src_script_01
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
-chmod 777 $XTT_src_backup_01/*
+chmod -R 777 $XTT_src_backup_01/
 
 scp res.txt $Dest_Host:$XTT_dest_script_01
 
@@ -44,7 +44,7 @@ rm -rf $XTT_src_backup_01/*
 export TMPDIR=$XTT_src_script_02
 cd $XTT_src_script_02
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
-chmod 777 $XTT_src_backup_02/*
+chmod -R 777 $XTT_src_backup_02/
 
 scp res.txt $Dest_Host:$XTT_dest_script_02
 
@@ -63,7 +63,7 @@ rm -rf $XTT_src_backup_02/*
 export TMPDIR=$XTT_src_script_03
 cd $XTT_src_script_03
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
-chmod 777 $XTT_src_backup_03/*
+chmod -R 777 $XTT_src_backup_03/
 
 scp res.txt $Dest_Host:$XTT_dest_script_03
 
@@ -82,7 +82,7 @@ rm -rf $XTT_src_backup_03/*
 export TMPDIR=$XTT_src_script_04
 cd $XTT_src_script_04
 $ORACLE_HOME/perl/bin/perl xttdriver.pl --backup --debug 3
-chmod 777 $XTT_src_backup_04/*
+chmod -R 777 $XTT_src_backup_04/
 
 scp res.txt $Dest_Host:$XTT_dest_script_04
 
