@@ -3,7 +3,7 @@
 exportfs -r
 showmount -e
 
-- Modify permission for NFS folder
+- Modify permission for NFS folder (using root)
 chown -R oracle:oinstall /data_share
 chown -R 775 /data_share
 *Solaris:
