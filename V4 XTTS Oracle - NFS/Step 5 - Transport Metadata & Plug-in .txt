@@ -6,12 +6,12 @@ grant read, write on directory dpump_tts to system;
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
 =============
-dumpfile=xttdump.dmp
+echo "dumpfile=xttdump.dmp
 directory=dpump_tts
 exclude=statistics
 transport_tablespaces=USERS,DATA01,TBS1,TB2
 transport_full_check=yes
-logfile=tts_export.log 
+logfile=tts_export.log" > /home/oracle/src_script/exp.par
 =============
 
 - Run expdp with system user
