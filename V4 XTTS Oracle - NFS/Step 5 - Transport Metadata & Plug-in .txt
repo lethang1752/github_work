@@ -1,12 +1,20 @@
 **Source Database:
 - Create directory in Source database
-create directory dpump_tts as '/home/oracle/src_script';
+mkdir -p /home/oracle/src_script/datapump
+sqlplus / as sysdba <<EOF
+create directory dpump_tts as '/home/oracle/src_script/datapump';
 grant read, write on directory dpump_tts to system;
+exit
+EOF
 
 **Destination Database:
 - Create directory in Destination database
-create directory dpump_tts as '/export/home/oracle/dest_script';
+mkdir -p /export/home/oracle/dest_script/datapump
+sqlplus / as sysdba <<EOF
+create directory dpump_tts as '/export/home/oracle/dest_script/datapump';
 grant read, write on directory dpump_tts to system;
+exit
+EOF
 
 **USERS, ROLES AND PRIVILEGES**
 ----------------------------------------------------------------------------------------------------------------
