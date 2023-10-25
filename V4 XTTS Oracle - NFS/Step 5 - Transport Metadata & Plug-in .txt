@@ -1,3 +1,7 @@
+***************************************
+**CREATE FOLDER & DATAPUMP DIRECTORY **
+***************************************
+====================================================================
 **Source Database:
 - Create directory in Source database
 mkdir -p /home/oracle/src_script/datapump
@@ -15,11 +19,14 @@ create directory dpump_tts as '/export/home/oracle/dest_script/datapump';
 grant read, write on directory dpump_tts to system;
 exit
 EOF
-
+====================================================================
+*******************************
 **USERS, ROLES AND PRIVILEGES**
-----------------------------------------------------------------------------------------------------------------
-- Export user metadata (sparc)
-expdp \'/as sysdba\' parfile=/home/oracle/src_script/exp_all_user_meta.par
+*******************************
+====================================================================
+**Source Database:
+- Create parameter file for export
+touch /home/oracle/src_script/datapump/exp_all_user_meta.par
 
 - Get system schema (from source side - exclude scott) (exclude=schema:"in)
 select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS');
@@ -28,7 +35,7 @@ select username from dba_users where trunc(created) <= (select trunc(created) fr
 select username from dba_users where trunc(created) > (select trunc(created) from dba_users where username='SYS');
 
 - exp_all_user_meta.par
-=======================
+//*//
 full=y
 exclude=table:"in(select table_name from dba_tables where owner in ('BI','OE','HR','IX','SH','PM','SCOTT'))"
 exclude=AUDIT_TRAILS
@@ -39,13 +46,14 @@ directory=dpump_tts
 metrics=y
 dumpfile=exp_all_user_meta.dmp
 logfile=exp_all_user_meta.log
-=======================
+//*//
 
-- Import User metadata to source database
-impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y dumpfile=exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
+- Export user metadata
+expdp \'/as sysdba\' parfile=/home/oracle/src_script/datapump/exp_all_user_meta.par
 
 - Get grant role from source database
-=====================================
+cd /home/oracle/src_script/datapump
+//*//
 set heading off feedback off trimspool on escape off
 set long 1000 linesize 1000
 col USERDDL format A150
@@ -67,19 +75,30 @@ where owner in
  (select username
  from dba_users);
 spool off
-=====================================
-----------------------------------------------------------------------------------------------------------------
+//*//
 
+**Destination Database:
+- Import User metadata to source database
+impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y dumpfile=exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
+
+- Import grant role to destination database
+
+====================================================================
+*****************************************
+**EXPORT AND IMPORT TABLESPACE METADATA**
+*****************************************
+====================================================================
+**Source Database:
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
-=============
+//*//
 echo "dumpfile=xttdump.dmp
 directory=dpump_tts
 exclude=statistics
 transport_tablespaces=USERS,DATA01,TBS1,TB2
 transport_full_check=yes
 logfile=tts_export.log" > /home/oracle/src_script/exp.par
-=============
+//*//
 
 - Run expdp with system user
 expdp system/oracle123 parfile=/home/oracle/src_script/exp.par
@@ -87,20 +106,23 @@ expdp system/oracle123 parfile=/home/oracle/src_script/exp.par
 - Scp xttdump.dmp to destination database
 scp /home/oracle/src_script/xttdump.dmp $Dest_Host:/export/home/oracle/dest_script/
 
-------------------------------------------------------------------------------------------------------
 **Destination Database:
 - Create import parameter file in Destination database
 touch /export/home/oracle/dest_script/manual_imp.par
-=============
+//*//
 echo "dumpfile=xttdump.dmp
 directory=dpump_tts
 transport_datafiles='+DATA/vctr/datafile/example_5.dbf','+DATA/vctr/datafile/tbs01_6.dbf','+DATA/vctr/datafile/tbs02_7.dbf','+DATA/vctr/datafile/tbs03_8.dbf','+DATA/vctr/datafile/tbs04_9.dbf','+DATA/vctr/datafile/users_4.dbf'
 logfile=tts_import.log" > /export/home/oracle/dest_script/manual_imp.par
-=============
+//*//
 
 - Run impdp with system user
 impdp system/oracle123 parfile=/export/home/oracle/dest_script/manual_imp.par
-
+====================================================================
+************************************************
+**CHECK & VALIDATE TABLESPACE IN DEST DATABASE**
+************************************************
+====================================================================
 - Check tablespace for corruption
 rman target /
 validate tablespace USERS,EXAMPLE,TBS01,TBS02,TBS03,TBS04 check logical;
@@ -111,3 +133,4 @@ alter tablespace USERS read write;
 alter tablespace DATA01 read write;
 alter tablespace TBS1 read write;
 alter tablespace TB2 read write;
+====================================================================
