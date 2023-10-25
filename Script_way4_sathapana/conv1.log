@@ -1,0 +1,473 @@
+
+Recovery Manager: Release 19.0.0.0.0 - Production on Sat Oct 22 00:57:29 2022
+Version 19.15.0.0.0
+
+Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
+
+connected to target database: SPNW4DB (not mounted)
+
+RMAN> 
+RMAN> RUN {
+2> allocate channel c1 device type disk;
+3> allocate channel c2 device type disk;
+4> allocate channel c3 device type disk;
+5> allocate channel c4 device type disk;
+6> allocate channel c5 device type disk;
+7> allocate channel c6 device type disk;
+8> allocate channel c7 device type disk;
+9> allocate channel c8 device type disk;
+10> allocate channel c9 device type disk;
+11> allocate channel c10 device type disk;
+12> allocate channel c11 device type disk;
+13> allocate channel c12 device type disk;
+14> allocate channel c13 device type disk;
+15> allocate channel c14 device type disk;
+16> allocate channel c15 device type disk;
+17> allocate channel c16 device type disk;
+18> allocate channel c17 device type disk;
+19> allocate channel c18 device type disk;
+20> allocate channel c19 device type disk;
+21> allocate channel c20 device type disk;
+22> allocate channel c21 device type disk;
+23> allocate channel c22 device type disk;
+24> allocate channel c23 device type disk;
+25> allocate channel c24 device type disk;
+26> allocate channel c25 device type disk;
+27> allocate channel c26 device type disk;
+28> allocate channel c27 device type disk;
+29> allocate channel c28 device type disk;
+30> allocate channel c29 device type disk;
+31> allocate channel c30 device type disk;
+32> allocate channel c31 device type disk;
+33> allocate channel c32 device type disk;
+34>   CONVERT
+35>   FROM PLATFORM 'Solaris[tm] OE (64-bit)'
+36>   PARALLELISM 32
+37> DATAFILE '/way4_nfs/oradata/datafile/users01.dbf' FORMAT '+CMSDATA01'
+38> DATAFILE '/way4_nfs/oradata/datafile/users.334.1068503095' FORMAT '+CMSDATA01'
+39> DATAFILE '/way4_nfs/oradata/datafile/owacq_d01.dbf' FORMAT '+CMSDATA01'
+40> DATAFILE '/way4_nfs/oradata/datafile/owacq_d.323.1068502935' FORMAT '+CMSDATA01'
+41> DATAFILE '/way4_nfs/oradata/datafile/wacq_i01.dbf' FORMAT '+CMSDATA01'
+42> DATAFILE '/way4_nfs/oradata/datafile/owacq_i.293.1080358815' FORMAT '+CMSDATA01'
+43> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d01.dbf' FORMAT '+CMSDATA01'
+44> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d.291.1016928797' FORMAT '+CMSDATA01'
+45> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d.304.1040667601' FORMAT '+CMSDATA01'
+46> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d.320.1068502869' FORMAT '+CMSDATA01'
+47> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d.337.1086460875' FORMAT '+CMSDATA01'
+48> DATAFILE '/way4_nfs/oradata/datafile/owcoms_d.298.1106615439' FORMAT '+CMSDATA01'
+49> DATAFILE '/way4_nfs/oradata/datafile/owcoms_i01.dbf' FORMAT '+CMSDATA01'
+50> DATAFILE '/way4_nfs/oradata/datafile/owcoms_i.298.1024626855' FORMAT '+CMSDATA01'
+51> DATAFILE '/way4_nfs/oradata/datafile/owcoms_i.292.1080671111' FORMAT '+CMSDATA01'
+52> DATAFILE '/way4_nfs/oradata/datafile/owcoms_i.335.1080671291' FORMAT '+CMSDATA01'
+53> DATAFILE '/way4_nfs/oradata/datafile/owconst_d01.dbf' FORMAT '+CMSDATA01'
+54> DATAFILE '/way4_nfs/oradata/datafile/owconst_d.331.1068503067' FORMAT '+CMSDATA01'
+55> DATAFILE '/way4_nfs/oradata/datafile/owconst_i01.dbf' FORMAT '+CMSDATA01'
+56> DATAFILE '/way4_nfs/oradata/datafile/owcontr_d01.dbf' FORMAT '+CMSDATA01'
+57> DATAFILE '/way4_nfs/oradata/datafile/owcontr_d.325.1068502973' FORMAT '+CMSDATA01'
+58> DATAFILE '/way4_nfs/oradata/datafile/owcontr_i01.dbf' FORMAT '+CMSDATA01'
+59> DATAFILE '/way4_nfs/oradata/datafile/owcontr_i02.dbf' FORMAT '+CMSDATA01'
+60> DATAFILE '/way4_nfs/oradata/datafile/owcontr_i03.dbf' FORMAT '+CMSDATA01'
+61> DATAFILE '/way4_nfs/oradata/datafile/owdoc_d01.dbf' FORMAT '+CMSDATA01'
+62> DATAFILE '/way4_nfs/oradata/datafile/owdoc_d.299.1024626857' FORMAT '+CMSDATA01'
+63> DATAFILE '/way4_nfs/oradata/datafile/owdoc_d.322.1068502913' FORMAT '+CMSDATA01'
+64> DATAFILE '/way4_nfs/oradata/datafile/owdoc_d.340.1093026095' FORMAT '+CMSDATA01'
+65> DATAFILE '/way4_nfs/oradata/datafile/owdoc_i01.dbf' FORMAT '+CMSDATA01'
+66> DATAFILE '/way4_nfs/oradata/datafile/owdoc_i.297.1024626701' FORMAT '+CMSDATA01'
+67> DATAFILE '/way4_nfs/oradata/datafile/owdoc_i.336.1080671409' FORMAT '+CMSDATA01'
+68> DATAFILE '/way4_nfs/oradata/datafile/owfin_d01.dbf' FORMAT '+CMSDATA01'
+69> DATAFILE '/way4_nfs/oradata/datafile/owfin_d02.dbf' FORMAT '+CMSDATA01'
+70> DATAFILE '/way4_nfs/oradata/datafile/owfin_d.321.1068502889' FORMAT '+CMSDATA01'
+71> DATAFILE '/way4_nfs/oradata/datafile/owfin_d.328.1068503031' FORMAT '+CMSDATA01'
+72> DATAFILE '/way4_nfs/oradata/datafile/owfin_i01.dbf' FORMAT '+CMSDATA01'
+73> DATAFILE '/way4_nfs/oradata/datafile/owfin_i.338.1093026083' FORMAT '+CMSDATA01'
+74> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d01.dbf' FORMAT '+CMSDATA01'
+75> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d02.dbf' FORMAT '+CMSDATA01'
+76> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d03.dbf' FORMAT '+CMSDATA01'
+77> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d04.dbf' FORMAT '+CMSDATA01'
+78> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d05.dbf' FORMAT '+CMSDATA01'
+79> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d06.dbf' FORMAT '+CMSDATA01'
+80> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d07.dbf' FORMAT '+CMSDATA01'
+81> DATAFILE '/way4_nfs/oradata/datafile/unnamed00054.dbf' FORMAT '+CMSDATA01'
+82> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.290.1016682657' FORMAT '+CMSDATA01'
+83> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.292.1071086139' FORMAT '+CMSDATA01'
+84> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.333.1109207947' FORMAT '+CMSDATA01'
+85> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.294.1024626521' FORMAT '+CMSDATA01'
+86> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.291.1062353827' FORMAT '+CMSDATA01'
+87> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.290.1062353827' FORMAT '+CMSDATA01'
+88> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.288.1062353829' FORMAT '+CMSDATA01'
+89> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.289.1062353827' FORMAT '+CMSDATA01'
+90> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.307.1044780713' FORMAT '+CMSDATA01'
+91> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.309.1049850057' FORMAT '+CMSDATA01'
+92> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.310.1056222129' FORMAT '+CMSDATA01'
+93> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.303.1056222179' FORMAT '+CMSDATA01'
+94> DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.302.1067305065' FORMAT '+CMSDATA01'
+95> ; }
+using target database control file instead of recovery catalog
+allocated channel: c1
+channel c1: SID=2286 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c2
+channel c2: SID=3043 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c3
+channel c3: SID=9 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c4
+channel c4: SID=769 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c5
+channel c5: SID=1525 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c6
+channel c6: SID=2288 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c7
+channel c7: SID=3044 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c8
+channel c8: SID=3804 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c9
+channel c9: SID=12 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c10
+channel c10: SID=770 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c11
+channel c11: SID=1528 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c12
+channel c12: SID=2289 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c13
+channel c13: SID=3045 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c14
+channel c14: SID=3805 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c15
+channel c15: SID=13 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c16
+channel c16: SID=771 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c17
+channel c17: SID=1529 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c18
+channel c18: SID=2290 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c19
+channel c19: SID=3046 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c20
+channel c20: SID=3806 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c21
+channel c21: SID=14 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c22
+channel c22: SID=772 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c23
+channel c23: SID=1530 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c24
+channel c24: SID=2291 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c25
+channel c25: SID=3047 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c26
+channel c26: SID=3807 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c27
+channel c27: SID=15 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c28
+channel c28: SID=773 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c29
+channel c29: SID=1531 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c30
+channel c30: SID=2292 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c31
+channel c31: SID=3798 instance=SPNW4DB1 device type=DISK
+
+allocated channel: c32
+channel c32: SID=3048 instance=SPNW4DB1 device type=DISK
+
+Starting conversion at target at 22-OCT-2022 00:57:37
+channel c1: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d01.dbf
+channel c2: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d.291.1016928797
+channel c3: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d.320.1068502869
+channel c4: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d.337.1086460875
+channel c5: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_i01.dbf
+channel c6: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcontr_i01.dbf
+channel c7: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_d01.dbf
+channel c8: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_i01.dbf
+channel c9: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d01.dbf
+channel c10: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d03.dbf
+channel c11: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/unnamed00054.dbf
+channel c12: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.290.1016682657
+channel c13: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.292.1071086139
+channel c14: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.333.1109207947
+channel c15: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.294.1024626521
+channel c16: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.291.1062353827
+channel c17: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.290.1062353827
+channel c18: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.289.1062353827
+channel c19: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.307.1044780713
+channel c20: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.309.1049850057
+channel c21: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.310.1056222129
+channel c22: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.303.1056222179
+channel c23: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.302.1067305065
+channel c24: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d07.dbf
+channel c25: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d05.dbf
+channel c26: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d02.dbf
+channel c27: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d04.dbf
+channel c28: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d.288.1062353829
+channel c29: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owlarge_d06.dbf
+channel c30: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d.304.1040667601
+channel c31: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_i.297.1024626701
+channel c32: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/wacq_i01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.312.1118710661
+channel c12: datafile conversion complete, elapsed time: 00:09:12
+channel c12: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_i.298.1024626855
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.306.1118710663
+channel c18: datafile conversion complete, elapsed time: 00:09:12
+channel c18: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_i01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.313.1118710661
+channel c17: datafile conversion complete, elapsed time: 00:09:14
+channel c17: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_i.336.1080671409
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.370.1118710669
+channel c11: datafile conversion complete, elapsed time: 00:09:20
+channel c11: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_d.340.1093026095
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.302.1118710663
+channel c22: datafile conversion complete, elapsed time: 00:09:21
+channel c22: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_d.322.1068502913
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.308.1118710661
+channel c14: datafile conversion complete, elapsed time: 00:09:24
+channel c14: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_i.292.1080671111
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.307.1118710661
+channel c19: datafile conversion complete, elapsed time: 00:09:24
+channel c19: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owacq_i.293.1080358815
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.309.1118710661
+channel c23: datafile conversion complete, elapsed time: 00:09:25
+channel c23: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_i.335.1080671291
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.411.1118710663
+channel c25: datafile conversion complete, elapsed time: 00:09:26
+channel c25: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcontr_i02.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.305.1118710663
+channel c13: datafile conversion complete, elapsed time: 00:09:29
+channel c13: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_d01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.310.1118710661
+channel c15: datafile conversion complete, elapsed time: 00:09:37
+channel c15: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owdoc_d.299.1024626857
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.280.1118710663
+channel c21: datafile conversion complete, elapsed time: 00:09:38
+channel c21: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcoms_d.298.1106615439
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.378.1118710663
+channel c29: datafile conversion complete, elapsed time: 00:09:39
+channel c29: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owacq_d01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.303.1118710663
+channel c16: datafile conversion complete, elapsed time: 00:09:41
+channel c16: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_d.321.1068502889
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.410.1118710663
+channel c20: datafile conversion complete, elapsed time: 00:09:41
+channel c20: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owacq_d.323.1068502935
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.283.1118710663
+channel c24: datafile conversion complete, elapsed time: 00:09:43
+channel c24: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcontr_d01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.301.1118710663
+channel c28: datafile conversion complete, elapsed time: 00:09:44
+channel c28: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_d.328.1068503031
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.311.1118710661
+channel c30: datafile conversion complete, elapsed time: 00:09:46
+channel c30: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_i.338.1093026083
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.276.1118710667
+channel c10: datafile conversion complete, elapsed time: 00:09:56
+channel c10: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owfin_d02.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.304.1118710663
+channel c27: datafile conversion complete, elapsed time: 00:09:57
+channel c27: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcontr_d.325.1068502973
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcontr_i.396.1118710667
+channel c6: datafile conversion complete, elapsed time: 00:10:26
+channel c6: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owcontr_i03.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.397.1118710667
+channel c9: datafile conversion complete, elapsed time: 00:10:27
+channel c9: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owconst_i01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owlarge_d.377.1118710663
+channel c26: datafile conversion complete, elapsed time: 00:10:27
+channel c26: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owconst_d01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcontr_d.456.1118711259
+channel c27: datafile conversion complete, elapsed time: 00:00:30
+channel c27: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/owconst_d.331.1068503067
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcontr_i.269.1118711287
+channel c6: datafile conversion complete, elapsed time: 00:00:10
+channel c6: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/users.334.1068503095
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owconst_i.500.1118711287
+channel c9: datafile conversion complete, elapsed time: 00:00:10
+channel c9: starting datafile conversion
+input file name=/way4_nfs/oradata/datafile/users01.dbf
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_d.454.1118711257
+channel c10: datafile conversion complete, elapsed time: 00:00:41
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owconst_d.502.1118711289
+channel c26: datafile conversion complete, elapsed time: 00:00:10
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owconst_d.449.1118711289
+channel c27: datafile conversion complete, elapsed time: 00:00:09
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/users.290.1118711297
+channel c6: datafile conversion complete, elapsed time: 00:00:02
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/users.501.1118711299
+channel c9: datafile conversion complete, elapsed time: 00:00:01
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.279.1118710665
+channel c4: datafile conversion complete, elapsed time: 00:10:54
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.375.1118710665
+channel c2: datafile conversion complete, elapsed time: 00:11:05
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.371.1118710665
+channel c3: datafile conversion complete, elapsed time: 00:11:05
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_d.496.1118711241
+channel c16: datafile conversion complete, elapsed time: 00:01:23
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owacq_d.498.1118711243
+channel c20: datafile conversion complete, elapsed time: 00:01:21
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcontr_d.271.1118711245
+channel c24: datafile conversion complete, elapsed time: 00:01:20
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcontr_i.273.1118711227
+channel c25: datafile conversion complete, elapsed time: 00:01:37
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_d.490.1118711247
+channel c28: datafile conversion complete, elapsed time: 00:01:18
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.372.1118710665
+channel c1: datafile conversion complete, elapsed time: 00:11:15
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_d.401.1118710667
+channel c7: datafile conversion complete, elapsed time: 00:11:15
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_d.455.1118711239
+channel c21: datafile conversion complete, elapsed time: 00:01:35
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_i.499.1118711247
+channel c30: datafile conversion complete, elapsed time: 00:01:27
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owacq_d.368.1118711241
+channel c29: datafile conversion complete, elapsed time: 00:01:44
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_d.261.1118711229
+channel c13: datafile conversion complete, elapsed time: 00:02:05
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_d.453.1118711239
+channel c15: datafile conversion complete, elapsed time: 00:01:56
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_d.473.1118711221
+channel c11: datafile conversion complete, elapsed time: 00:03:13
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_d.497.1118711223
+channel c22: datafile conversion complete, elapsed time: 00:03:22
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_i.492.1118711227
+channel c23: datafile conversion complete, elapsed time: 00:04:28
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_i.393.1118710663
+channel c31: datafile conversion complete, elapsed time: 00:14:04
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_i.483.1118711225
+channel c14: datafile conversion complete, elapsed time: 00:05:01
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owacq_i.260.1118711227
+channel c19: datafile conversion complete, elapsed time: 00:05:10
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_i.460.1118711217
+channel c17: datafile conversion complete, elapsed time: 00:05:49
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owdoc_i.390.1118710669
+channel c8: datafile conversion complete, elapsed time: 00:15:16
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owacq_i.404.1118710663
+channel c32: datafile conversion complete, elapsed time: 00:15:55
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_i.278.1118710667
+channel c5: datafile conversion complete, elapsed time: 00:16:06
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owfin_i.495.1118711215
+channel c18: datafile conversion complete, elapsed time: 00:06:53
+converted datafile=+CMSDATA01/SPNW4DB/DATAFILE/owcoms_i.503.1118711213
+channel c12: datafile conversion complete, elapsed time: 00:07:13
+Finished conversion at target at 22-OCT-2022 01:14:05
+released channel: c1
+released channel: c2
+released channel: c3
+released channel: c4
+released channel: c5
+released channel: c6
+released channel: c7
+released channel: c8
+released channel: c9
+released channel: c10
+released channel: c11
+released channel: c12
+released channel: c13
+released channel: c14
+released channel: c15
+released channel: c16
+released channel: c17
+released channel: c18
+released channel: c19
+released channel: c20
+released channel: c21
+released channel: c22
+released channel: c23
+released channel: c24
+released channel: c25
+released channel: c26
+released channel: c27
+released channel: c28
+released channel: c29
+released channel: c30
+released channel: c31
+released channel: c32
+
+RMAN> **end-of-file**
+
+RMAN> 
+
+Recovery Manager complete.

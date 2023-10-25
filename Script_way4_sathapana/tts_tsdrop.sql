@@ -1,0 +1,26 @@
+DROP TABLESPACE USERS including contents and datafiles;
+DROP TABLESPACE OWACQ_D including contents and datafiles;
+DROP TABLESPACE OWACQ_I including contents and datafiles;
+DROP TABLESPACE OWCOMS_D including contents and datafiles;
+DROP TABLESPACE OWCOMS_I including contents and datafiles;
+DROP TABLESPACE OWCONST_D including contents and datafiles;
+DROP TABLESPACE OWCONST_I including contents and datafiles;
+DROP TABLESPACE OWCONTR_D including contents and datafiles;
+DROP TABLESPACE OWCONTR_I including contents and datafiles;
+DROP TABLESPACE OWDOC_D including contents and datafiles;
+DROP TABLESPACE OWDOC_I including contents and datafiles;
+DROP TABLESPACE OWFIN_D including contents and datafiles;
+DROP TABLESPACE OWFIN_I including contents and datafiles;
+DROP TABLESPACE OWLARGE_D including contents and datafiles;
+DROP TABLESPACE OWLARGE_I including contents and datafiles;
+DROP TABLESPACE OWMEDIUM_D including contents and datafiles;
+DROP TABLESPACE OWMEDIUM_I including contents and datafiles;
+DROP TABLESPACE OWRPL_D including contents and datafiles;
+DROP TABLESPACE OWRPL_I including contents and datafiles;
+DROP TABLESPACE OWSTATIC_D including contents and datafiles;
+DROP TABLESPACE OWSTATIC_I including contents and datafiles;
+DROP TABLESPACE OWSTATLARGE_D including contents and datafiles;
+DROP TABLESPACE OWSTATLARGE_I including contents and datafiles;
+DROP TABLESPACE OWSREP_TB including contents and datafiles;
+DROP TABLESPACE OWSAPI_TBS including contents and datafiles;
+

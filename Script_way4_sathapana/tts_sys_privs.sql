@@ -1,0 +1,151 @@
+/* ============ */
+/* Grant privs */
+/* ============ */
+
+grant EXECUTE on "APEX_030200"."WWV_FLOW" to "FLOWS_FILES";
+grant EXECUTE on "APEX_030200"."WWV_FLOW_SECURITY" to "FLOWS_FILES";
+grant EXECUTE on "APEX_030200"."WWV_FLOW_FILE_API" to "FLOWS_FILES";
+grant EXECUTE on "APEX_030200"."WWV_FLOW_FILE_OBJECT_ID" to "FLOWS_FILES";
+grant EXECUTE on "APEX_030200"."WWV_FLOW_ID" to "FLOWS_FILES";
+grant SELECT on "APEX_030200"."WWV_FLOW_COMPANIES" to "FLOWS_FILES";
+grant EXECUTE on "SYS"."DBMS_REGISTRY" to "OWBSYS";
+grant SELECT on "SYS"."V_$SESSION" to "OWBSYS" with grant option ;
+grant SELECT on "SYS"."V_$LOCK" to "OWBSYS";
+grant SELECT on "SYS"."V_$MYSTAT" to "OWBSYS" with grant option ;
+grant SELECT on "SYS"."V_$PARAMETER" to "OWBSYS";
+grant SELECT on "SYS"."V_$SYSTEM_PARAMETER" to "OWBSYS";
+grant SELECT on "SYS"."V_$INSTANCE" to "OWBSYS" with grant option ;
+
+grant SELECT on "SYS"."V_$ACTIVE_INSTANCES" to "OWBSYS" with grant option ;
+grant SELECT on "SYS"."GV_$SESSION" to "OWBSYS" with grant option ;
+grant SELECT on "SYS"."DBA_ROLE_PRIVS" to "OWBSYS";
+grant SELECT on "SYS"."DBA_SYNONYMS" to "OWBSYS";
+grant SELECT on "SYS"."DBA_TABLES" to "OWBSYS";
+grant SELECT on "SYS"."DBA_FREE_SPACE" to "OWBSYS";
+grant SELECT on "SYS"."DBA_DATA_FILES" to "OWBSYS";
+grant SELECT on "SYS"."DBA_TABLESPACES" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_LOB" to "OWBSYS" with grant option ;
+grant EXECUTE on "SYS"."DBMS_LOCK" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_JOB" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_CRYPTO" to "OWBSYS" with grant option ;
+grant EXECUTE on "SYS"."DBMS_AQ" to "OWBSYS" with grant option ;
+
+grant EXECUTE on "SYS"."DBMS_AQADM" to "OWBSYS" with grant option ;
+grant EXECUTE on "SYS"."DBMS_STREAMS_ADM" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_CAPTURE_ADM" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_SNAPSHOT" to "OWBSYS";
+grant EXECUTE on "SYS"."DBMS_AQ_BQVIEW" to "OWBSYS";
+grant SELECT on "SYS"."DBA_ADVISOR_LOG" to "OWBSYS";
+grant SELECT on "SYS"."DBA_APPLY_ERROR" to "OWBSYS";
+grant SELECT on "SYS"."DBMS_LOCK_ALLOCATED" to "OWBSYS";
+grant EXECUTE on "SYS"."INTERACTIONEXECUTE" to "OWBSYS" with grant option ;
+grant ALTER on "OLAPSYS"."XML_LOADID_SEQUENCE" to "OWBSYS" with grant option ;
+grant SELECT on "OLAPSYS"."XML_LOADID_SEQUENCE" to "OWBSYS" with grant option ;
+grant ALTER on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant DELETE on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+
+grant INDEX on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant INSERT on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant SELECT on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant UPDATE on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant REFERENCES on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant ON COMMIT REFRESH on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant QUERY REWRITE on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant DEBUG on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant FLASHBACK on "OLAPSYS"."XML_LOAD_LOG" to "OWBSYS" with grant option ;
+grant EXECUTE on "SYS"."AQ$_AGENT" to "OWBSYS" with grant option ;
+grant SELECT on "SYS"."DBA_CONS_COLUMNS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_COL_PRIVS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_INDEXES" to "OWS" with grant option ;
+
+grant SELECT on "SYS"."DBA_IND_COLUMNS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_OBJECTS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_ROLE_PRIVS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_SEQUENCES" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_SYNONYMS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_TABLES" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_TAB_COLUMNS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_TAB_PRIVS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_VIEWS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_CONSTRAINTS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_USERS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_ROLES" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_SOURCE" to "OWS" with grant option ;
+
+grant SELECT on "SYS"."DBA_TRIGGERS" to "OWS" with grant option ;
+grant SELECT on "SYS"."DBA_DEPENDENCIES" to "OWS" with grant option ;
+grant EXECUTE on "SYS"."DBMS_LOCK" to "OWS";
+grant EXECUTE on "SYS"."DBMS_PIPE" to "OWS";
+grant EXECUTE on "SYS"."DBMS_JOB" to "OWS";
+grant EXECUTE on "SYS"."DBMS_FLASHBACK" to "OWS";
+grant EXECUTE on "SYS"."DBMS_CRYPTO" to "OWS" with grant option ;
+grant EXECUTE on "SYS"."DBMS_FGA" to "OWS";
+grant EXECUTE on "SYS"."DBMS_REDEFINITION" to "OWS";
+grant EXECUTE on "SYS"."DBMS_SHARED_POOL" to "OWS";
+grant EXECUTE on "SYS"."DBMS_AQADM" to "OWS";
+grant EXECUTE on "SYS"."DBMS_RESOURCE_MANAGER" to "OWS";
+grant EXECUTE on "SYS"."DBMS_RESOURCE_MANAGER_PRIVS" to "OWS";
+
+grant EXECUTE on "SYS"."DBMS_STREAMS_ADM" to "OWS";
+grant EXECUTE on "SYS"."DBMS_SYSTEM" to "OWS";
+grant EXECUTE on "SYS"."DBMS_AQIN" to "OWS";
+grant EXECUTE on "SYS"."DBMS_AQ_BQVIEW" to "OWS";
+grant EXECUTE on "CTXSYS"."CTX_DDL" to "OWS";
+grant EXECUTE on "SYS"."OWS_DJC" to "OWS";
+grant SELECT on "SYS"."QT114432_BUFFER" to "OWS";
+grant EXECUTE on "SYS"."OWS_ADMINISTER_USER" to "OWS";
+grant READ on "SYS"."BACKUP" to "OWS";
+grant WRITE on "SYS"."BACKUP" to "OWS";
+grant READ on "SYS"."DATA_PUMP_DIR" to "OWS";
+grant WRITE on "SYS"."DATA_PUMP_DIR" to "OWS";
+grant SELECT on "SYS"."AUD$" to "VANNAK";
+
+grant SELECT on "SYS"."V_$SESSION" to "VANNAK";
+grant SELECT on "SYS"."V_$LOCK" to "VANNAK";
+grant SELECT on "SYS"."V_$SQL" to "VANNAK";
+grant SELECT on "SYS"."GV_$PROCESS" to "VANNAK";
+grant SELECT on "SYS"."GV_$SESSION" to "VANNAK";
+grant SELECT on "SYS"."GV_$LOCKED_OBJECT" to "VANNAK";
+grant SELECT on "SYS"."GV_$SESSION_LONGOPS" to "VANNAK";
+grant SELECT on "SYS"."GV_$SQL" to "VANNAK";
+grant SELECT on "SYS"."ALL_OBJECTS" to "VANNAK";
+grant SELECT on "SYS"."DBA_USERS" to "VANNAK";
+grant SELECT on "SYS"."DBA_FREE_SPACE" to "VANNAK";
+grant SELECT on "SYS"."DBA_DATA_FILES" to "VANNAK";
+grant SELECT on "SYS"."DBA_TEMP_FILES" to "VANNAK";
+
+grant SELECT on "SYS"."V_$TEMP_EXTENT_POOL" to "VANNAK";
+grant SELECT on "SYS"."V_$TEMP_SPACE_HEADER" to "VANNAK";
+grant DELETE on "SYS"."SMTB_IP_WLIST" to "VANNAK";
+grant INSERT on "SYS"."SMTB_IP_WLIST" to "VANNAK";
+grant SELECT on "SYS"."SMTB_IP_WLIST" to "VANNAK";
+grant UPDATE on "SYS"."SMTB_IP_WLIST" to "VANNAK";
+grant SELECT on "SYS"."OBJ$" to "VANNAK";
+grant SELECT on "SYS"."USER$" to "VANNAK";
+grant SELECT on "SYS"."AUD$" to "SIEM";
+grant SELECT on "SYS"."DBA_AUDIT_TRAIL" to "SIEM";
+grant EXECUTE on "SYS"."SYS_GROUP" to "OWS_N";
+grant SELECT on "SYS"."AUD$" to "RIM";
+grant SELECT on "SYS"."V_$SESSION" to "RIM";
+
+grant SELECT on "SYS"."V_$LOCK" to "RIM";
+grant SELECT on "SYS"."V_$SQL" to "RIM";
+grant SELECT on "SYS"."GV_$PROCESS" to "RIM";
+grant SELECT on "SYS"."GV_$SESSION" to "RIM";
+grant SELECT on "SYS"."GV_$LOCKED_OBJECT" to "RIM";
+grant SELECT on "SYS"."GV_$SESSION_LONGOPS" to "RIM";
+grant SELECT on "SYS"."GV_$SQL" to "RIM";
+grant SELECT on "SYS"."ALL_OBJECTS" to "RIM";
+grant SELECT on "SYS"."DBA_USERS" to "RIM";
+grant SELECT on "SYS"."DBA_FREE_SPACE" to "RIM";
+grant SELECT on "SYS"."DBA_DATA_FILES" to "RIM";
+grant SELECT on "SYS"."DBA_TEMP_FILES" to "RIM";
+grant SELECT on "SYS"."V_$TEMP_EXTENT_POOL" to "RIM";
+
+grant SELECT on "SYS"."V_$TEMP_SPACE_HEADER" to "RIM";
+grant DELETE on "SYS"."SMTB_IP_WLIST" to "RIM";
+grant INSERT on "SYS"."SMTB_IP_WLIST" to "RIM";
+grant SELECT on "SYS"."SMTB_IP_WLIST" to "RIM";
+grant UPDATE on "SYS"."SMTB_IP_WLIST" to "RIM";
+grant SELECT on "SYS"."OBJ$" to "RIM";
+grant SELECT on "SYS"."USER$" to "RIM";

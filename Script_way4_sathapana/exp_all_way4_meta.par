@@ -1,0 +1,10 @@
+full=y
+exclude=table:"in(select table_name from dba_tables where owner in ('OWS','SWTREP','SCOTT','OWSREP'))"
+EXCLUDE=AUDIT_TRAILS
+exclude=tablespace
+exclude=statistics,index_statistics,table_statistics,password_history,MATERIALIZED_VIEW
+exclude=schema:"IN('OJVMSYS','SYSKM','GSMCATUSER','SYSBACKUP','SYSDG','SPATIAL_WFS_ADMIN_USR','GSMUSER','APEX_040200','GSMADMIN_INTERNAL','XS$NULL','ORACLE_OCM','MDDATA','OUTLN','DIP','APEX_PUBLIC_USER','FLOWS_FILES','MDSYS','ORDSYS','WMSYS','APPQOSSYS','ORDDATA','CTXSYS','ANONYMOUS','XDB','ORDPLUGINS','SI_INFORMTN_SCHEMA','OLAPSYS')"
+directory=ttsdir
+metrics=y
+dumpfile=exp_all_way4_meta.dmp
+logfile=exp_all_way4_meta.log

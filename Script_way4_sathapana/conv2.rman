@@ -1,0 +1,107 @@
+RUN {
+allocate channel d1 device type disk;
+allocate channel d2 device type disk;
+allocate channel d3 device type disk;
+allocate channel d4 device type disk;
+allocate channel d5 device type disk;
+allocate channel d6 device type disk;
+allocate channel d7 device type disk;
+allocate channel d8 device type disk;
+allocate channel d9 device type disk;
+allocate channel d10 device type disk;
+allocate channel d11 device type disk;
+allocate channel d12 device type disk;
+allocate channel d13 device type disk;
+allocate channel d14 device type disk;
+allocate channel d15 device type disk;
+allocate channel d16 device type disk;
+allocate channel d17 device type disk;
+allocate channel d18 device type disk;
+allocate channel d19 device type disk;
+allocate channel d20 device type disk;
+allocate channel d21 device type disk;
+allocate channel d22 device type disk;
+allocate channel d23 device type disk;
+allocate channel d24 device type disk;
+allocate channel d25 device type disk;
+allocate channel d26 device type disk;
+allocate channel d27 device type disk;
+allocate channel d28 device type disk;
+allocate channel d29 device type disk;
+allocate channel d30 device type disk;
+allocate channel d31 device type disk;
+allocate channel d32 device type disk;
+allocate channel d33 device type disk;
+allocate channel d34 device type disk;
+allocate channel d35 device type disk;
+allocate channel d36 device type disk;
+allocate channel d37 device type disk;
+allocate channel d38 device type disk;
+allocate channel d39 device type disk;
+allocate channel d40 device type disk;
+allocate channel d41 device type disk;
+allocate channel d42 device type disk;
+allocate channel d43 device type disk;
+allocate channel d44 device type disk;
+allocate channel d45 device type disk;
+allocate channel d46 device type disk;
+allocate channel d47 device type disk;
+allocate channel d48 device type disk;
+allocate channel d49 device type disk;
+allocate channel d50 device type disk;
+allocate channel d51 device type disk;
+  CONVERT
+  FROM PLATFORM 'Solaris[tm] OE (64-bit)'
+  PARALLELISM 51
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.301.1067305115' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.296.1067305121' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.311.1068502669' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.313.1068502707' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.314.1068502749' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.317.1068502825' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.318.1068502835' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.343.1110310745' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_d.346.1116577847' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i02.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i03.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i04.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i05.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i06.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i07.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i08.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i09.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i10.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i11.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.284.1051642519' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.283.1051642717' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.285.1051642893' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.286.1051643081' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.287.1051643197' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.295.1067305133' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.300.1067305137' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.283.1067305141' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.315.1068502793' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owlarge_i.295.1106598753' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owmedium_d01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owmedium_d.329.1068503045' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owmedium_i01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owrpl_d01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owrpl_d.332.1068503075' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owrpl_i01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatic_d01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatic_d.326.1068502983' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatic_i01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatlarge_d01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatlarge_d.330.1068503057' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owstatlarge_i01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb01.dbf' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.305.1040667629' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.308.1048710501' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.306.1068502617' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.319.1068502845' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.339.1093026089' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.297.1106615299' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsrep_tb.345.1116577795' FORMAT '+CMSDATA01'
+DATAFILE '/way4_nfs/oradata/datafile/owsapi_tbs.341.1096590947' FORMAT '+CMSDATA01'
+; }
