@@ -3,9 +3,31 @@
 create directory dpump_tts as '/home/oracle/src_script';
 grant read, write on directory dpump_tts to system;
 
-- Get user and grant role:
+**USERS, ROLES AND PRIVILEGES**
+----------------------------------------------------------------------------------------------------------------
+- Export user metadata (sparc)
+expdp \'/as sysdba\' parfile=/home/oracle/src_script/exp_all_user_meta.par
 
+- Get system schema (from source side - exclude scott) (exclude=schema:"in)
+select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS');
 
+- Get user schema (from source side - exclude scott) (exclude=table:"in)
+select username from dba_users where trunc(created) > (select trunc(created) from dba_users where username='SYS');
+
+- exp_all_user_meta.par
+=======================
+full=y
+exclude=table:"in(select table_name from dba_tables where owner in ('BI','OE','HR','IX','SH','PM','SCOTT'))"
+exclude=AUDIT_TRAILS
+exclude=tablespace
+exclude=statistics,index_statistics,table_statistics,password_history,MATERIALIZED_VIEW
+exclude=schema:"in('ORACLE_OCM','XS$NULL','MDDATA','DIP','APEX_PUBLIC_USER','SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR','FLOWS_FILES','MDSYS','ORDSYS','EXFSYS','DBSNMP','WMSYS','APPQOSSYS','APEX_030200','OWBSYS_AUDIT','ORDDATA','CTXSYS','ANONYMOUS','SYSMAN','XDB','ORDPLUGINS','OWBSYS','SI_INFORMTN_SCHEMA','OLAPSYS','OUTLN','MGMT_VIEW')"
+directory=dpump_tts
+metrics=y
+dumpfile=exp_all_user_meta.dmp
+logfile=exp_all_user_meta.log
+=======================
+----------------------------------------------------------------------------------------------------------------
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
 =============
