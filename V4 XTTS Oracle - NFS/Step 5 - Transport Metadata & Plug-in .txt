@@ -3,6 +3,11 @@
 create directory dpump_tts as '/home/oracle/src_script';
 grant read, write on directory dpump_tts to system;
 
+**Destination Database:
+- Create directory in Destination database
+create directory dpump_tts as '/export/home/oracle/dest_script';
+grant read, write on directory dpump_tts to system;
+
 **USERS, ROLES AND PRIVILEGES**
 ----------------------------------------------------------------------------------------------------------------
 - Export user metadata (sparc)
@@ -27,6 +32,9 @@ metrics=y
 dumpfile=exp_all_user_meta.dmp
 logfile=exp_all_user_meta.log
 =======================
+
+- Import User metadata to source database
+impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y dumpfile=/export/home/oracle/dest_script/exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
 ----------------------------------------------------------------------------------------------------------------
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
@@ -47,10 +55,6 @@ scp /home/oracle/src_script/xttdump.dmp $Dest_Host:/export/home/oracle/dest_scri
 
 ------------------------------------------------------------------------------------------------------
 **Destination Database:
-- Create directory in Destination database
-create directory dpump_tts as '/export/home/oracle/dest_script';
-grant read, write on directory dpump_tts to system;
-
 - Create import parameter file in Destination database
 touch /export/home/oracle/dest_script/manual_imp.par
 =============
