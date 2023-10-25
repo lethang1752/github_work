@@ -77,11 +77,15 @@ where owner in
 spool off
 //*//
 
+- Move all file to destination database
+
 **Destination Database:
 - Import User metadata to source database
 impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y dumpfile=exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
 
 - Import grant role to destination database
+sqlplus / as sysdba
+@tts_sys_privs.sql
 
 ====================================================================
 *****************************************
