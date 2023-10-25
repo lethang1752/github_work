@@ -36,8 +36,32 @@ logfile=exp_all_user_meta.log
 - Import User metadata to source database
 impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y dumpfile=exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
 
-
+- Get grant role from source database
+=====================================
+set heading off feedback off trimspool on escape off
+set long 1000 linesize 1000
+col USERDDL format A150
+spool tts_sys_privs.sql
+prompt /* ============ */
+prompt /* Grant privs */
+prompt /* ============ */
+select 'grant '||privilege||' on "'||
+ owner||'"."'||table_name||'" to "'||grantee||'"'||
+ decode(grantable,'YES',' with grant option ')||
+ decode(hierarchy,'YES',' with hierarchy option ')||
+ ';'
+from dba_tab_privs
+where owner in
+ (select name
+ from system.logstdby$skip_support
+ where action=0)
+ and grantee in
+ (select username
+ from dba_users);
+spool off
+=====================================
 ----------------------------------------------------------------------------------------------------------------
+
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
 =============
