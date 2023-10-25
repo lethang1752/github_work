@@ -3,6 +3,9 @@
 create directory dpump_tts as '/home/oracle/src_script';
 grant read, write on directory dpump_tts to system;
 
+- Get user and grant role:
+
+
 - Create export parameter file in Source database
 touch /home/oracle/src_script/exp.par
 =============
