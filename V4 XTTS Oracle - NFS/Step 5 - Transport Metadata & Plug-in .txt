@@ -158,7 +158,7 @@ logfile=tts_import.log" > /export/home/oracle/dest_script/datapump/manual_imp.pa
 //*//
 
 - Run impdp with system user
-impdp system/oracle123 parfile=/export/home/oracle/dest_script/datapump/manual_imp.par
+impdp \'/as sysdba\' parfile=/export/home/oracle/dest_script/datapump/manual_imp.par
 ====================================================================
 ************************************************
 **CHECK & VALIDATE TABLESPACE IN DEST DATABASE**
