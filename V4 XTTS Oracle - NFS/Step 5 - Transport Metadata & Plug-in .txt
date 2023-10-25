@@ -19,6 +19,26 @@ create directory dpump_tts as '/export/home/oracle/dest_script/datapump';
 grant read, write on directory dpump_tts to system;
 exit
 EOF
+
+====================================================================
+*******************************
+**CREATE TABLESPACE STRUCTURE**
+*******************************
+====================================================================
+**Source Database:
+- Gen script for create tablespace
+select 'CREATE TABLESPACE '||tablespace_name||' DATAFILE ''+DATA'' size 100M;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1');
+
+CREATE TABLESPACE USERS DATAFILE '+DATA' size 100M;
+CREATE TABLESPACE EXAMPLE DATAFILE '+DATA' size 100M;
+CREATE TABLESPACE TBS01 DATAFILE '+DATA' size 100M;
+CREATE TABLESPACE TBS02 DATAFILE '+DATA' size 100M;
+CREATE TABLESPACE TBS03 DATAFILE '+DATA' size 100M;
+CREATE TABLESPACE TBS04 DATAFILE '+DATA' size 100M;
+
+**Destination Database
+- Create tablespace structure in destination database
+
 ====================================================================
 *******************************
 **USERS, ROLES AND PRIVILEGES**
@@ -30,9 +50,9 @@ touch /home/oracle/src_script/datapump/exp_all_user_meta.par
 
 - Get system schema (from source side - exclude scott) (exclude=schema:"in)
 set pages 1000
-select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS') and username not in ('SYS','SYSTEM','SYSAUX');
+select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS') and username not in ('SYS','SYSTEM');
 
-- Get user schema (from source side - exclude scott) (exclude=table:"in)
+- Get user schema (from source side - include scott) (exclude=table:"in)
 set pages 1000
 select username from dba_users where trunc(created) > (select trunc(created) from dba_users where username='SYS');
 
