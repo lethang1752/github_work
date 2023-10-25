@@ -116,34 +116,39 @@ sqlplus / as sysdba
 ====================================================================
 **Source Database:
 - Create export parameter file in Source database
-touch /home/oracle/src_script/exp.par
+touch /home/oracle/src_script/datapump/exp.par
 //*//
 echo "dumpfile=xttdump.dmp
 directory=dpump_tts
 exclude=statistics
-transport_tablespaces=USERS,DATA01,TBS1,TB2
+transport_tablespaces=USERS,EXAMPLE,TBS01,TBS02,TBS03,TBS04
 transport_full_check=yes
-logfile=tts_export.log" > /home/oracle/src_script/exp.par
+logfile=tts_export.log" > /home/oracle/src_script/datapump/exp.par
 //*//
 
 - Run expdp with system user
-expdp system/oracle123 parfile=/home/oracle/src_script/exp.par
+expdp system/oracle123 parfile=/home/oracle/src_script/datapump/exp.par
 
 - Scp xttdump.dmp to destination database
-scp /home/oracle/src_script/xttdump.dmp $Dest_Host:/export/home/oracle/dest_script/
+scp /home/oracle/src_script/datapump/xttdump.dmp $Dest_Host:/export/home/oracle/dest_script/datapump/
 
 **Destination Database:
 - Create import parameter file in Destination database
-touch /export/home/oracle/dest_script/manual_imp.par
+touch /export/home/oracle/dest_script/datapump/manual_imp.par
 //*//
 echo "dumpfile=xttdump.dmp
 directory=dpump_tts
-transport_datafiles='+DATA/vctr/datafile/example_5.dbf','+DATA/vctr/datafile/tbs01_6.dbf','+DATA/vctr/datafile/tbs02_7.dbf','+DATA/vctr/datafile/tbs03_8.dbf','+DATA/vctr/datafile/tbs04_9.dbf','+DATA/vctr/datafile/users_4.dbf'
-logfile=tts_import.log" > /export/home/oracle/dest_script/manual_imp.par
+transport_datafiles='+DATA/vctr/datafile/example_5.dbf',
+'+DATA/vctr/datafile/tbs01_6.dbf',
+'+DATA/vctr/datafile/tbs02_7.dbf',
+'+DATA/vctr/datafile/tbs03_8.dbf',
+'+DATA/vctr/datafile/tbs04_9.dbf',
+'+DATA/vctr/datafile/users_4.dbf'
+logfile=tts_import.log" > /export/home/oracle/dest_script/datapump/manual_imp.par
 //*//
 
 - Run impdp with system user
-impdp system/oracle123 parfile=/export/home/oracle/dest_script/manual_imp.par
+impdp system/oracle123 parfile=/export/home/oracle/dest_script/datapump/manual_imp.par
 ====================================================================
 ************************************************
 **CHECK & VALIDATE TABLESPACE IN DEST DATABASE**
