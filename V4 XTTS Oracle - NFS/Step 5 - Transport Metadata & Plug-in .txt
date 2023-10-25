@@ -133,6 +133,16 @@ expdp system/oracle123 parfile=/home/oracle/src_script/datapump/exp.par
 scp /home/oracle/src_script/datapump/xttdump.dmp $Dest_Host:/export/home/oracle/dest_script/datapump/
 
 **Destination Database:
+- Drop tablespace structure
+select 'drop tablespace '||tablespace_name||' including contents and datafiles;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1');
+
+drop tablespace USERS including contents and datafiles;
+drop tablespace EXAMPLE including contents and datafiles;
+drop tablespace TBS01 including contents and datafiles;
+drop tablespace TBS02 including contents and datafiles;
+drop tablespace TBS03 including contents and datafiles;
+drop tablespace TBS04 including contents and datafiles;
+
 - Create import parameter file in Destination database
 touch /export/home/oracle/dest_script/datapump/manual_imp.par
 //*//
