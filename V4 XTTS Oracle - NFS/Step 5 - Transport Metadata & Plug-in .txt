@@ -30,7 +30,7 @@ touch /home/oracle/src_script/datapump/exp_all_user_meta.par
 
 - Get system schema (from source side - exclude scott) (exclude=schema:"in)
 set pages 1000
-select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS');
+select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS') and username not in ('SYS','SYSTEM','SYSAUX');
 
 - Get user schema (from source side - exclude scott) (exclude=table:"in)
 set pages 1000

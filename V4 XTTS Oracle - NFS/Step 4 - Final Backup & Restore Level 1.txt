@@ -50,7 +50,7 @@ alter database recover managed standby database disconnect from session;
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 - Alter tablespace read only on Source database:
-PURGE RECYCLEBIN;
+purge dba_recyclebin;
 select 'alter tablespace '||tablespace_name||' read only;' from dba_tablespaces where tablespace_name not in ('SYSTEM','SYSAUX','TEMP','UNDOTBS1','UNDOTBS2');
 -------------
 sqlplus / as sysdba <<EOF
