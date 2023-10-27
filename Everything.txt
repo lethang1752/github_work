@@ -459,11 +459,11 @@ hoac recreate tu pfile:
 https://docs.oracle.com/en/learn/create_nfs_linux/#add-another-share
 
 --change interface name (root user)
--turn off network
+-turn off network:
 ip link set dev eth0 down
--change name
+-change name:
 ip link set dev eth0 name neweth0
--turn up network
+-turn up network:
 ip link set dev neweth0 up
 
 --remove route
