@@ -26,7 +26,6 @@ do
 echo "#=============================================================="
 echo "#--User: " $user
 echo "#=============================================================="
-
 sqlplus -s / as sysdba <<EOF
 set long 20000 longchunksize 20000 pagesize 0 linesize 1000 feedback off verify off trimspool on
 column ddl format a1000
