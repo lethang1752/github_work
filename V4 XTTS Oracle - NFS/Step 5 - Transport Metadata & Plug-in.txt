@@ -45,35 +45,10 @@ CREATE TABLESPACE TBS04 DATAFILE '+DATA' size 100M;
 *******************************
 ====================================================================
 **Source Database:
-- Create parameter file for export
-touch /home/oracle/src_script/datapump/exp_all_user_meta.par
+- Run user_ddl.sh to generate ddl for user (including all about user)
+sh user_ddl.sh (output file is user_ddl_metadata.sh)
 
-- Get system schema (from source side - exclude scott) (exclude=schema:"in)
-set pages 1000
-select username from dba_users where trunc(created) <= (select trunc(created) from dba_users where username='SYS') and username not in ('SYS','SYSTEM');
-
-- Get user schema (from source side - include scott) (exclude=table:"in)
-set pages 1000
-select username from dba_users where trunc(created) > (select trunc(created) from dba_users where username='SYS');
-
-- exp_all_user_meta.par
-//*//
-full=y
-exclude=table:"in(select table_name from dba_tables where owner in ('BI','OE','HR','IX','SH','PM','SCOTT'))"
-exclude=AUDIT_TRAILS
-exclude=tablespace
-exclude=statistics,index_statistics,table_statistics,password_history,MATERIALIZED_VIEW
-exclude=schema:"in('ORACLE_OCM','XS$NULL','MDDATA','DIP','APEX_PUBLIC_USER','SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR','FLOWS_FILES','MDSYS','ORDSYS','EXFSYS','DBSNMP','WMSYS','APPQOSSYS','APEX_030200','OWBSYS_AUDIT','ORDDATA','CTXSYS','ANONYMOUS','SYSMAN','XDB','ORDPLUGINS','OWBSYS','SI_INFORMTN_SCHEMA','OLAPSYS','OUTLN','MGMT_VIEW')"
-directory=dpump_tts
-metrics=y
-dumpfile=exp_all_user_meta.dmp
-logfile=exp_all_user_meta.log
-//*//
-
-- Export user metadata
-expdp \'/as sysdba\' parfile=/home/oracle/src_script/datapump/exp_all_user_meta.par
-
-- Get grant role from source database
+- Get grant role for user impact on system object from source database
 cd /home/oracle/src_script/datapump
 //*//
 set heading off feedback off trimspool on escape off
@@ -103,7 +78,8 @@ spool off
 
 **Destination Database:
 - Import User metadata to source database
-impdp \'/as sysdba\' directory=dpump_tts logfile=imp_user_meta_for_tbs.log metrics=Y dumpfile=exp_all_user_meta.dmp full=y include=user,role,role_grant,profile
+sqlplus / as sysdba
+@user_ddl_metadata.sql
 
 - Import grant role to destination database
 sqlplus / as sysdba
