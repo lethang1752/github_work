@@ -91,4 +91,4 @@ and    rownum = 1
 set linesize 80 pagesize 14 feedback on trimspool on verify on
 exit
 EOF
-done
+done >> user_ddl_metadata.sql
