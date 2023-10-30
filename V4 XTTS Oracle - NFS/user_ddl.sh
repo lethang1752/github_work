@@ -7,6 +7,7 @@
 ##
 ## Mod by       : Victor - MPS
 ## Last Modified: 30/10/2023
+## Changed      : Get all users not belong to system in 1 time
 ## -----------------------------------------------------------------------------------
 #!/bin/sh
 
