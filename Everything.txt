@@ -478,5 +478,14 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 -remove route table
 sudo route del -net 0.0.0.0 gw 192.168.178.1 netmask 0.0.0.0 dev eth0
 
--broker redo transport user
+--broker redo transport user
 https://facedba.blogspot.com/2018/04/dr-setup-using-redo-transport-user-in.html
+**NOTE:
+-with Primary: password file can be anywhere
+-with Standby: password file have to be in ASM
+-Process to fix:
+   +stop sync between DC and DR
+   +set redo_transport_user from DR to none
+   +copy password file from DC to DR, move it to ASM from DR site
+   +set redo_transport_user from DC back to transport user
+   +start sync between DC and DR
