@@ -1,13 +1,13 @@
 ## -----------------------------------------------------------------------------------
-## File Name    : https://oracle-base.com/dba/script_creation/user_ddl.sql
-## Author       : Tim Hall
-## Description  : Displays the DDL for a specific user.
-## Call Syntax  : @user_ddl (username)
-## Last Modified: 07/08/2018
-##
-## Mod by       : Victor - MPS
-## Last Modified: 30/10/2023
-## Changed      : Get all users not belong to system in 1 time
+## File Name     : https://oracle-base.com/dba/script_creation/user_ddl.sql
+## Author        : Tim Hall
+## Description   : Displays the DDL for a specific user.
+## Call Syntax   : @user_ddl (username)
+## Last Modified : 07/08/2018
+## 
+## Mod by        : Victor - MPS
+## Last Modified : 30/10/2023
+## Changed       : Get all users not belong to system in 1 time
 ## -----------------------------------------------------------------------------------
 #!/bin/sh
 
@@ -22,7 +22,9 @@ EOF
 
 for user in $user_list;
 do
-echo $user;
+echo "#=============================================================="
+echo "#--User: " $user
+echo "#=============================================================="
 
 sqlplus -s / as sysdba <<EOF
 set long 20000 longchunksize 20000 pagesize 0 linesize 1000 feedback off verify off trimspool on
