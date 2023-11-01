@@ -87,7 +87,7 @@ scp test.def to Target server: ./dirdef/
 dblogin sourcedb oggdb1, userid oggadm1, password Oracle@123
 
 add replicat inittest, specialrun
-(replicat name need to be the same as Source, specialrun for running 1 time)
+(replicat name need to be the same as Source group, specialrun for running 1 time)
 edit param inittest
 --
 replicat inittest
