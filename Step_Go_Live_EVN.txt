@@ -96,6 +96,46 @@ alter database commit to switchover to primary with session shutdown;
 
 8. Modify /etc/hosts, tnsnames, listener, local_listener from grid/oracle
 
+9. Unlock user from new khono primary
+~~
+set lines 999
+set pages 200
+select 'alter user '||username||' account unlock;' from dba_users where account_status='OPEN' and trunc(created) > (select trunc(created) from dba_users where username='SYS') and user not in ('vpc_khono');
+==================
+alter user HANGTT account unlock;
+alter user TTIENCNO account unlock;
+alter user TTHCC account unlock;
+alter user AVAGENT account unlock;
+alter user VPC_KHONO account unlock;
+alter user TRUNGVT2 account unlock;
+alter user CNOLLAICHAUVIEW account unlock;
+alter user KHONO account unlock;
+alter user CNOL account unlock;
+alter user KHONODEV account unlock;
+alter user GCS_HHC account unlock;
+alter user GG_ADMIN account unlock;
+alter user HDONPSINH account unlock;
+alter user BCLSU account unlock;
+alter user ATM account unlock;
+alter user TTCSKH account unlock;
+alter user DODEM account unlock;
+alter user QT account unlock;
+alter user SOHOAQUYTRINH account unlock;
+alter user QUANGTH account unlock;
+alter user HOPDONG account unlock;
+alter user PTKH_MTB account unlock;
+alter user QTHT account unlock;
+alter user KHONOTEST account unlock;
+alter user NGUYETPTM account unlock;
+alter user DICHVU account unlock;
+alter user CNOLLAICHAU account unlock;
+alter user HUUND account unlock;
+alter user CHISO account unlock;
+alter user TUNGND account unlock;
+alter user DMUC account unlock;
+alter user HDONDCHINH account unlock;
+==================
+
 9. Start pump from CMIS3
 ~~
 cd /u01/ggate
