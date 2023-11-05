@@ -136,7 +136,7 @@ alter user DMUC account unlock;
 alter user HDONDCHINH account unlock;
 ==================
 
-9. Start pump from CMIS3
+10. Start pump from CMIS3
 ~~
 cd /u01/ggate
 dblogin UserID gg_admin, Password ggoracle
@@ -147,7 +147,7 @@ Check pump status
 stats PCNOL
 info PCNOL detail
 
-10. Start all process from new khono
+11. Start all process from new khono
 ~~
 cd /u01/ggate
 ./ggsci
@@ -157,7 +157,7 @@ start er *
 stats *
 info * detail
 
-11. Start agent from new khono
+12. Start agent from new khono
 ~~
 cd /u01/agent/agent_13.5.0.0.0/bin
 ./emctl start agent
@@ -165,4 +165,4 @@ cd /u01/agent/agent_13.5.0.0.0/bin
 ~~
 check status from OEM
 
-12. Remove config broker if used and reconfig manual with backup to ZDLRA
+13. Remove config broker if used and reconfig manual with backup to ZDLRA
