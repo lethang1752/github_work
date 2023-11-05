@@ -9,13 +9,12 @@ stop extract PCNOL
 -get list user > trun(created) sys
 set lines 999
 set pages 200
-select 'alter user '||username||' account lock;' from dba_users where account_status='OPEN' and trunc(created) > (select trunc(created) from dba_users where username='SYS') and user not in ('vpc_khono');
+select 'alter user '||username||' account lock;' from dba_users where account_status='OPEN' and trunc(created) > (select trunc(created) from dba_users where username='SYS') and username not in ('VPC_KHONO');
 ==================
 alter user HANGTT account lock;
 alter user TTIENCNO account lock;
 alter user TTHCC account lock;
 alter user AVAGENT account lock;
-alter user VPC_KHONO account lock;
 alter user TRUNGVT2 account lock;
 alter user CNOLLAICHAUVIEW account lock;
 alter user KHONO account lock;
@@ -100,13 +99,12 @@ alter database commit to switchover to primary with session shutdown;
 ~~
 set lines 999
 set pages 200
-select 'alter user '||username||' account unlock;' from dba_users where account_status='OPEN' and trunc(created) > (select trunc(created) from dba_users where username='SYS') and user not in ('vpc_khono');
+select 'alter user '||username||' account unlock;' from dba_users where account_status='OPEN' and trunc(created) > (select trunc(created) from dba_users where username='SYS') and username not in ('VPC_KHONO');
 ==================
 alter user HANGTT account unlock;
 alter user TTIENCNO account unlock;
 alter user TTHCC account unlock;
 alter user AVAGENT account unlock;
-alter user VPC_KHONO account unlock;
 alter user TRUNGVT2 account unlock;
 alter user CNOLLAICHAUVIEW account unlock;
 alter user KHONO account unlock;
