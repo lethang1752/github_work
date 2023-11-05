@@ -164,3 +164,11 @@ cd /u01/agent/agent_13.5.0.0.0/bin
 check status from OEM
 
 13. Remove config broker if used and reconfig manual with backup to ZDLRA
+
+======================================
+validate database
+
+login with sys/password from DC site
+validate database ...;
+
+after validate -> restart standby database have been validate -> re-enable database in broker 
