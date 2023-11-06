@@ -58,9 +58,8 @@ cd /u01/agent/agent_13.5.0.0.0/bin
 ./emctl status agent
 ./emctl stop agent
 
-5. Move agent OEM and golden Gate software from 10.21.52.3 to 10.21.52.12
+5. Move golden Gate software from 10.21.52.3 to 10.21.52.12
 ~~
-/u01/agent
 /u01/ggate
 
 Zip -> SCP -> Unzip (keep location on new space same as old one)
