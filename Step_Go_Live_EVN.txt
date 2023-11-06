@@ -172,3 +172,16 @@ login with sys/password from DC site
 validate database ...;
 
 after validate -> restart standby database have been validate -> re-enable database in broker 
+======================================
+Static listener
+
+SID_LIST_LISTENER=
+  (SID_LIST=
+    (SID_DESC=
+     (GLOBAL_DBNAME=db_unique_name_DGMGRL.db_domain)
+     (ORACLE_HOME=oracle_home)
+     (SID_NAME=sid_name#)
+    )
+  )
+
+StaticConnectIdentifier = '(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.21.52.3)(PORT=1522))(CONNECT_DATA=(SERVICE_NAME=CMIS3_DGMGRL)(INSTANCE_NAME=CMIS3)(SERVER=DEDICATED)))'
