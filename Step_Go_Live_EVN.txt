@@ -1,8 +1,11 @@
 1. Stop pump from CMIS3 and KHONO (CMIS3DR)
+CMIS3 site
 ~~
 cd /u01/ggate
 dblogin UserID gg_admin, Password ggoracle
 stop extract PCNOL
+~~
+KHONO (CMIS3DR) site
 ~~
 cd /u01/ggate
 ./ggsci
