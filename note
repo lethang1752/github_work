@@ -2,3 +2,11 @@ db-khono-dc
 
 db-khono-esb-dc
 
+2023-11-06T22:33:08.381687+07:00
+Errors in file /u01/app/oracle/diag/rdbms/khono/KHONO/trace/KHONO_m001_21745.trc  (incident=658137):
+ORA-00600: internal error code, arguments: [kglDeleteAllPinsOnObj1], [0xA00000099F854340], [0x60000008FF4B4940], [], [], [], [], [], [], [], [], []
+Incident details in: /u01/app/oracle/diag/rdbms/khono/KHONO/incident/incdir_658137/KHONO_m001_21745_i658137.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+
+
