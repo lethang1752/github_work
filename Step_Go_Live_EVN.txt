@@ -1,17 +1,3 @@
-1. Stop pump from CMIS3 and KHONO (CMIS3DR)
-CMIS3 site
-~~
-cd /u01/ggate
-dblogin UserID gg_admin, Password ggoracle
-stop extract PCNOL
-~~
-KHONO (CMIS3DR) site
-~~
-cd /u01/ggate
-./ggsci
-dblogin UserID gg_admin, Password ggoracle
-stop er *
-
 2. Lock user from primary site 10.21.52.3
 ~~
 -get list user > trun(created) sys
@@ -51,6 +37,20 @@ alter user TUNGND account lock;
 alter user DMUC account lock;
 alter user HDONDCHINH account lock;
 ==================
+
+3. Stop pump from CMIS3 and KHONO (CMIS3DR)
+CMIS3 site
+~~
+cd /u01/ggate
+dblogin UserID gg_admin, Password ggoracle
+stop extract PCNOL
+~~
+KHONO (CMIS3DR) site
+~~
+cd /u01/ggate
+./ggsci
+dblogin UserID gg_admin, Password ggoracle
+stop er *
 
 4. Stop agent OEM
 ~~
