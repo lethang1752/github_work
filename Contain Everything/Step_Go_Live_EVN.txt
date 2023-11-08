@@ -1,9 +1,3 @@
-1. Stop pump from CMIS3
-~~
-cd /u01/ggate
-dblogin UserID gg_admin, Password ggoracle
-stop extract PCNOL
-
 2. Lock user from primary site 10.21.52.3
 ~~
 -get list user > trun(created) sys
@@ -44,7 +38,14 @@ alter user DMUC account lock;
 alter user HDONDCHINH account lock;
 ==================
 
-3. Stop golden Gate process
+3. Stop pump from CMIS3 and KHONO (CMIS3DR)
+CMIS3 site
+~~
+cd /u01/ggate
+dblogin UserID gg_admin, Password ggoracle
+stop extract PCNOL
+~~
+KHONO (CMIS3DR) site
 ~~
 cd /u01/ggate
 ./ggsci
@@ -57,9 +58,8 @@ cd /u01/agent/agent_13.5.0.0.0/bin
 ./emctl status agent
 ./emctl stop agent
 
-5. Move agent OEM and golden Gate software from 10.21.52.3 to 10.21.52.12
+5. Move golden Gate software from 10.21.52.3 to 10.21.52.12
 ~~
-/u01/agent
 /u01/ggate
 
 Zip -> SCP -> Unzip (keep location on new space same as old one)
@@ -172,3 +172,16 @@ login with sys/password from DC site
 validate database ...;
 
 after validate -> restart standby database have been validate -> re-enable database in broker 
+======================================
+Static listener
+
+SID_LIST_LISTENER=
+  (SID_LIST=
+    (SID_DESC=
+     (GLOBAL_DBNAME=db_unique_name_DGMGRL.db_domain)
+     (ORACLE_HOME=oracle_home)
+     (SID_NAME=sid_name#)
+    )
+  )
+
+StaticConnectIdentifier = '(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.21.52.3)(PORT=1522))(CONNECT_DATA=(SERVICE_NAME=CMIS3_DGMGRL)(INSTANCE_NAME=CMIS3)(SERVER=DEDICATED)))'
