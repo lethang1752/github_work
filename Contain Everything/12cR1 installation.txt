@@ -64,26 +64,26 @@ yum install sysstat -y
 yum install unixODBC -y
 yum install unixODBC-devel -y
 yum install zlib-devel -y
-        groupadd -g 54321 oinstall
-        groupadd -g 54322 dba
-        groupadd -g 54323 oper
-        groupadd -g 54324 backupdba
-        groupadd -g 54325 dgdba
-        groupadd -g 54326 kmdba
-        groupadd -g 54327 asmdba
-        groupadd -g 54328 asmoper
-        groupadd -g 54329 asmadmin
+groupadd -g 54321 oinstall
+groupadd -g 54322 dba
+groupadd -g 54323 oper
+groupadd -g 54324 backupdba
+groupadd -g 54325 dgdba
+groupadd -g 54326 kmdba
+groupadd -g 54327 asmdba
+groupadd -g 54328 asmoper
+groupadd -g 54329 asmadmin
 
-        useradd -u 54321 -g oinstall -G dba,oper oracle
-        Note that some of the above commands may be overlapping with
+useradd -u 54321 -g oinstall -G dba,oper oracle
+Note that some of the above commands may be overlapping with
 
-        oracle-rdbms-server-12cR1-preinstall
-        but not all of them. So running the commands will ensure the completeness of the preparation.
+oracle-rdbms-server-12cR1-preinstall
+but not all of them. So running the commands will ensure the completeness of the preparation.
 
 set password for the installation user oracle by running the commands          
-        passwd oracle
+passwd oracle
 open the file /etc/selinux/config to make sure the line 
-        SELINUX=permissive
+SELINUX=permissive
 Run the following command.
 
     setenforce Permissive
