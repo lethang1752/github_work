@@ -7,10 +7,11 @@ sdc: 3600144f0d9e380370000653940150003
 sdb: 3600144f0950b2d0e000065394096000e
 
 KERNEL=="sdc", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdc", RESULT=="3600144f0d9e3803700006551c9950010", OWNER="grid", GROUP="asmadmin"
-KERNEL=="sdb", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdd", RESULT=="3600144f0d9e3803700006551c9a30011", OWNER="grid", GROUP="asmadmin"
+KERNEL=="sdb", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdb", RESULT=="3600144f0d9e3803700006551c9a30011", OWNER="grid", GROUP="asmadmin"
 
+SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551a724000e", SYMLINK+="sdd"
 SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9950010", SYMLINK+="sdc"
-SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9a30011", SYMLINK+="sdd"
+SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9a30011", SYMLINK+="sdb"
 
 private: 10.0.254.3
 
@@ -28,3 +29,20 @@ sdd - RECO - 3600144f0d9e3803700006551c9a30011
 /dev/disk/by-id/scsi-3600144f0d9e3803700006551c972000f /u01 ext4 _netdev,nofail 0 0
 
 
+drwxr-xr-x. 2 root   root           4096 Oct 26 11:38 Oracle
+-rwxrwxr-x. 1 grid   oinstall 3084439097 Oct 26 11:36 p35642822_190000_Linux-x86-64.zip
+-rwxrwxr-x. 1 grid   oinstall  127774864 Oct 26 11:36 p6880880_122010_Linux-x86-64.zip
+-rw-r--r--. 1 oracle oinstall 3059705302 Oct 26 08:34 V982063-01.zip
+-rwxrwxr-x. 1 grid   oinstall 2889184573 Oct 26 08:35 V982068-01.zip
+
+
+scanpcastb.racstbdns-poczone.com
+
+10.1.0.9 standby-db02
+10.1.0.8 standby-db01
+
+10.1.254.3 standby-priv-db01
+10.1.254.4 standby-priv-db02
+
+10.1.0.28 standby-vip-db01
+10.1.0.29 standby-vip-db02

@@ -4,7 +4,7 @@
 groupadd asmadmin
 groupadd asmoper
 groupadd asmdba
-usermod -g asmoper oracle
+usermod -G asmoper oracle
 usermod -a -G asmdba oracle
 useradd -u 54323 -g oinstall -G asmadmin,asmdba,asmoper grid
 passwd grid
