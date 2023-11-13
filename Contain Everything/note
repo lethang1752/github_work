@@ -2,4 +2,31 @@ db-khono-dc
 
 db-khono-esb-dc
 
+sdc: 3600144f0d9e380370000653940150003
 
+sdb: 3600144f0950b2d0e000065394096000e
+
+KERNEL=="sdc", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdc", RESULT=="3600144f0d9e3803700006551c9950010", OWNER="grid", GROUP="asmadmin"
+KERNEL=="sdb", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdd", RESULT=="3600144f0d9e3803700006551c9a30011", OWNER="grid", GROUP="asmadmin"
+
+SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9950010", SYMLINK+="sdc"
+SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9a30011", SYMLINK+="sdd"
+
+private: 10.0.254.3
+
+standby-db01 10.122.24.160  |   10.1.0.8   |   10.1.254.3
+standby-db02 10.122.24.37   |   10.1.0.9   |   10.1.254.4
+
+u01: 512gb
+data01 / reco01: 1536gb
+
+sdb - u01 - 3600144f0d9e3803700006551c972000f
+sdc - DATA - 3600144f0d9e3803700006551c9950010
+sdd - RECO - 3600144f0d9e3803700006551c9a30011
+
+
+/dev/disk/by-id/scsi-3600144f0d9e3803700006551c972000f /u01 ext4 _netdev,nofail 0 0
+
+
+19009259
+https://drive.google.com/drive/folders/1JIWPygetkQ7F-c41RP0WY2q1BhxSs9IG
