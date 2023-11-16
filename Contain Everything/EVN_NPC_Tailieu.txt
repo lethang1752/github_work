@@ -1,0 +1,50 @@
+KHONO: /u01/app/oracle/product/12.2.0.1	/u01/app/12.2.0.1/grid
+
+- Create group:
+groupadd -g 501 oinstall
+groupadd -g 502 dba
+groupadd -g 503 oper
+groupadd -g 504 asmadmin
+groupadd -g 505 asmdba
+groupadd -g 506 asmoper
+
+- Create user:
+useradd -u 501 -g oinstall -G dba,oper,asmadmin,asmdba -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
+useradd -u 502 -g oinstall -G dba,oper,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=user.grid grid
+
+- Create project:
+
+- Create home:
+mkdir -p /u01/app/12.2.0.1/grid
+mkdir -p /u01/app/grid
+mkdir -p /u01/app/oracle/product/12.2.0.1
+mkdir -p /u01/app/oracle
+chown -R grid:oinstall /u01
+chown -R oracle:oinstall /u01/app/oracle
+chmod 775 /u01
+==============================================================
+ESBDB: /u01/app/oracle/product/12.2.0.1	/u01/app/grid/12.2.0.1
+
+- Create group:
+groupadd -g 501 oinstall
+groupadd -g 502 dba
+groupadd -g 503 oper
+groupadd -g 504 asmadmin
+groupadd -g 505 asmdba
+groupadd -g 506 asmoper
+
+- Create user:
+useradd -u 501 -g oinstall -G dba,oper,asmadmin,asmdba -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
+useradd -u 502 -g oinstall -G dba,oper,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=user.grid grid
+
+- Create project:
+
+- Create home:
+mkdir -p /u01/app/grid/12.2.0.1
+mkdir -p /u01/app/grid
+mkdir -p /u01/app/oracle/product/12.2.0.1
+mkdir -p /u01/app/oracle
+chown -R grid:oinstall /u01
+chown -R oracle:oinstall /u01/app/oracle
+chmod 775 /u01
+
