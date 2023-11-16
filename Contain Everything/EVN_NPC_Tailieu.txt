@@ -22,6 +22,8 @@ mkdir -p /u01/app/oracle
 chown -R grid:oinstall /u01
 chown -R oracle:oinstall /u01/app/oracle
 chmod 775 /u01
+
+
 ==============================================================
 ESBDB: /u01/app/oracle/product/12.2.0.1	/u01/app/grid/12.2.0.1
 
