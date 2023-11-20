@@ -82,7 +82,7 @@ disabled       13:48:39 svc:/system/filesystem/autofs:default
 vi /etc/auto_master
 #/home         auto_home       -nobrowse         <<<<  Comment out this line
 svcadm enable system/filesystem/autofs
-
+svcadm disable svc:/network/ipfilter:default
 Create Groups, Users and Resource Control:
 
 groupadd -g 2008 oinstall
