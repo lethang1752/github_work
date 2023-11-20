@@ -1,0 +1,22 @@
+DBMC node 1 - 10.8.52.50 + node 2 - 10.8.52.51 (shared folder ASM) - /ggate/:
+- Version: 19.1.0.0.4 OGGCORE_19.1.0.0.0_PLATFORMS_191017.1054_FBO
+- Extract: ECIM, ECIM1, ECTDTT
+- Pump: PCIM, PCIM1
+- Replicat: RBCSX, RBCSX2, RCHAOGIA, RCHUNG, RCTDTT, RDIM, RMDMSP, RTTTT, RWEBTTD
+
+DBMCDR 10.8.48.51 - /u01/ggate/:
+- Version: 12.3.0.1.4 OGGCORE_12.3.0.1.0_PLATFORMS_180415.0359_FBO
+- Extract: ETESTDR
+- Pump: PTESTDR
+
+Monitordb - /ggate/:
+- node 1 - 10.30.0.11 (erav-db02)
+	+ Version: 19.1.0.0.4 OGGCORE_19.1.0.0.0_PLATFORMS_191017.1054_FBO
+	+ Replicat: RCIM, RCIM1
+- node 2 - 10.30.0.12 (erav-db01)
+	+ Lost shared folder ASM
+	
+SQL Server 10.8.52.17 (SQL Server 2014) - D:\goldengate\:
+- Version: 19.1.0.0.3 OGGCORE_19.1.0.0.0_PLATFORMS_190907.0144_FBO
+- Extract: EBCSX, EBCSX2, ECHAOGIA, ECHUNG, EDIM, EMDMSP, ETTTT, EWEBTTD
+- Pump: PBCSX, PBCSX2, PCHAOGIA, PCHUNG, PDIM, PMDMSP, PTTTT, PWEBTTD
