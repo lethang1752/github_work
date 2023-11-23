@@ -1,49 +1,41 @@
-db-khono-dc
-
-db-khono-esb-dc
-
-sdc: 3600144f0d9e380370000653940150003
-
-sdb: 3600144f0950b2d0e000065394096000e
-
-KERNEL=="sdc", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdc", RESULT=="3600144f0d9e3803700006551c9950010", OWNER="grid", GROUP="asmadmin"
-KERNEL=="sdb", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdb", RESULT=="3600144f0d9e3803700006551c9a30011", OWNER="grid", GROUP="asmadmin"
-
-SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551a724000e", SYMLINK+="sdd"
-SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9950010", SYMLINK+="sdc"
-SUBSYSTEM=="block", ATTRS{model}=="ZFS Storage 7390", ATTRS{wwid}=="naa.600144f0d9e3803700006551c9a30011", SYMLINK+="sdb"
-
-private: 10.0.254.3
-
-standby-db01 10.122.24.160  |   10.1.0.8   |   10.1.254.3
-standby-db02 10.122.24.37   |   10.1.0.9   |   10.1.254.4
-
-u01: 512gb
-data01 / reco01: 1536gb
-
-sdb - u01 - 3600144f0d9e3803700006551c972000f
-sdc - DATA - 3600144f0d9e3803700006551c9950010
-sdd - RECO - 3600144f0d9e3803700006551c9a30011
-
-
-/dev/disk/by-id/scsi-3600144f0d9e3803700006551c972000f /u01 ext4 _netdev,nofail 0 0
-
-
-drwxr-xr-x. 2 root   root           4096 Oct 26 11:38 Oracle
--rwxrwxr-x. 1 grid   oinstall 3084439097 Oct 26 11:36 p35642822_190000_Linux-x86-64.zip
--rwxrwxr-x. 1 grid   oinstall  127774864 Oct 26 11:36 p6880880_122010_Linux-x86-64.zip
--rw-r--r--. 1 oracle oinstall 3059705302 Oct 26 08:34 V982063-01.zip
--rwxrwxr-x. 1 grid   oinstall 2889184573 Oct 26 08:35 V982068-01.zip
-
-
-scanpcastb.racstbdns-poczone.com
-
-10.1.0.9 standby-db02
-10.1.0.8 standby-db01
-
-10.1.254.3 standby-priv-db01
-10.1.254.4 standby-priv-db02
-
-10.1.0.28 standby-vip-db01
-10.1.0.29 standby-vip-db02
-
+select file_id, file_name, tablespace_name from dba_data_files order by file_id asc;
+   FILE_ID FILE_NAME                                                              TABLESPACE_NAME
+---------- ---------------------------------------------------------------------- ------------------------------
+         1 /home/database/oradata/CMIS3/system01.dbf                              SYSTEM
+         2 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CHISO_IDX                 TABSPC_CHISO_IDX
+         3 /home/database/oradata/CMIS3/sysaux01.dbf                              SYSAUX
+         4 /home/database/oradata/CMIS3/undotbs01.dbf                             UNDOTBS1
+         5 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CHISO                     TABSPC_CHISO
+         7 /home/database/oradata/CMIS3/users01.dbf                               USERS
+         8 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CHISO_IDXLS               TABSPC_CHISO_IDXLS
+         9 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CHISO_LSU                 TABSPC_CHISO_LSU
+        10 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CONGNO                    TABSPC_CONGNO
+        11 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CONGNO_IDX                TABSPC_CONGNO_IDX
+        12 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOADON                    TABSPC_HOADON
+        13 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOADON_IDX                TABSPC_HOADON_IDX
+        14 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOADON_IDXLS              TABSPC_HOADON_IDXLS
+        15 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOADON_LSU                TABSPC_HOADON_LSU
+        16 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOPDONG_IDX               TABSPC_HOPDONG_IDX
+        17 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOPDONG_IDXLS             TABSPC_HOPDONG_IDXLS
+        18 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOPDONG_LSU               TABSPC_HOPDONG_LSU
+        19 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CONGNO_IDXLS              TABSPC_CONGNO_IDXLS
+        20 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN                   TABSPC_CAPDIEN
+        21 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN_IDX               TABSPC_CAPDIEN_IDX
+        22 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DANHMUC                   TABSPC_DANHMUC
+        23 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CONGNO_LSU                TABSPC_CONGNO_LSU
+        24 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DANHMUC_IDX               TABSPC_DANHMUC_IDX
+        25 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_INDEX                     TABSPC_INDEX
+        26 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_INDX                      TABSPC_INDX
+        27 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DODEM                     TABSPC_DODEM
+        28 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DODEM_LSU                 TABSPC_DODEM_LSU
+        29 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DODEM_IDXLS               TABSPC_DODEM_IDXLS
+        30 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_DODEM_IDX                 TABSPC_DODEM_IDX
+        31 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_QTHT                      TABSPC_QTHT
+        32 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_HOPDONG                   TABSPC_HOPDONG
+        33 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_QTHT_IDX                  TABSPC_QTHT_IDX
+        34 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_KHONO                     TABSPC_KHONO
+        35 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_KHONO_IDX                 TABSPC_KHONO_IDX
+        36 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_GIAODICH.dat              TABSPC_GIAODICH
+        37 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN_IDXLS.dat         TABSPC_CAPDIEN_IDXLS
+        38 /home/database/oradata/CMIS3/sysaux02.dbf                              SYSAUX
+        39 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN_IDXLS01.dat       TABSPC_CAPDIEN_IDXLS
