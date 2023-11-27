@@ -104,14 +104,14 @@ passwd grid
 useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
 passwd oracle
 
-projmod -sK "project.max-shm-memory=(privileged,4G,deny)" user.oracle 
+projmod -sK "project.max-shm-memory=(privileged,3G,deny)" user.oracle 
 projmod -sK "project.max-sem-ids=(privileged,100,deny)" user.oracle
 projmod -sK "project.max-shm-ids=(privileged,100,deny)" user.oracle
 projmod -sK "project.max-sem-nsems=(privileged,256,deny)" user.oracle
 projmod -sK "process.max-file-descriptor=(privileged,65536,deny)" user.oracle
 projmod -U oracle -G oinstall user.oracle
 
-projmod -sK "project.max-shm-memory=(privileged,2G,deny)" user.grid 
+projmod -sK "project.max-shm-memory=(privileged,3G,deny)" user.grid 
 projmod -sK "project.max-sem-ids=(privileged,100,deny)" user.grid
 projmod -sK "project.max-shm-ids=(privileged,100,deny)" user.grid
 projmod -sK "project.max-sem-nsems=(privileged,256,deny)" user.grid
