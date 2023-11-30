@@ -39,3 +39,40 @@ select file_id, file_name, tablespace_name from dba_data_files order by file_id 
         37 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN_IDXLS.dat         TABSPC_CAPDIEN_IDXLS
         38 /home/database/oradata/CMIS3/sysaux02.dbf                              SYSAUX
         39 /home/app/oracle/product/12.2.0.1/dbs/TABSPC_CAPDIEN_IDXLS01.dat       TABSPC_CAPDIEN_IDXLS
+
+- remove default tablespace USERS
+
+KERNEL=="sdc", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdc", RESULT=="3600144f0d9e380370000653940150003", OWNER="grid", GROUP="asmadmin"
+KERNEL=="sdb", SUBSYSTEM=="block", PROGRAM=="/usr/lib/udev/scsi_id -g -u -d /dev/sdb", RESULT=="3600144f0950b2d0e000065394096000e", OWNER="grid", GROUP="asmadmin"
+
+# IP Public
+10.0.0.12 primary-db01
+10.0.0.13 primary-db02
+
+# IP Virtual
+10.0.0.22 primary-db01-vip
+10.0.0.23 primary-db02-vip
+
+==========================
+
+# IP Public
+10.1.0.8 standby-db01
+10.1.0.9 standby-db02
+
+# IP Virtual
+10.0.0.18 standby-db01-vip
+10.0.0.19 standby-db02-vip
+
+==========================
+
+10.0.254.3 primary-db01-priv
+10.0.254.4 primary-db02-priv
+
+10.0.0.31/32/33 dcscan.poc.oracle
+
+==========================
+
+10.1.254.3 standby-db01-priv
+10.1.254.4 standby-db02-priv
+
+10.1.0.31/32/33 drscan.poc.oracle
