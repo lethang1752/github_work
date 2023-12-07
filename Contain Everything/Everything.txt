@@ -507,7 +507,12 @@ SET LINES 32767
 SELECT 
    LISTAGG(''''||schema||'''',',') WITHIN GROUP ( ORDER BY ROWNUM ) AS schema 
 FROM 
-   dba_registry;
+   (
+      SELECT
+         DISTINCT schema
+      FROM
+         dba_registry
+   );
 -----------------------------------------------
 SET HEAD OFF
 SET PAGES 32767
