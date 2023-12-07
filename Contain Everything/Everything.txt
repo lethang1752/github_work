@@ -498,3 +498,21 @@ grid@t72-primary:/u01/app/19.0.0/grid/bin$ ./setasmgidwrap o=/u01/app/oracle/pro
 
 --get mode for chmod
 stat --format '%a' <file>
+
+# search with '...',
+-----------------------------------------------
+SET HEAD OFF
+SET PAGES 32767
+SET LINES 32767
+SELECT 
+   LISTAGG(''''||schema||'''',',') WITHIN GROUP ( ORDER BY ROWNUM ) AS schema 
+FROM 
+   dba_registry;
+-----------------------------------------------
+SET HEAD OFF
+SET PAGES 32767
+SET LINES 32767
+SELECT 
+      RTRIM(XMLCAST(XMLAGG(XMLELEMENT(e,''''||tablespace_name||'''',',') ORDER BY tablespace_name) AS clob), ',')
+FROM 
+   dba_tablespaces;
