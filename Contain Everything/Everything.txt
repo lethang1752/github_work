@@ -521,3 +521,22 @@ SELECT
       RTRIM(XMLCAST(XMLAGG(XMLELEMENT(e,''''||tablespace_name||'''',',') ORDER BY tablespace_name) AS clob), ',')
 FROM 
    dba_tablespaces;
+
+-----------------------------------------------
+# Delete window log
+->> delete.bat
+
+dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace
+dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\incident
+
+forfiles /P C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace /m *.trc /D -7 -c "cmd /c del/q @FILE"
+forfiles /P C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace /m *.trm /D -7 -c "cmd /c del/q @FILE"
+forfiles /S /P C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace /M cdmp* /D -1 -c "cmd /C IF @isdir == TRUE rd /S /Q @path"
+
+forfiles /S /P C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\incident /M incdir* /D -5 -c "cmd /C IF @isdir == TRUE rd /S /Q @path"
+
+dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace
+dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\incident
+exit
+------------------------------------------------
+
