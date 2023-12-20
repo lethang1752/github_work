@@ -490,7 +490,7 @@ https://facedba.blogspot.com/2018/04/dr-setup-using-redo-transport-user-in.html
    +stop sync between DC and DR
    +set redo_transport_user from DR to none
    +copy password file from DC to DR, move it to ASM from DR site
-   +set redo_transport_user from DC back to transport user
+   +set redo_transport_user from DR back to transport user
    +start sync between DC and DR
 
 --change owner oracle bin
