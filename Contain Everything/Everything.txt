@@ -175,7 +175,8 @@ RECOVER DATABASE;
 run {
 set newname for database to '+DATA';
 set newname for tempfile 1 to '+DATA';
-restore database from service CMIS3DR;
+set newname for tempfile 2 to '+DATA';
+restore database from service ADAHES;
 backup spfile;
 switch datafile all;
 switch tempfile all; 
@@ -539,4 +540,5 @@ dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\trace
 dir C:\app\Administrator\diag\rdbms\mvsvc\mvsvc1\incident
 exit
 ------------------------------------------------
-
+dba_indexes
+select index_name, index_type, table_name, tablespace_name from dba_indexes where tablespace_name not in ('SYSAUX','SYSTEM');
