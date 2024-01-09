@@ -545,5 +545,19 @@ select index_name, index_type, table_name, tablespace_name from dba_indexes wher
 
 mview
 select owner as schema_name,mview_name,container_name,query as definition,refresh_mode,refresh_method,build_mode,last_refresh_date,compile_state from sys.all_mviews order by owner, mview_name;
+------------------------------------------------
+serverpool
+-- Activate the policy daytime
+crsctl modify policyset -attr "LAST_ACTIVATED_POLICY=DayTime"
 
+-- Switch to activate the policy nightime
+crsctl modify policyset -attr "LAST_ACTIVATED_POLICY=NightTime"
 
+-- Add serverpool in database
+srvctl add database -serverpool "serverpool1,serverpool3"
+
+-- Modify serverpool1
+srvctl modify database -db db_unique_name -cpucount cpu_count -memorytarget memory_target
+**Note: cpu_count refers to the number of workload CPUs and memory_target refers to the target memory
+
+https://www.red-gate.com/simple-talk/databases/oracle-databases/an-introduction-to-11-2-rac-server-pools/
