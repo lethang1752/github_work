@@ -561,3 +561,6 @@ srvctl modify database -db db_unique_name -cpucount cpu_count -memorytarget memo
 **Note: cpu_count refers to the number of workload CPUs and memory_target refers to the target memory
 
 https://www.red-gate.com/simple-talk/databases/oracle-databases/an-introduction-to-11-2-rac-server-pools/
+------------------------------------------------
+patch 11.2.0.4
+https://www.markusdba.net/2016/06/21/oracle-linux-7-2-and-grid-infrastructure-11-2-0-4-a-marriage-with-obstacles/
