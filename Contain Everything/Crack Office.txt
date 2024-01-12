@@ -1,0 +1,9 @@
+Sau đây tôi sẽ hướng dẫn các bạn cài óp phích (Văn phòng) like a pro:
+Bước 1: Truy cập vào đây (https :// massgrave .dev/genuine-installation-media.html) nhớ xoá dấu cách để tải bản Óp phích phù hợp (Hoặc các bạn có thể comment để tôi tư vấn)
+Bước 2: Cài đặt file các bạn đã tải về bằng cách click chuột vào icon Setup 
+Bước 3: Mở app Terminal hoặc PowerShell dưới quyền admin và paste cái này vào: irm https://massgrave .dev/get | iex (xoá dấu cách giữa massgrave và .dev nhé, còn lại giữ nguyên)
+Bước 4: bấm số 2 và Enter, làm theo hướng dẫn trên màn hình (cụ thể là bấm số 1 và enter 🐧)
+Tận hưởng thui 🐧
+Lưu ý: Đây là óp phích cờ rắc, cho nên chỉ nên dùng dưới hình thức cá nhân, bạn nào đi làm doanh nghiệp thì…các bạn biết rồi đấy =)) Tôi không chịu trách nhiệm nếu các bạn bị truy cứu bởi Mai cờ rô sốp nếu các bạn sử dụng cho doanh nghiệp. Và cuối cùng, đây chỉ là cho các bạn trải nghiệm. Hãy mua bản quyền để có thể nhận được hỗ trợ tốt nhất và ủng hộ tác giả! 
+(P/s: lần sau tôi sẽ hướng dẫn cài Chiến thắng)
+Thân ái và quyết thắng!
