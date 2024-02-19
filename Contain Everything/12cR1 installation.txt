@@ -332,4 +332,3 @@ Start the service and enable so it is automatically restarted on reboot.
 # systemctl enable dbora.service
 ln -s '/usr/lib/systemd/system/dbora.service' '/etc/systemd/system/multi-user.target.wants/dbora.service'
 # systemctl status dbora.service
-hehe
