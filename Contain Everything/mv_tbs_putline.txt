@@ -1,0 +1,87 @@
+create or replace PROCEDURE move_tablespace(oldtablespace in varchar2, newtablespace in varchar2)
+IS
+   	a VARCHAR2(250);
+	CURSOR c1 IS
+		SELECT distinct owner, SEGMENT_NAME, partition_name
+		FROM dba_segments
+		WHERE tablespace_name = oldtablespace and segment_type like '%TABLE PARTITION%'
+		ORDER BY owner;
+	CURSOR c2 IS
+		SELECT distinct owner, SEGMENT_NAME, segment_type
+		FROM dba_segments
+		WHERE tablespace_name = oldtablespace and segment_type like '%TABLE%'
+		ORDER BY owner;
+	CURSOR c3 IS
+		select l.owner owner, l.table_name tablename, l.column_name columnname, l.tablespace_name, s.segment_name, s.segment_type
+		from dba_lobs l  join dba_segments s on l.segment_name = s.segment_name
+		where s.segment_type like 'LOBSEGMENT' and s.tablespace_name=oldtablespace;
+	CURSOR c4 IS
+		SELECT index_owner owner , index_name indexname, PARTITION_NAME partitionname, tablespace_name tablespacename
+		FROM dba_ind_partitions 
+		WHERE tablespace_name = oldtablespace
+		ORDER BY owner;	
+	CURSOR c5 IS
+		SELECT  owner owner, INDEX_NAME indexname
+		FROM dba_indexes i 
+		WHERE i.tablespace_name = oldtablespace
+		ORDER BY owner;		
+BEGIN
+    FOR t1 IN c1 LOOP
+		begin
+			a := 'alter table '||t1.owner||'.'||t1.SEGMENT_NAME||' move partition '||t1.partition_name||' tablespace '|| newtablespace ||';';
+			DBMS_OUTPUT.PUT_LINE(a);
+		exception
+        when others then
+            continue;
+        end;			
+	END LOOP;
+	FOR t1 IN c2 LOOP
+		begin
+			a := 'alter table '||t1.owner||'.'||t1.SEGMENT_NAME||' move tablespace '|| newtablespace ||';';
+			DBMS_OUTPUT.PUT_LINE(a);
+		exception
+        when others then
+            continue;
+        end;			
+	END LOOP;	
+    FOR t1 IN c3 LOOP
+		begin
+			a := 'alter table '||t1.owner||'.'||t1.tablename||' move lob('||t1.columnname||') store as (tablespace '||newtablespace||');';
+			DBMS_OUTPUT.PUT_LINE(a);
+		exception
+        when others then
+            continue;
+        end;
+	END LOOP;
+    FOR t1 IN c4 LOOP
+		begin
+			a := 'alter index '||t1.owner||'.'||t1.indexname||' rebuild partition '||t1.partitionname||' tablespace '||newtablespace||' online;';
+			DBMS_OUTPUT.PUT_LINE(a);
+		exception
+        when others then
+            continue;
+        end;			
+	END LOOP;	
+    FOR t1 IN c5 LOOP
+        begin
+            a := 'alter index '||t1.owner||'.'||t1.indexname||' rebuild tablespace '||newtablespace||' online;';
+            DBMS_OUTPUT.PUT_LINE(a);
+        exception
+            when others then
+                continue;
+        end;
+	END LOOP;	
+END move_tablespace;
+
+call move_tablespace('HR','HR_MV');
+
+
+
+DECLARE
+  errors INTEGER;
+BEGIN
+  DBMS_MVIEW.REFRESH_ALL_MVIEWS(errors, method => 'C');
+END;
+
+
+@?/rdbms/admin/utlrp 8
