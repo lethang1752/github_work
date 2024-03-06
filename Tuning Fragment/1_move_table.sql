@@ -56,6 +56,19 @@ CREATE OR REPLACE PROCEDURE move_table (
     WHERE
         tablespace_name = oldtablespace;
 
+    CURSOR c5 IS
+    SELECT
+        index_owner       owner,
+        index_name        indexname,
+        subpartition_name subpartitionname,
+        tablespace_name   tablespacename
+    FROM
+        dba_ind_subpartitions
+    WHERE
+        tablespace_name = oldtablespace
+    ORDER BY
+        owner;
+
 BEGIN
     FOR t1 IN c1 LOOP
         BEGIN
@@ -126,6 +139,25 @@ BEGIN
              || ');';
 
         dbms_output.put_line(a);
+    END LOOP;
+
+    FOR t1 IN c5 LOOP
+        BEGIN
+            a := 'alter index '
+                 || t1.owner
+                 || '.'
+                 || t1.indexname
+                 || ' rebuild subpartition '
+                 || t1.subpartitionname
+                 || ' tablespace '
+                 || newtablespace
+                 || ' online';
+
+            dbms_output.put_line(a);
+        EXCEPTION
+            WHEN OTHERS THEN
+                CONTINUE;
+        END;
     END LOOP;
 
 END move_table;
