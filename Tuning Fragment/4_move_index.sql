@@ -1,4 +1,3 @@
-/* Formatted on 2/20/2024 2:01:59 PM (QP5 v5.401) */
 CREATE OR REPLACE PROCEDURE move_index (
     oldtablespace IN VARCHAR2,
     newtablespace IN VARCHAR2
