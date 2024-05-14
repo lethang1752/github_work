@@ -1,0 +1,78 @@
+https://docs.oracle.com/en/database/oracle/oracle-database/19/upgrd/autoupgrade-command-line-parameters.html#GUID-7DE1D595-26DC-49EA-B08E-A3A3A97359D6
+
+I-Prepare
+1. Config env
+mkdir -p /home/oracle/autoupgrade/logs
+copy file autoupgrade.jar to /home/oracle/autoupgrade
+copy file jdk-8u351-linux-x64.tar.gz to /home/oracle/autoupgrade
+unzip jdk-8u351-linux-x64.tar.gz
+vi java_env
+/*
+export JAVA_HOME=/home/oracle/autoupgrade/jdk1.8.0_351
+export PATH=$JAVA_HOME/bin:$PATH
+*/
+
+2. Gen sample file
+. java_env
+java -jar autoupgrade.jar -create_sample_file config config.cfg
+
+3. Sample config template
+3.1 Full DB/CDB upgrade template - orcl.config - sample host
+global.autoupg_log_dir=/home/oracle/autoupgrade/logs
+upg1.log_dir=/home/oracle/autoupgrade/logs
+upg1.sid=orcl_1
+upg1.source_home=/u01/app/oracle/product/11.2.0/dbhome_1
+upg1.target_home=/u01/app/oracle/product/19c/dbhome_1
+upg1.start_time=NOW
+upg1.upgrade_node=ora11g-n1
+upg1.run_utlrp=yes
+upg1.timezone_upg=yes
+upg1.target_version=19
+
+3.2. Sample config DB/CDB upgrade template - orcl.config - others host - source_home & target_home are the same
+global.autoupg_log_dir=/home/oracle/autoupgrade/logs
+upg1.log_dir=/home/oracle/autoupgrade/logs
+upg1.sid=orcl
+upg1.source_home=/tmp
+upg1.target_home=/u01/app/oracle/product/19c/dbhome_1
+upg1.start_time=NOW
+upg1.upgrade_node=rhel8
+upg1.run_utlrp=yes
+upg1.timezone_upg=yes
+upg1.target_version=19
+
+===Upgrade
+1.Analyze
+java -jar autoupgrade.jar -config orcl.cfg -mode analyze
+
+Review report orcl_1/100/prechecks/orcl_preupgrade.html
+
+2.Fixup
+java -jar autoupgrade.jar -config orcl.cfg -mode fixups
+
+BEGIN
+   SYS.DBMS_STATS.GATHER_INDEX_STATS('SYS', 'I_OBJ#');
+   SYS.DBMS_STATS.GATHER_SCHEMA_STATS('SYS');
+   SYS.DBMS_STATS.GATHER_SCHEMA_STATS('SYSTEM');
+END;
+/
+
+BEGIN
+   SYS.DBMS_STATS.GATHER_FIXED_OBJECTS_STATS;
+END;
+/
+
+PURGE DBA_RECYCLEBIN
+/
+
+3.Upgrade
+--change config on New server
+
+upg1.log_dir=/home/oracle/autoupgrade/logs
+upg1.sid=orcl
+upg1.source_home=/tmp
+upg1.upgrade_node=rhel8
+
+--run upgrade
+export ORACLE_SID=orcl
+java -jar autoupgrade.jar -config orcl.cfg -mode upgrade
