@@ -1,0 +1,1 @@
+expdp \'/as sysdba\' directory=ttsdir dumpfile=xml_tables.dmp metrics=y logfile=xml_tables.log tables=SPNADMIN_PRD.REMITTANCEDETAILS,SPNADMIN_PRD.USERPAGINATIONDATA,SPNLIVE.GWTM_STANDARD_XML,SPNLIVE.MSTB_XML_PROC_TEMP

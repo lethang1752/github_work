@@ -1,0 +1,9 @@
+full=y
+exclude=table:"in(select table_name from dba_tables where owner in ('FCCEOM','SPNDBREP','SYS','DIGIRO','FCCAPP','SCOTT','SPNB001_PRD','FCCREP','VANNAK','SAKDA','SWTREP','SUNY','OJVMSYS','SPNLIVE','FCUBSREP','PHILIPIN','SPNADMIN_PRD','SOKHA','SOMNANG','FCCAPI'))"
+exclude=tablespace
+exclude=statistics,index_statistics,table_statistics,password_history,MATERIALIZED_VIEW
+exclude=schema:"IN('OJVMSYS','SYSKM','GSMCATUSER','SYSBACKUP','SYSDG','SPATIAL_CSW_ADMIN_USR','SPATIAL_WFS_ADMIN_USR','GSMUSER','AUDSYS','APEX_040200','GSMADMIN_INTERNAL','XS$NULL','ORACLE_OCM','MDDATA','OUTLN','DIP','APEX_PUBLIC_USER','MDSYS','ORDSYS','WMSYS','APPQOSSYS','ORDDATA','CTXSYS','ANONYMOUS','XDB','ORDPLUGINS','SI_INFORMTN_SCHEMA','OLAPSYS')"
+directory=ttsdir
+metrics=y
+dumpfile=exp_all_cbs_meta.dmp
+logfile=exp_all_cbs_meta.log

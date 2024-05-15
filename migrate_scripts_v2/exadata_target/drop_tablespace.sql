@@ -1,0 +1,16 @@
+drop tablespace USERS including contents and datafiles;
+drop tablespace FCCDATALAR including contents and datafiles;
+drop tablespace FCCDATAMED including contents and datafiles;
+drop tablespace FCCDATASML including contents and datafiles;
+drop tablespace FCCDATAXL including contents and datafiles;
+drop tablespace FCCINDXLAR including contents and datafiles;
+drop tablespace FCCINDXMED including contents and datafiles;
+drop tablespace FCCINDXSML including contents and datafiles;
+drop tablespace FCCINDXXL including contents and datafiles;
+drop tablespace FCAT_PRD including contents and datafiles;
+drop tablespace TBS_IDX_LOGDATA_PRD including contents and datafiles;
+drop tablespace TBS_LOGDATA_PRD including contents and datafiles;
+drop tablespace TBS_OFFLINE_PRD including contents and datafiles;
+drop tablespace TBS_REP_SCHEDULAR including contents and datafiles;
+drop tablespace FCCREP including contents and datafiles;
+drop tablespace AUDIT_AUX including contents and datafiles;

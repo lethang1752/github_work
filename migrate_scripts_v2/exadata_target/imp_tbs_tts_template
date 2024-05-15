@@ -1,0 +1,6 @@
+directory=ttsdir
+dumpfile=exp_transport_tbs.dmp
+exclude=table:"in('REMITTANCEDETAILS','USERPAGINATIONDATA','GWTM_STANDARD_XML','MSTB_XML_PROC_TEMP')"
+metrics=y
+logfile=imp_transport_tbs.log
+transport_datafiles=

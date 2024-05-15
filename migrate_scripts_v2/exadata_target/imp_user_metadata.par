@@ -1,0 +1,7 @@
+directory=ttsdir
+logfile=imp_all_cbs_meta.log
+metrics=Y
+TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y
+dumpfile=exp_all_cbs_meta.dmp
+full=y
+exclude=user,role,role_grant,profile,DB_LINK

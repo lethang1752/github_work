@@ -1,0 +1,156 @@
+--Precheck - Sparc
+@precheck_sparc_before_migrate.sql
+--gather dictionary stats (sparc)
+exec dbms_stats.gather_dictionary_stats;
+
+--Migrate
+#B0
+##CBS_Exa:
+cd /cbs_nfs/migrate_scripts/cbs_exa
+##CBS_Sparc
+cd /cbs_nfs/migrate_scripts/cbs_sparc 
+rm /cbs_nfs/importing/*.dmp
+##CBS_Production
+purge dba_recyclebin;
+
+--create_tab_history.sql
+alter user SCOTT quota 1G on AUDIT_AUX;
+create table SCOTT.mig_dba_objects tablespace AUDIT_AUX as select * from dba_objects;
+create table SCOTT.mig_dba_sys_privs tablespace AUDIT_AUX as select * from dba_sys_privs;
+create table SCOTt.mig_dba_tab_privs tablespace AUDIT_AUX as select * from dba_tab_privs;
+create table SCOTT.mig_dba_segments tablespace AUDIT_AUX as select * from dba_segments;
+--
+@create_tab_history
+
+
+--count_tab_history.sql
+select 'OBJ='||count(*) from SCOTT.mig_dba_objects
+union all
+select  'SYS_PRIVS='||count(*) from SCOTT.mig_dba_sys_privs
+union all
+select 'TAB_PRIVS='||count(*) from SCOTT.mig_dba_tab_privs
+union all
+select 'SEGS='||count(*) from SCOTT.mig_dba_segments
+;
+--
+@count_tab_history
+
+shutdown immediate;
+startup mount;
+--alter system flush redo to 'xxx';
+
+#B1: 2 node exa
+startup force nomount pfile='/cbs_nfs/1';
+
+#B2_convert_standby (Sparc) (5 min)
+@db_stats
+@dg_stat_arc
+@count_tab_history
+recover managed standby database cancel;
+alter database convert to snapshot standby;
+alter database open;
+
+#B6_convert tablespace to readonly (Sparc) --- 1min
+@tts_tsro.sql
+select tablespace_name, status from dba_tablespaces order by 2,1;
+
+create or replace directory ttsdir as '/cbs_nfs/importing';
+
+--parallel step ----------- 90 mins
+#B7_Convert datafile (Exadata)
+chmod 775  /cbs_nfs/oradata/cbsdb/datafile/*
+--CBS1 ---------------60 min
+ps -ef | grep rman | grep conv &&  echo "job is runing" || nohup sh conv1.sh
+
+--CBS2 ---------------56 mins
+ps -ef | grep rman | grep conv &&  echo "job is runing" || nohup sh conv2.sh
+
+#B8_ Export user metadata (Sparc) - 67 min
+nohup sh exp_user_metadata.sh & 
+
+#B9_ Export tbs metadata (Sparc) - 13 min 
+nohup sh exp_tbs_metadata.sh &
+
+#B10_Export xml type (Sparc) - 2min
+nohup sh exp_xml.sh &
+
+--end parallel
+
+#B11_Restart (Exa)
+--node1
+startup force pfile='/cbs_nfs/1'
+
+--node2
+shut abort;
+
+#B12_Import tablespace metadata (Exa)
+chmod 666 /cbs_nfs/importing/*.dmp
+nohup sh imp_tbs_metadata.sh &
+
+#B13_Grant dba role (Exa)
+@grant_dba_role.sql
+
+#B14_Import user metadata (Exa) 
+nohup sh imp_user_metadata.sh &
+
+#B15_Drop tablespace fresh(Exa)
+alter database default tablespace SYSAUX;
+@drop_tablespace.sql
+
+#B16_Import_tablespace_from_production (exa)
+--gen expdp parameter file 
+cat imp_tbs_tts_template > imp_tbs_tts.par
+cat /cbs_nfs/scripts/conv1.log /cbs_nfs/scripts/conv2.log | grep "converted" | sed 's/converted datafile=//' | awk '{print "'\''"$0"'\''," ;}' >> imp_tbs_tts.par
+vi imp_tbs_tts.par
+
+nohup sh imp_tbs_tts.sh &
+
+alter database default tablespace users;
+
+#B17_Read_write_tablespace
+@tts_tsrw.sql
+
+#B18_Create system privilege (missing privilege)
+--@tts_sys_privs.sql
+
+
+#B19_Recreate missing object
+--@gtt.sql
+--@missing_obj.sql
+
+#B20_Import XML table 
+impdp \'/as sysdba\' dumpfile=xml_tables.dmp directory=ttsdir metrics=y logfile=imp_xml_tables.log table_exists_action=replace
+
+#B21 Import dblink
+impdp \'/as sysdba\' directory=ttsdir logfile=imp_DBLINK.log metrics=Y TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y dumpfile=exp_all_cbs_meta.dmp full=y table_exists_action=skip include=DB_LINK
+
+
+#B22 Config cell flash cache - tuning
+@tb_flash_cache.sql
+@idx_flash_cache
+shutdown immediate;
+srvctl start database -d SPNDBLIV
+
+--parallel
+#B23_Compile invalid object 
+@?/rdbms/admin/utlrp 16
+
+#B24 Refresh Mview
+@refresh_mview.sql
+
+#B25 Revoke dba
+@revoke_dba_role
+
+#B26 Gather statistics
+nohup sqlplus / as sysdba @gather_system &
+nohup sqlplus / as sysdba @gather &
+
+#B27 Compare object
+--exa
+@/cbs_nfs/migrate_scripts/cbs_exa/tts_verify.sql
+@/cbs_nfs/migrate_scripts/cbs_exa/obj_missing_verify.sql
+@/cbs_nfs/migrate_scripts/cbs_exa/obj_invalid_verify.sql
+
+#B28 Compare & grant privileges SPNLIVE user
+@/cbs_nfs/migrate_scripts/cbs_exa/compare_sys_privs.sql
+@/cbs_nfs/migrate_scripts/cbs_exa/compare_obj_privs.sql
