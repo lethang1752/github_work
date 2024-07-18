@@ -1,0 +1,80 @@
+-- create vpc user from ZDLRA
+#root:
+racli add db_user --user_type=vpc --user_name=vpc_erpnpc --insecure
+(enter password for user)
+
+-- add protected database to ZDLRA
+$oracle:
+sqlplus rasys/welcome1
+-------
+BEGIN
+    DBMS_RA.ADD_DB (
+    db_unique_name =>'ERPNPCDC',
+    protection_policy_name => 'SILVER',
+    reserved_space => '2000G');
+    END;
+    /
+-------
+
+-- modify reserved_space
+$oracle:
+sqlplus rasys/welcome1
+-------
+BEGIN
+    DBMS_RA.UPDATE_DB (
+    db_unique_name =>'ERPNPCDC',
+    protection_policy_name => 'SILVER',
+    reserved_space => '3000G');
+    END;
+    /
+-------
+
+-- grant privilege for VPC user (ZDLRA database)
+$oracle:
+sqlplus rasys/welcome1
+-------
+BEGIN 
+DBMS_RA.GRANT_DB_ACCESS (db_unique_name => 'ERPNPCDC',
+username => 'VPC_ERPNPC');
+END;
+/
+-------
+
+-- apply require setting for ZDLRA database
+** enable ARCHIVELOG mode
+** JDK version need to be 1.5 upper
+** network communicate with scan, vip IP port 1521 between ZDLRA and protected database
+** configure DNS or add ip with defined name in /etc/hosts like:
+#ZDLRA
+10.21.52.9      zdl0db01-vip.npc.com.vn zdl0db01-vip
+10.21.52.10     zdl0db02-vip.npc.com.vn zdl0db02-vip
+10.21.52.11     zdl0db-scan1.npc.com.vn zdl0db-scan1
+
+-- configure wallet for protected database (without wallet before)
+** same wallet configuration for DC-DR and all RAC nodes
+** using oracle user for configuration
+** restart database after configure wallet
+
+--- create wallet folder
+export WALLET_LOC=/u01/app/oracle/product/11.2.0/dbhome_1/dbs/zdlra
+mkdir -p $WALLET_LOC
+mkstore -wrl $WALLET_LOC -createALO
+
+--- save connection for ZDLRA to wallet
+mkstore -wrl $WALLET_LOC -createCredential 'zdl0db-scan1:1521/zdl0db:dedicated' 'vpc_erpnpc' 'oracle_4U'
+
+--- check information after configure wallet
+mkstore -wrl $WALLET_LOC –listCredential
+
+--- add wallet directory to sqlnet.ora in $ORACLE_HOME/network/admin/
+-------
+SQLNET.WALLET_OVERRIDE = true
+WALLET_LOCATION =
+  (SOURCE =
+    (METHOD = FILE)
+    (METHOD_DATA =
+      (DIRECTORY = /u01/app/oracle/product/11.2.0/dbhome_1/dbs/zdlra)
+    )
+   )
+-------
+
