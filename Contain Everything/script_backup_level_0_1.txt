@@ -1,0 +1,53 @@
+--Level 0
+backup_base=/backup
+date=date +%Y-%m-%d
+mkdir $backup_base/$date
+
+export ORACLE_SID=
+export ORACLE_HOME=
+export PATH=$PATH:$ORACLE_HOME/bin
+
+rman target / log=$backup_base/log/backup_level_0_$date.log << EOS
+run{
+crosscheck backup;
+crosscheck archivelog all;
+crosscheck copy;
+delete noprompt expired backup;
+delete noprompt expired archivelog all;
+delete noprompt expired copy;
+backup as compressed backupset incremental level 0 database format '$backup_base/$date/data_%d_%u_%s_%T' tag='BACKUP_$date';
+sql 'alter system archive log current';
+backup as compressed backupset archivelog all format '$backup_base/$date/arch_%d_%u_%s_%T' tag='BACKUP_$date';
+backup current controlfile format '$backup_base/$date/ctl_%d_%u_%s_%T' tag='BACKUP_$date';
+delete noprompt archivelog like '%' backed up 1 times to device type disk;
+report obsolete;
+delete noprompt obsolete;
+}
+EOS
+
+--Level 1
+backup_base=/u01/app/oracle/backup
+date=date +%Y-%m-%d
+mkdir $backup_base/$date
+
+export ORACLE_SID=
+export ORACLE_HOME=
+export PATH=$PATH:$ORACLE_HOME/bin
+
+rman target / log=$backup_base/$date/backup_level_1_$date.log << EOS
+run{
+crosscheck backup;
+crosscheck archivelog all;
+crosscheck copy;
+delete noprompt expired backup;
+delete noprompt expired archivelog all;
+delete noprompt expired copy;
+report obsolete;
+delete noprompt obsolete;
+backup as compressed backupset incremental level 1 database format '$backup_base/$date/data_%d_%u_%s_%T' tag='BACKUP_$date';
+sql 'alter system archive log current';
+backup as compressed backupset archivelog all format '$backup_base/$date/arch_%d_%u_%s_%T' tag='BACKUP_$date';
+backup current controlfile format '$backup_base/$date/ctl_%d_%u_%s_%T' tag='BACKUP_$date';
+delete noprompt archivelog like '%' backed up 1 times to device type disk;
+}
+EOS
