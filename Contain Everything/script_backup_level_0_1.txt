@@ -26,7 +26,7 @@ delete noprompt obsolete;
 EOS
 
 --Level 1
-backup_base=/u01/app/oracle/backup
+backup_base=/backup
 date=date +%Y-%m-%d
 mkdir $backup_base/$date
 
