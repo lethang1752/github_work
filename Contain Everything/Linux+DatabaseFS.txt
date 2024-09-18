@@ -156,7 +156,3 @@ $ vi /etc/oratab
 SQL> create spfile from pfile='/home/oracle/pfile';
 SQL> startup;
 -----------------
-
-
-
-
