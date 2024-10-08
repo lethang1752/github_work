@@ -1,0 +1,110 @@
+--check config scan (include name, netnum, subnet format)
+root#
+srvctl config scan -all
+
+--add network to cluster resource
+root#
+srvctl add network -netnum 2 -subnet 192.168.120.0/255.255.255.0/ens35
+
+--add scan based on new network (scanname need to be defined in /etc/hosts)
+root#
+srvctl add scan -scanname node-scan2 -netnum 2
+
+--add scan_listener on new scan
+root#
+srvctl add scan_listener LISTENER2 -netnum 2 -endpoints TCP:1521
+
+--start scan and scan_listener
+root#
+srvctl start scan -netnum 2
+srvctl start scan_listener -netnum 2
+
+--add vip on new network
+root#
+srvctl add vip -node node1 -netnum 3 -address 192.168.80.130/255.255.255.0/ens38
+srvctl add vip -node node2 -netnum 3 -address 192.168.80.131/255.255.255.0/ens38
+
+--start vip
+root#
+srvctl start vip -node node1 -netnum 3
+srvctl start vip -node node2 -netnum 3
+---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Name           Target  State        Server                   State details
+--------------------------------------------------------------------------------
+Local Resources
+--------------------------------------------------------------------------------
+ora.LISTENER.lsnr
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+ora.chad
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+ora.net1.network
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+ora.net2.network
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+ora.net3.network
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+ora.ons
+               ONLINE  ONLINE       node1                    STABLE
+               ONLINE  ONLINE       node2                    STABLE
+--------------------------------------------------------------------------------
+Cluster Resources
+--------------------------------------------------------------------------------
+ora.ASMNET1LSNR_ASM.lsnr(ora.asmgroup)
+      1        ONLINE  ONLINE       node1                    STABLE
+      2        ONLINE  ONLINE       node2                    STABLE
+      3        ONLINE  OFFLINE                               STABLE
+ora.DATA.dg(ora.asmgroup)
+      1        ONLINE  ONLINE       node1                    STABLE
+      2        ONLINE  ONLINE       node2                    STABLE
+      3        OFFLINE OFFLINE                               STABLE
+ora.LISTENER_SCAN1.lsnr
+      1        ONLINE  ONLINE       node1                    STABLE
+ora.LISTENER_SCAN1_NET2.lsnr
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.LISTENER_SCAN2.lsnr
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.LISTENER_SCAN2_NET2.lsnr
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.LISTENER_SCAN3.lsnr
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.LISTENER_SCAN3_NET2.lsnr
+      1        ONLINE  ONLINE       node1                    STABLE
+ora.asm(ora.asmgroup)
+      1        ONLINE  ONLINE       node1                    Started,STABLE
+      2        ONLINE  ONLINE       node2                    Started,STABLE
+      3        OFFLINE OFFLINE                               STABLE
+ora.asmnet1.asmnetwork(ora.asmgroup)
+      1        ONLINE  ONLINE       node1                    STABLE
+      2        ONLINE  ONLINE       node2                    STABLE
+      3        OFFLINE OFFLINE                               STABLE
+ora.cvu
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.node1.vip
+      1        ONLINE  ONLINE       node1                    STABLE
+ora.node1_3.vip
+      1        ONLINE  ONLINE       node1                    STABLE
+ora.node2.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.node2_3.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.qosmserver
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.scan1.vip
+      1        ONLINE  ONLINE       node1                    STABLE
+ora.scan1_net2.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.scan2.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.scan2_net2.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.scan3.vip
+      1        ONLINE  ONLINE       node2                    STABLE
+ora.scan3_net2.vip
+      1        ONLINE  ONLINE       node1                    STABLE
+--------------------------------------------------------------------------------
