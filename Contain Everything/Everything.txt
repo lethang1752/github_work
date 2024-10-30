@@ -31,7 +31,7 @@ COL [COLUMN_NAME] FORMAT a45
 -----------------------------------------------------------
 ***UP ARROW IN SQLPLUS***
 
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm
 yum install -y rlwrap
 
 alias rlsqlplus='rlwrap sqlplus'
