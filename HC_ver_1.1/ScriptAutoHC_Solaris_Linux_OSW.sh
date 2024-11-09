@@ -87,6 +87,7 @@ EOF
 dbname=$(echo $dbname | tr -d '[:space:]')
 
 #-----Get instance_name
+
 insname=$(
 	sqlplus -s / as sysdba <<EOF
 set head off
@@ -95,7 +96,7 @@ show parameter instance_name;
 exit
 EOF
 )
-insname=$(echo $insname | $awk -v FS=' ' '{print $3}')
+insname=$(echo $insname | awk -v FS=' ' '{print $3}')
 
 #-----Create folder
 
@@ -108,7 +109,7 @@ spwd=$(
 	sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
-set lines 150
+set line 150 
 select value from $diag where name='Diag Trace';
 exit
 EOF
@@ -146,7 +147,7 @@ Head() {
 	echo "| ==>> 3. Cancel Script.                                      |"
 	echo "|                                                             |"
 	echo "|                                                             |"
-	echo "|                                         Ver_1.2.0_VictorMPS |"
+	echo "|                                         Ver_1.3.0_VictorMPS |"
 	echo "|<<========================<< *** >>========================>>|"
 	echo
 	if [[ "$os" == 'Linux' ]]; then
@@ -326,6 +327,170 @@ echo
 
 #-----Awrrpt
 
+end_snap_id=$(
+	sqlplus -s / as sysdba <<EOF
+set head off
+set feed off
+SELECT
+    snap_id
+FROM
+    (
+        SELECT
+            snap.instance_number,
+            snap.snap_id,
+            delta,
+            begin_interval_time,
+            end_interval_time,
+            startup_time
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    dba_hist_snapshot
+                WHERE
+                    dbid = (
+                        SELECT
+                            dbid
+                        FROM
+                            $database
+                    )
+            ) snap,
+            (
+                SELECT
+                    instance_number
+                FROM
+                    $instance
+            ) inst,
+            (
+                SELECT
+                    instance_number,
+                    snap_id,
+                    sum_val,
+                    sum_val - LAG(sum_val)
+                              OVER(
+                        ORDER BY
+                            instance_number, snap_id
+                              ) delta
+                FROM
+                    (
+                        SELECT
+                            instance_number,
+                            snap_id,
+                            SUM(value) sum_val
+                        FROM
+                            dba_hist_service_stat
+                        WHERE
+                                stat_name = 'DB time'
+                            AND dbid = (
+                                SELECT
+                                    dbid
+                                FROM
+                                    $database
+                            )
+                        GROUP BY
+                            instance_number,
+                            snap_id
+                    )
+            ) stat
+        WHERE
+                snap.instance_number = stat.instance_number
+            AND snap.instance_number = inst.instance_number
+            AND snap.snap_id = stat.snap_id
+            AND begin_interval_time > sysdate - 7
+            AND delta IS NOT NULL
+        ORDER BY
+            delta DESC
+    )
+WHERE
+    ROWNUM <= 1;
+exit
+EOF
+)
+end_snap_id=$(echo $end_snap_id | tr -d '[:space:]')
+
+begin_snap_id=$(
+	sqlplus -s / as sysdba <<EOF
+set head off
+set feed off
+SELECT
+    snap_id - 1
+FROM
+    (
+        SELECT
+            snap.instance_number,
+            snap.snap_id,
+            delta,
+            begin_interval_time,
+            end_interval_time,
+            startup_time
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    dba_hist_snapshot
+                WHERE
+                    dbid = (
+                        SELECT
+                            dbid
+                        FROM
+                            $database
+                    )
+            ) snap,
+            (
+                SELECT
+                    instance_number
+                FROM
+                    $instance
+            ) inst,
+            (
+                SELECT
+                    instance_number,
+                    snap_id,
+                    sum_val,
+                    sum_val - LAG(sum_val)
+                              OVER(
+                        ORDER BY
+                            instance_number, snap_id
+                              ) delta
+                FROM
+                    (
+                        SELECT
+                            instance_number,
+                            snap_id,
+                            SUM(value) sum_val
+                        FROM
+                            dba_hist_service_stat
+                        WHERE
+                                stat_name = 'DB time'
+                            AND dbid = (
+                                SELECT
+                                    dbid
+                                FROM
+                                    $database
+                            )
+                        GROUP BY
+                            instance_number,
+                            snap_id
+                    )
+            ) stat
+        WHERE
+                snap.instance_number = stat.instance_number
+            AND snap.instance_number = inst.instance_number
+            AND snap.snap_id = stat.snap_id
+            AND begin_interval_time > sysdate - 7
+            AND delta IS NOT NULL
+        ORDER BY
+            delta DESC
+    )
+WHERE
+    ROWNUM <= 1;
+exit
+EOF
+)
+begin_snap_id=$(echo $begin_snap_id | tr -d '[:space:]')
+
 TEMPFILE=/tmp/tmpawr.sql
 echo "<<=====================================================>>"
 echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
@@ -336,14 +501,14 @@ set echo off
 set head off
 set feed off
 spool ${TEMPFILE}
-select 'define begin_snap = '|| (max(snap_id)-24) from dba_hist_snapshot;
-select 'define end_snap = '|| max(snap_id) from dba_hist_snapshot;
+select 'define begin_snap = ${begin_snap_id}' from dual;
+select 'define end_snap = ${end_snap_id}' from dual;
 select 'define report_type = ' || '''html''' from dual;
 select 'define inst_name = ' || INSTANCE_NAME from v\$instance;
 select 'define db_name = ' || name from v\$database;
 select 'define dbid = ' || dbid from v\$database;
 select 'define inst_num = ' || INSTANCE_NUMBER from v\$instance;
-select 'define num_days = 1' from dual;
+select 'define num_days = 7' from dual;
 select 'define report_name = awrrpt_${time}_' || INSTANCE_NAME from v\$instance;
 select '@$ORACLE_HOME/rdbms/admin/awrrpt.sql' from dual;
 spool off
@@ -389,7 +554,7 @@ fi
 
 # OS
 
-os1=$(uname -s)
+os1=$(uname -o)
 os2=$(uname -m)
 os_last="$os1 $os2"
 
