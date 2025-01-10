@@ -60,6 +60,7 @@ ADR_BASE_LISTENER = [$ORACLE_BASE]
   (DESCRIPTION =
     (ADDRESS_LIST =
       (ADDRESS = (PROTOCOL = TCP)(HOST = [scan_name_for_rac / ip_address_for_single])(PORT = 1521))
+      
     )
     (CONNECT_DATA =
       (SERVICE_NAME = [service_name])
