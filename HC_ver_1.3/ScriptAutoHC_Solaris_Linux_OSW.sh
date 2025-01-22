@@ -590,20 +590,18 @@ fi
 
 #Archiving Enabled
 
-arc=$(
+arc_last=$(
 sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
-select log_mode from $database;
-exit
+select (CASE LOG_MODE
+        WHEN 'ARCHIVELOG' THEN
+            'Yes'
+        ELSE
+            'No'
+        END) ARCHIVELOG from $database;
 EOF
 )
-
-if [[ "$arc" == 'ARCHIVELOG' ]]; then
-	arc_last='Yes'
-else
-	arc_last='No'
-fi
 
 #Flashback Enabled
 
