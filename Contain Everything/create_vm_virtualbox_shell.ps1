@@ -1,3 +1,4 @@
+#Variable export
 $MACHINENAME="linux_os"
 $FOLDER="E:\VirtualMachine"
 
@@ -6,10 +7,12 @@ Restart-NetAdapter -InterfaceDescription "VirtualBox Host-Only Ethernet Adapter"
 
 #Create VM
 VBoxManage createvm --name $MACHINENAME --ostype Oracle7_64 --register --basefolder $FOLDER
+
 #Set memory and network
 VBoxManage modifyvm $MACHINENAME --ioapic on
 VBoxManage modifyvm $MACHINENAME --memory 8192 --vram 128
 VBoxManage modifyvm $MACHINENAME --nic1 hostonly --host-only-adapter1="VirtualBox Host-Only Ethernet Adapter"
+
 #Create Disk and connect Iso
 VBoxManage createhd --filename $FOLDER\$MACHINENAME\${MACHINENAME}_disk.vdi --size 80000 --format VDI
 VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci
