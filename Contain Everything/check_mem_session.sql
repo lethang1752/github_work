@@ -1,6 +1,3 @@
-REM Created: 21/march/2003
-REM Last update: 28/may/2003
-REM
 REM NAME
 REM ====
 REM MEMORY.sql
