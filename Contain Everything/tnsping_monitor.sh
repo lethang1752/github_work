@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Note
+# For Solaris: grep -> ggrep ; awk -> gawk
+
 # Output Example
 # Starting tnsping monitoring
 # From: node1 to node2
