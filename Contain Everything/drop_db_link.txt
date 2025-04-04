@@ -1,0 +1,54 @@
+CREATE OR REPLACE PROCEDURE drop_private_dblink
+    (p_dblink_name IN VARCHAR2,
+     p_owner IN VARCHAR2)
+IS
+    v_count NUMBER;
+BEGIN
+    -- Check if the database link exists for the specified owner
+    SELECT COUNT(*)
+    INTO v_count
+    FROM DBA_DB_LINKS
+    WHERE DB_LINK = UPPER(p_dblink_name)
+    AND OWNER = UPPER(p_owner);
+
+    -- If database link exists, drop it
+    IF v_count > 0 THEN
+        EXECUTE IMMEDIATE 'DROP DATABASE LINK "' || p_owner || '"."' || p_dblink_name || '"';
+        DBMS_OUTPUT.PUT_LINE('Database link ' || p_owner || '.' || p_dblink_name || ' dropped successfully.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Database link ' || p_owner || '.' || p_dblink_name || ' does not exist.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Handle any errors that occur during execution
+        DBMS_OUTPUT.PUT_LINE('Error dropping database link: ' || SQLERRM);
+        RAISE;
+END drop_private_dblink;
+/
+
+EXEC drop_private_dblink('link_name', 'schema_owner');
+
+GRANT EXECUTE ON drop_private_dblink TO username;
+
+---------------------------------------------------------------------------------------------------------------------
+
+set echo off
+set verify off
+set pagesize 2000
+set linesize 500
+set trim on
+set heading off
+set feedback off
+set long 99999
+spool tmp.sql
+select 'select dbms_metadata.get_ddl(''DB_LINK'', '''||DB_LINK||''', ''PUBLIC'')||'';'' from dual;' from dba_db_links where owner='PUBLIC' ;
+spool sync_public_dblink.sql
+set trimspool on
+set linesize 200
+set longchunksize 200000 long 200000 pages 0
+@tmp
+select 'exit;' from dual;
+spool off;
+! rm tmp.sql
+exit;
