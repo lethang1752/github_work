@@ -32,7 +32,7 @@ EXEC drop_private_dblink('link_name', 'schema_owner');
 GRANT EXECUTE ON drop_private_dblink TO username;
 
 ---------------------------------------------------------------------------------------------------------------------
-
+--GET DDL PUBLIC DB LINK
 set echo off
 set verify off
 set pagesize 2000
@@ -53,8 +53,27 @@ spool off;
 ! rm tmp.sql
 exit;
 
+--GET DDL NON-PUBLIC DB LINK
+set echo off
+set verify off
+set pagesize 2000
+set linesize 500
+set trim on
+set heading off
+set feedback off
+set long 99999
+spool tmp.sql
+select 'select dbms_metadata.get_ddl(''DB_LINK'', '''||DB_LINK||''', '''||OWNER||''')||'';'' from dual;' from dba_db_links where owner <> 'PUBLIC' ;
+spool sync_non_public_dblink.sql
+set trimspool on
+set linesize 200
+set longchunksize 200000 long 200000 pages 0
+@tmp
+select 'exit;' from dual;
+spool off;
+! rm tmp.sql
+exit;
 ----------------------------------------------------------------------------------------------------------------------
-
 --DROP PUBLIC DATABASE LINK
 select 'drop public database link '||DB_LINK||';' from dba_db_links where owner='PUBLIC';
 
