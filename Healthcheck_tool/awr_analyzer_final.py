@@ -10,11 +10,8 @@ import pandas as pd
 # Set Streamlit page configuration to wide mode
 st.set_page_config(layout="wide")
 
-# Load GEMINI_API_KEY from environment variables
+# Define GEMINI_API_KEY variable
 GEMINI_API_KEY = "AIzaSyAnaGmHU_c7L2lvyPgU-yPL55BOa3nM9Lw"  # Replace with your actual Gemini API key
-# if not GEMINI_API_KEY:
-#     st.error("GEMINI_API_KEY environment variable not set. Please set it and restart the app.")
-#     st.stop()
 
 # Configure Gemini AI client
 try:
