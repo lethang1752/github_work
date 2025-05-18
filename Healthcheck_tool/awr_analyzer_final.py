@@ -11,10 +11,10 @@ import pandas as pd
 st.set_page_config(layout="wide")
 
 # Load GEMINI_API_KEY from environment variables
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    st.error("GEMINI_API_KEY environment variable not set. Please set it and restart the app.")
-    st.stop()
+GEMINI_API_KEY = "AIzaSyAnaGmHU_c7L2lvyPgU-yPL55BOa3nM9Lw"  # Replace with your actual Gemini API key
+# if not GEMINI_API_KEY:
+#     st.error("GEMINI_API_KEY environment variable not set. Please set it and restart the app.")
+#     st.stop()
 
 # Configure Gemini AI client
 try:
