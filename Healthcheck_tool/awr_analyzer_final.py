@@ -6,6 +6,7 @@ import os
 import google.generativeai as genai
 from google.api_core.exceptions import GoogleAPIError
 import pandas as pd
+import sqlparse
 
 # Set Streamlit page configuration to wide mode
 st.set_page_config(layout="wide")
@@ -393,9 +394,13 @@ if uploaded_file is not None:
                     st.markdown(f"- **%CPU**: {sql_entry['%CPU']}%")
                     st.markdown(f"- **%IO**: {sql_entry['%IO']}%")
                     
-                    # Display full SQL text if available
-                    sql_text = sql_text_map.get(selected_sql_id, "SQL text not found in 'Complete List of SQL Text'.")
-                    st.markdown("**Full SQL Text:**")
+                    # Display full SQL text if available, formatted as SQL
+                    sql_text_raw = sql_text_map.get(selected_sql_id, "SQL text not found in 'Complete List of SQL Text'.")
+                    try:
+                        sql_text = sqlparse.format(sql_text_raw, reindent=True, keyword_case='upper')
+                    except Exception:
+                        sql_text = sql_text_raw  # Fallback if sqlparse is not installed
+                    st.markdown("**Full SQL Text (Formatted):**")
                     st.code(sql_text, language='sql')
                     
                     # Analyze SQL text with Gemini AI
