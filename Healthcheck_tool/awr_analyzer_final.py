@@ -171,6 +171,23 @@ def extract_sql_elapsed_time_data(table):
         st.warning("Could not find 'SQL Id' column in the table.")
         return sql_data
     
+    # Add function to determine command type
+    def get_command_type(sql_text):
+        if not sql_text:
+            return "UNKNOWN"
+        # Get first word and convert to uppercase
+        first_word = sql_text.strip().split()[0].upper()
+        # List of common SQL command types
+        valid_commands = {"SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", 
+                         "CREATE", "ALTER", "DROP", "TRUNCATE", "BEGIN", 
+                         "DECLARE", "CALL"}
+        return first_word if first_word in valid_commands else "OTHER"
+
+    # Find SQL Text column index
+    sql_text_headers = ["SQL Text", "SQL_TEXT"]
+    sql_text_idx = next((i for i, h in enumerate(headers) 
+                        if any(st.lower() in h.lower() for st in sql_text_headers)), None)
+
     # Extract data from subsequent rows
     for row in rows[1:]:  # Skip header row
         cols = row.find_all('td')
@@ -181,8 +198,13 @@ def extract_sql_elapsed_time_data(table):
             percent_total = cols[percent_total_idx].text.strip() if percent_total_idx is not None and percent_total_idx < len(cols) else 'N/A'
             percent_cpu = cols[percent_cpu_idx].text.strip() if percent_cpu_idx is not None and percent_cpu_idx < len(cols) else 'N/A'
             percent_io = cols[percent_io_idx].text.strip() if percent_io_idx is not None and percent_io_idx < len(cols) else 'N/A'
+            # Extract SQL text and determine command type
+            sql_text = cols[sql_text_idx].text.strip() if sql_text_idx is not None and sql_text_idx < len(cols) else ''
+            command_type = get_command_type(sql_text)
+            
             sql_data.append({
                 'SQL_ID': sql_id,
+                'Command Type': command_type,  # Add command type
                 'Elapsed Time per Exec (s)': elapsed_time,
                 'Executions': executions,
                 '%Total': percent_total,
@@ -344,6 +366,7 @@ if uploaded_file is not None:
                 for sql_entry in sql_data:
                     summary_data.append({
                         'SQL_ID': sql_entry['SQL_ID'],
+                        'Command Type': sql_entry['Command Type'],  # Add Command Type column
                         'Elapsed Time per Exec (s)': sql_entry['Elapsed Time per Exec (s)'],
                         'Executions': sql_entry['Executions'],
                         '%Total': sql_entry['%Total'],
