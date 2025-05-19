@@ -396,33 +396,32 @@ if uploaded_file is not None:
                     # Display full SQL text if available
                     sql_text = sql_text_map.get(selected_sql_id, "SQL text not found in 'Complete List of SQL Text'.")
                     st.markdown("**Full SQL Text:**")
-                    st.code(sql_text, language='sql')
                     
-                    # Analyze SQL text with Gemini AI
-                    with st.spinner(f'Analyzing SQL_ID {selected_sql_id} with Gemini-2.0-flash...'):
-                        analysis = analyze_sql_with_gemini(selected_sql_id, sql_text, sql_entry)
-                        st.markdown("**Gemini AI Analysis:**")
-                        st.markdown(analysis)
-            else:
-                st.warning("No SQL data extracted from 'SQL ordered by Elapsed Time' table.")
-        else:
-            # Render HTML for other topics
-            render_html = f'<div class="extracted-content">{content}</div>'
-            st.markdown(render_html, unsafe_allow_html=True)
-            
-            # Apply Gemini analysis for p_topics and h3_topics (excluding SQL ordered by Elapsed Time)
-            if selected_topic in p_topics or (selected_topic in h3_topics and selected_topic != "SQL ordered by Elapsed Time" and selected_topic != "Complete List of SQL Text"):
-                with st.spinner('Analyzing with Gemini-2.0-flash...'):
-                    try:
-                        analysis = analyze_with_gemini(content)
-                        st.markdown("### Analysis Result")
-                        st.markdown(analysis)
-                    except Exception as e:
-                        st.error(f"Error analyzing the topic: {e}")
-    else:
-        if topic_status.get(selected_topic, False):
-            st.warning(f"Topic '{selected_topic}' found, but no content follows it in the AWR report.")
-        else:
-            st.warning(f"Topic '{selected_topic}' not found in the uploaded AWR report.")
-else:
-    st.info("Please upload an AWR HTML file to begin.")
+                    # Function to format SQL text
+                    def format_sql(sql_text):
+                        # Common SQL keywords to capitalize
+                        keywords = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'ORDER BY', 'HAVING', 
+                                  'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'ON', 'AND', 'OR',
+                                  'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'ALTER', 'DROP',
+                                  'UNION', 'INTERSECT', 'MINUS', 'BEGIN', 'END', 'DECLARE']
+                        
+                        # Add newlines before major clauses
+                        formatted = sql_text
+                        for keyword in keywords:
+                            formatted = re.sub(f'(?i)\\b{keyword}\\b', f'\n{keyword}', formatted)
+                        
+                        # Add proper indentation
+                        lines = formatted.split('\n')
+                        indent_level = 0
+                        formatted_lines = []
+                        
+                        for line in lines:
+                            line = line.strip()
+                            if line:
+                                # Decrease indent for closing parentheses
+                                if line.startswith(')'):
+                                    indent_level = max(0, indent_level - 1)
+                                
+                                # Add indentation
+                                formatted_lines.append('    ' * indent_level + line)
+                                
