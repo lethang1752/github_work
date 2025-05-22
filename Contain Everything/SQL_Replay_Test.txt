@@ -1,0 +1,92 @@
+Production:
+- Create directory to store capture files
+CREATE OR REPLACE DIRECTORY CAPTURE_DIR AS '/u01/app/oracle/capture';
+
+- Grant permissions:
+GRANT READ, WRITE ON DIRECTORY CAPTURE_DIR TO PUBLIC;
+
+- Capture workload including statements and their bind variable values:
+BEGIN
+  DBMS_WORKLOAD_CAPTURE.START_CAPTURE(
+    name => 'my_workload_capture',
+    dir => 'CAPTURE_DIR',
+    duration => NULL,  -- NULL for manual stop; specify seconds for fixed duration
+    capture_sts => TRUE  -- Capture SQL Tuning Set for analysis
+  );
+END;
+/
+
+- Monitor the capture status:
+SELECT id, name, status, start_time
+FROM dba_workload_captures
+WHERE name = 'my_workload_capture';
+
+- After capturing the desired workload, stop the capture:
+BEGIN
+  DBMS_WORKLOAD_CAPTURE.FINISH_CAPTURE;
+END;
+/
+
+- Copy capture and transfer to test env:
+scp ...
+
+Test Environment (Require same patch level):
+- Create directory to store capture files
+CREATE OR REPLACE DIRECTORY CAPTURE_DIR AS '/u01/app/oracle/capture';
+
+- Preprocess the captured workload (extract bind variable values and metadata):
+BEGIN
+  DBMS_WORKLOAD_REPLAY.PROCESS_CAPTURE(
+    capture_dir => 'CAPTURE_DIR'
+  );
+END;
+/
+
+- Verify Preprocessing:
+SELECT id, name, status
+FROM dba_workload_replays
+WHERE capture_name = 'my_workload_capture';
+
+- Initialize the workload replay:
+BEGIN
+  DBMS_WORKLOAD_REPLAY.INITIALIZE_REPLAY(
+    replay_name => 'my_workload_replay',
+    replay_dir => 'CAPTURE_DIR'
+  );
+END;
+/
+
+- Start replay client:
+wrc MODE=REPLAY DIR=/u01/app/oracle/capture
+
+- Start the replay:
+BEGIN
+  DBMS_WORKLOAD_REPLAY.START_REPLAY;
+END;
+/
+
+- Monitor the replay:
+SELECT replay_id, name, status, start_time
+FROM dba_workload_replays
+WHERE name = 'my_workload_replay';
+
+- View progress:
+SELECT * FROM dba_workload_replay_clients;
+
+- Stop the replay if needed:
+BEGIN
+  DBMS_WORKLOAD_REPLAY.CANCEL_REPLAY;
+END;
+/
+
+- Generate a Replay Report:
+DECLARE
+  l_report CLOB;
+BEGIN
+  l_report := DBMS_WORKLOAD_REPLAY.REPORT(
+    replay_id => (SELECT MAX(id) FROM dba_workload_replays),
+    format => DBMS_WORKLOAD_REPLAY.TYPE_HTML
+  );
+  -- Save or display l_report as needed
+END;
+/
