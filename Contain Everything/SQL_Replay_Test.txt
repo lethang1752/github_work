@@ -30,6 +30,7 @@ END;
 - Copy capture and transfer to test env:
 scp ...
 
+===============================================================================
 Test Environment (Require same patch level):
 - Create directory to store capture files
 CREATE OR REPLACE DIRECTORY CAPTURE_DIR AS '/u01/app/oracle/capture';
