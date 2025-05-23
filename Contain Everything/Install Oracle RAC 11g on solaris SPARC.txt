@@ -88,12 +88,11 @@ Create Groups, Users and Resource Control:
 groupadd -g 2008 oinstall
 groupadd -g 2009 dba
 groupadd -g 2010 oper
-groupadd -g 2011 backupdba
-groupadd -g 2012 asmdba
-groupadd -g 2013 dgdba
-groupadd -g 2014 kmdba
-groupadd -g 2015 asmadmin
-groupadd -g 2016 asmoper
+groupadd -g 2011 asmdba
+groupadd -g 2012 dgdba
+groupadd -g 2013 kmdba
+groupadd -g 2014 asmadmin
+groupadd -g 2015 asmoper
 
 projadd user.grid
 projadd user.oracle
@@ -101,7 +100,7 @@ projadd user.oracle
 useradd -u 2008 -g oinstall -G dba,asmadmin,asmdba,asmoper -m -d /export/home/grid -s /bin/bash -K project=user.grid grid
 passwd grid
 
-useradd -u 2010 -g oinstall -G oper,dba,asmdba,backupdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
+useradd -u 2010 -g oinstall -G oper,dba,asmdba,dgdba,kmdba,asmadmin -m -d /export/home/oracle -s /bin/bash -K project=user.oracle oracle
 passwd oracle
 
 projmod -sK "project.max-shm-memory=(privileged,3G,deny)" user.oracle 
