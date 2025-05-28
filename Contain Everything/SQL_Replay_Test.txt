@@ -1,3 +1,6 @@
+## Caused 3-5% CPU
+## Size: 2 * Bytes received via SQL*Net from client (from AWR)
+
 Production:
 - Create directory to store capture files
 CREATE OR REPLACE DIRECTORY CAPTURE_DIR AS '/u01/app/oracle/capture';
@@ -10,7 +13,7 @@ BEGIN
   DBMS_WORKLOAD_CAPTURE.START_CAPTURE(
     name => 'my_workload_capture',
     dir => 'CAPTURE_DIR',
-    duration => NULL,  -- NULL for manual stop; specify seconds for fixed duration
+    duration => NULL,  -- NULL for manual stop; 43200 (s) for fixed duration (12 hours)
     capture_sts => TRUE  -- Capture SQL Tuning Set for analysis
   );
 END;
