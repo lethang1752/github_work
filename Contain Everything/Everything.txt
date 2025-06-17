@@ -488,10 +488,16 @@ https://facedba.blogspot.com/2018/04/dr-setup-using-redo-transport-user-in.html
 -with Primary: password file can be anywhere
 -with Standby: password file have to be in ASM
 -Process to fix:
-   +stop sync between DC and DR
-   +set redo_transport_user from DR to none
-   +copy password file from DC to DR, move it to ASM from DR site
-   +set redo_transport_user from DR back to transport user
+   +DC: alter system set log_archive_dest_state_2=defer;
+   +DC: alter system set redo_transport_user='';
+   +DC: alter system set redo_transport_user=vpc_users;
+   +DC: kill -9 tt0* process
+   +DC: move passwordfile to DR
+   +DR: alter system set redo_transport_user='';
+   +DR: update pwfile in srvctl
+   +DR: restart database
+   +DR: alter system set redo_transport_user=vpc_users;
+   +DC: alter system set log_archive_dest_state_2=enable;
    +start sync between DC and DR
 
 --change owner oracle bin
