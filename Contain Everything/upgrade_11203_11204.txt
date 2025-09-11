@@ -1,0 +1,71 @@
+Upgrade manual 11.2.0.3 to 11.2.0.4
+#11.2.0.3 to 11.2.0.4 ( 2h35m )
+
+// Precheck \\
+* Install 11.2.0.4 with the latest patch
+
+* Check invalid object and fix invaild object
+select unique OBJECT_NAME, OBJECT_TYPE,OWNER from DBA_OBJECTS where STATUS=’INVALID’;
+@?/rdbms/admin/utlrp.sql
+
+*Always check for DUPLICATE objects in SYS/SYSTEM and Fix DUPLICATE objects in SYS/SYSTEM BEFORE upgrade
+select OBJECT_NAME, OBJECT_TYPE from DBA_OBJECTS where OBJECT_NAME||OBJECT_TYPE in (select OBJECT_NAME||OBJECT_TYPE from DBA_OBJECTS where OWNER='SYS') and OWNER='SYSTEM' and OBJECT_NAME not in ('AQ$_SCHEDULES_PRIMARY', 'AQ$_SCHEDULES','DBMS_REPCAT_AUTH');
+select substr(COMP_ID, 1,10) compid,substr(COMP_NAME,1,24) compname, STATUS,VERSION from DBA_REGISTRY;
+Purge DBA_RECYCLEBIN;
+
+* Config database confortable for upgrade to 11.2.0.4
+- Set disable cluster and create pfile
+alter system set cluster_database = false scope = spfile;
+create pfile=’/tmp/upgrade_11.2.0.4.pfile’ from spfile;
+shutdown immediate
+startup
+
+- Copy pwd in old home to new home
+cp $ORACLE_HOME/dbs/orapw$ORACLE_SID u01/app/oracle/product/11.2.0.4/dbs/orapw$ORACLE_SID
+
+- Edit new home in oratab
+vi /etc/oratab
+
+* Run the Pre-upgrade script
+@/u01/app/oracle/product/11.2.0.4/dbhome_1/rdbms/admin/utlu112i.sql
+
+* Gathering Dictionary Statistics ( no need )
+EXECUTE dbms_stats.gather_dictionary_stats;
+
+* Check sequence  
+SELECT THREAD#, SEQUENCE# FROM V$LOG WHERE STATUS=’CURRENT’;
+ALTER SYSTEM ARCHIVE LOG CURRENT;
+
+* Shutdown and ready for upgrade
+Shutdown immediate
+
+/// UPGRADE \\\
+* Export new home and startup upgrade database
+--Make sure there is enough archive log space--
+export ORACLE_HOME=/u01/app/oracle/product/11.2.0.4/dbhome_1
+sqlplus / as sysdba
+startup upgrade;
+spool /tmp/upgrade.log
+@?/rdbms/admin/catupgrd.sql ( should run by nohup )
+
+–UPGRADE FOR THE MOST PART COMPLETE
+————Wait for Script to Complete————
+
+— This order
+@?/rdbms/admin/utlu112s.sql
+@?/rdbms/admin/catuppst.sql
+@?/rdbms/admin/utlrp.sql
+@?/rdbms/admin/utluiobj.sql
+@?/rdbms/admin/catbundle.sql psu apply
+
+* Startup all nodes 
+- Set cluster 
+sqlplus / as sysdba
+alter system set cluster_database = true scope = spfile;
+- Upgrade srvctl for new home database
+srvctl upgrade database -d DATABASENAME -o '/u01/app/oracle/11.2.0.4'
+
+* Final gather in database
+EXEC DBMS_STATS.GATHER_SCHEMA_STATS (‘SYS’);
+EXEC DBMS_STATS.GATHER_DICTIONARY_STATS;
+EXEC DBMS_STATS.GATHER_FIXED_OBJECTS_STATS;
