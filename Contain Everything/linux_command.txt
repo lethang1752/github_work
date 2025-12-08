@@ -1,0 +1,3 @@
+##check memory, check ram
+ps aux --sort -%mem | head -10
+
