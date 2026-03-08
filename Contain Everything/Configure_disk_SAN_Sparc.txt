@@ -18,5 +18,5 @@ format> volname -> data11
 
 ------------------------------------------------------
 format -> choose disk -> p (partition) -> 0 (choose slice 0) -> 
-(start: 256 - end: disk sectors available-256)
+(start: 256 - end: last value with e, example 4294950863e)
 -> l (to write partition and label disk) -> q -> q
