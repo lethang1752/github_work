@@ -15,3 +15,8 @@ partition> quit
 
 -Set label for disk:
 format> volname -> data11
+
+------------------------------------------------------
+format -> choose disk -> p (partition) -> 0 (choose slice 0) -> 
+(start: 256 - end: disk sectors available-256)
+-> l (to write partition and label disk) -> q -> q
