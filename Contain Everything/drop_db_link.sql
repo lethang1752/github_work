@@ -78,7 +78,7 @@ exit;
 select 'drop public database link '||DB_LINK||';' from dba_db_links where owner='PUBLIC';
 
 --DROP DATABASE LINK
-create directory TEMP as  '/tmp';
+create or replace directory TEMP as  '/tmp';
 define scrip_dir=/tmp;
 define file_name=drop_dblink.sql;
 DECLARE  
@@ -101,7 +101,7 @@ BEGIN
    UTL_FILE.new_line(F1);
    UTL_FILE.put(F1,'BEGIN');
    UTL_FILE.new_line(F1);
-   UTL_FILE.put(F1,'EXECUTE IMMEDIATE ''drop DATABASE LINK '||rec.DB_LINK||''';'); 
+   UTL_FILE.put(F1,'EXECUTE IMMEDIATE ''DROP DATABASE LINK '||rec.DB_LINK||''';'); 
    UTL_FILE.new_line(F1);
    UTL_FILE.put(F1,'END;');
    UTL_FILE.new_line(F1);
