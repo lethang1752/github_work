@@ -404,7 +404,7 @@ if uploaded_file is not None:
                     st.code(sql_text, language='sql')
                     
                     # Analyze SQL text with Gemini AI
-                    with st.spinner(f'Analyzing SQL_ID {selected_sql_id} with Gemini-2.0-flash...'):
+                    with st.spinner(f'Analyzing SQL_ID {selected_sql_id} with Gemini...'):
                         analysis = analyze_sql_with_gemini(selected_sql_id, sql_text, sql_entry)
                         st.markdown("**Gemini AI Analysis:**")
                         st.markdown(analysis)
