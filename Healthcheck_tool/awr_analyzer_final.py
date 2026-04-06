@@ -17,7 +17,7 @@ GEMINI_API_KEY = "AIzaSyDYiejMtt911tklrQyPxC22NPS23mokaZs"  # Replace with your 
 # Configure Gemini AI client
 try:
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel('gemini-2.0-flash')  # Assuming Gemini-2.0-flash is similar
+    model = genai.GenerativeModel('gemini-3-flash-preview')
 except Exception as e:
     st.error(f"Failed to initialize Gemini AI: {e}")
     st.stop()
