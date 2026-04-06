@@ -305,7 +305,7 @@ def analyze_with_gemini(table_html):
 # Streamlit app
 st.title("AWR Report Analyzer")
 st.markdown("""
-Upload an AWR HTML report and select a topic to analyze its corresponding table using Gemini-2.0-flash AI.
+Upload an AWR HTML report and select a topic to analyze its corresponding table using Gemini AI.
 For 'SQL ordered by Elapsed Time', the app maps SQL_IDs to their full SQL text and analyzes each SQL statement.
 """)
 
@@ -417,7 +417,7 @@ if uploaded_file is not None:
             
             # Apply Gemini analysis for p_topics and h3_topics (excluding SQL ordered by Elapsed Time)
             if selected_topic in p_topics or (selected_topic in h3_topics and selected_topic != "SQL ordered by Elapsed Time" and selected_topic != "Complete List of SQL Text"):
-                with st.spinner('Analyzing with Gemini-2.0-flash...'):
+                with st.spinner('Analyzing with Gemini...'):
                     try:
                         analysis = analyze_with_gemini(content)
                         st.markdown("### Analysis Result")
