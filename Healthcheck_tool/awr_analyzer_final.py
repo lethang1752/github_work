@@ -27,22 +27,20 @@ p_topics = [
     "Instance Efficiency Percentages (Target 100%)",
     "Top 10 Foreground Events by Total Wait Time",
     "Wait Classes by Total Wait Time",
-    "IO Profile",
-    "Global Cache and Enqueue Statistics Summary" # RAC Specific
+    "IO Profile"
 ]
 
 h3_topics = [
     "SQL ordered by Elapsed Time",
-    "SQL ordered by Elapsed Time (Global)", # RAC Specific
-    "Complete List of SQL Text",
+    "Complete List of SQL Text",  # Added to handle SQL text extraction
     "Buffer Pool Advisory",
     "PGA Memory Advisory",
-    "SGA Target Advisory",
-    "OS Statistics By Instance", # RAC Specific
-    "Time Model"
+    "SGA Target Advisory"
 ]
 
-h2_topics = ["ADDM Task ADDM"]
+h2_topics = [
+    "ADDM Task ADDM"
+]
 
 all_topics = p_topics + h3_topics + h2_topics
 
