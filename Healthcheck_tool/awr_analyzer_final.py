@@ -12,7 +12,7 @@ import sqlparse
 st.set_page_config(layout="wide")
 
 # Define GEMINI_API_KEY variable
-GEMINI_API_KEY = "AIzaSyCxOV6JeHf3LxcllyQLXwCAcFhUFBt9r6Y"  # Replace with your actual Gemini API key
+GEMINI_API_KEY = "AIzaSyDYiejMtt911tklrQyPxC22NPS23mokaZs"  # Replace with your actual Gemini API key
 
 # Configure Gemini AI client
 try:
