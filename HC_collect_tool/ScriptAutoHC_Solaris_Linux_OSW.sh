@@ -218,7 +218,7 @@ echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
 echo "$header"
-sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED_ON'</th></tr>")}
+sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED ON'</th></tr>")}
 {
 	if ($2!="0K" && $2!="Size") {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
@@ -273,7 +273,7 @@ if [ "$grid" == "N/A" ]; then
 	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
+	echo "<tr><th>HOST NAME</th><th>CLUSTER SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 else
 
 #-----Resource_Crs
@@ -295,7 +295,7 @@ if(length($3)!=0) { resdet=resdet"="$3 }
 idxx1=index(resst, " "); tat=substr(resst, 0, idxx1);
 if (tat=="") {tat="OFFLINE"};
 printf "%-35s %-20s %-25s %-20s %-10s\n", resname, restrg, tat, resser, resdet}
-}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'</th><th>'TARGET'</th><th>'STATE'</th><th>'LAST_SERVER'</th><th>'STATE_DETAILS'</th></tr>")}
+}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'</th><th>'TARGET'</th><th>'STATE'</th><th>'LAST SERVER'</th><th>'STATE DETAILS'</th></tr>")}
 {
 	if ($4!=NULL) {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,$6,$7,$8,"</td></tr>")
