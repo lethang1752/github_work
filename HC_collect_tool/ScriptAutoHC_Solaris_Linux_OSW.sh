@@ -232,7 +232,7 @@ END{
 
 echo "<p>+ CHECK_LISTENER</p>" >>$file_name
 lsnrctl stat | awk 'BEGIN{
-print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER_STATUS'</th></tr><tr><td>")}
+print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
@@ -258,7 +258,7 @@ END{
 #-----Backup_Policy
 
 echo "<p>+ BACKUP_POLICY</p>" >>$file_name
-echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN_RETENTION</th></tr><tr><td>" >>$file_name
+echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN RETENTION</th></tr><tr><td>" >>$file_name
 rman target / <<EOF | grep CONFIGURE >>$file_name
 show retention policy;
 EOF
@@ -269,7 +269,7 @@ echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
 if [ "$grid" == "N/A" ]; then
 	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
-	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET_SERVER</th><th>STATE_DETAILS</th></tr>" >>$file_name
+	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET SERVER</th><th>STATE DETAILS</th></tr>" >>$file_name
 	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
 	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
@@ -314,7 +314,7 @@ if crsctl check crs 2>&1 | grep -q "invalid argument"; then
 else
     crs_cmd="crsctl check crs"
 fi
-$crs_cmd | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST_NAME</th><th>CLUSTER_SERVICE</th></tr><tr><td>",hs"</td><td>")}
+$crs_cmd | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST NAME</th><th>CLUSTER SERVICE</th></tr><tr><td>",hs"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
