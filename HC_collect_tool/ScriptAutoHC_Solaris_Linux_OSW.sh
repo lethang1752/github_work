@@ -146,7 +146,7 @@ Head() {
 	echo "|                                                             |"
 	echo "| ==>> 3. Cancel Script.                                      |"
 	echo "|                                                             |"
-	echo "|                                         Ver_1.4.1_VictorLe  |"
+	echo "|                                         Ver_1.4.2_VictorLe  |"
 	echo "|<<========================<< *** >>========================>>|"
 	echo
 	if [[ "$os" == 'Linux' ]]; then
