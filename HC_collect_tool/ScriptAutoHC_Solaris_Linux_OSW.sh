@@ -86,17 +86,17 @@ EOF
 )
 dbname=$(echo $dbname | tr -d '[:space:]')
 
-#-----Get instance_name
+#-----Get instance_name (FIXED)
 
 insname=$(
 	sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
-show parameter instance_name;
+select instance_name from $instance;
 exit
 EOF
 )
-insname=$(echo $insname | awk -v FS=' ' '{print $3}')
+insname=$(echo $insname | tr -d '[:space:]')
 
 #-----Create folder
 
@@ -131,7 +131,7 @@ Head() {
 	echo " <> Alert Log  :" $spwd
 	echo " <> OSWbb Log  :" $pwd/oswbb_log_MPS_$host
 	echo
-	echo "|<<=======================<<  ***  >>=======================>>|"
+	echo "|<<=======================<<  *** >>=======================>>|"
 	echo "|                                                             |"
 	echo "|                    ---------------------                    |"
 	echo "|   <<===>>       << HEALTH-CHECK-DATABASE >>       <<===>>   |"
@@ -146,8 +146,7 @@ Head() {
 	echo "|                                                             |"
 	echo "| ==>> 3. Cancel Script.                                      |"
 	echo "|                                                             |"
-	echo "|                                                             |"
-	echo "|                                         Ver_1.4.0_VictorLe  |"
+	echo "|                                         Ver_1.4.1_VictorLe  |"
 	echo "|<<========================<< *** >>========================>>|"
 	echo
 	if [[ "$os" == 'Linux' ]]; then
@@ -218,7 +217,7 @@ echo "<p>+ DISK_USAGE</p>" >>$file_name
 $disk_command -P | $grep -v ^none | (
 read header
 echo "$header"
-sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'FILESYSTEM'</th><th>'SIZE'</th><th>'USED'</th><th>'AVAIL'</th><th>'USE%'</th><th>'MOUNTED ON'</th></tr>")}
+sort -rn -k 5 ) | $awk 'BEGIN{print("<table WIDTH=\"90%\" BORDER=\"1\"><tr><th>FILESYSTEM</th><th>SIZE</th><th>USED</th><th>AVAIL</th><th>USE%</th><th>MOUNTED ON</th></tr>")}
 {
 	if ($2!="0K" && $2!="Size") {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,"</td><td>",$6,$7,"</td></tr>")
@@ -231,8 +230,8 @@ END{
 #-----Check_Listener
 if [ "$grid" == "N/A" ]; then
     echo "<p>+ CHECK_LISTENER</p>" >>$file_name
-    lsnrctl stat | awk 'BEGIN{
-    print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
+    lsnrctl stat | $awk 'BEGIN{
+    print("<p><table WIDTH=\"90%\" BORDER=\"1\"><tr><th>LISTENER STATUS</th></tr><tr><td>")}
     {
         if ($0!=NULL) {
             print($0,"<br>")
@@ -244,8 +243,8 @@ if [ "$grid" == "N/A" ]; then
 else
     export TNS_ADMIN=$grid/network/admin
     echo "<p>+ CHECK_LISTENER</p>" >>$file_name
-    lsnrctl stat | awk 'BEGIN{
-    print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
+    lsnrctl stat | $awk 'BEGIN{
+    print("<p><table WIDTH=\"90%\" BORDER=\"1\"><tr><th>LISTENER STATUS</th></tr><tr><td>")}
     {
         if ($0!=NULL) {
             print($0,"<br>")
@@ -260,7 +259,7 @@ fi
 #-----Check_Patches
 
 echo "<p>+ CHECK_PATCHES</p>" >>$file_name
-$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
+$ORACLE_HOME/OPatch/opatch lsinventory | $grep -B 2 "Patch description" | grep -v "Unique" | $awk -v hs=$host -v oraclehome=$ORACLE_HOME 'BEGIN{print("<p><table WIDTH=\"90%\" BORDER=\"1\"><tr><th>SERVER</th><th>ORACLE_HOME</th><th>PATCH INFORMATION</th></tr><tr><td>",hs,"</td><td>",oraclehome,"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
@@ -273,7 +272,7 @@ END{
 #-----Backup_Policy
 
 echo "<p>+ BACKUP_POLICY</p>" >>$file_name
-echo "<table WIDTH='90%' BORDER='1'><tr><th>RMAN RETENTION</th></tr><tr><td>" >>$file_name
+echo "<table WIDTH=\"90%\" BORDER=\"1\"><tr><th>RMAN RETENTION</th></tr><tr><td>" >>$file_name
 rman target / <<EOF | grep CONFIGURE >>$file_name
 show retention policy;
 EOF
@@ -283,20 +282,20 @@ echo "</tr></td><tr><td>NULL</td></tr></table>" >>$file_name
 
 if [ "$grid" == "N/A" ]; then
 	echo "<p>+ RESOURCE_CRS</p>" >>$file_name
-	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+	echo "<table WIDTH=\"90%\" BORDER=\"1\">" >>$file_name
 	echo "<tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>TARGET SERVER</th><th>STATE DETAILS</th></tr>" >>$file_name
 	echo "<tr><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 	echo "<p>+ CHECK_CLUSTER</p>" >>$file_name
-	echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+	echo "<table WIDTH=\"90%\" BORDER=\"1\">" >>$file_name
 	echo "<tr><th>HOST NAME</th><th>CLUSTER SERVICE</th></tr><tr><td>NULL</td><td>NULL</td></tr></table>" >>$file_name
 else
 
-#-----Resource_Crs
+#-----Resource_Crs (FIXED /bin/gawk to $awk)
 
 echo "<p>+ RESOURCE_CRS<p>" >>$file_name
 crsctl status resource -v |
 egrep -e "NAME|TARGET|STATE|LAST_SERVER|STATE_DETAILS" |
-/bin/gawk 'BEGIN {FS="=";}
+$awk 'BEGIN {FS="=";}
 {
 if ($1=="NAME")  resname=$2; else
 if ($1=="TARGET") restrg=$2; else
@@ -310,7 +309,7 @@ if(length($3)!=0) { resdet=resdet"="$3 }
 idxx1=index(resst, " "); tat=substr(resst, 0, idxx1);
 if (tat=="") {tat="OFFLINE"};
 printf "%-35s %-20s %-25s %-20s %-10s\n", resname, restrg, tat, resser, resdet}
-}' | $awk 'BEGIN{print("<table WIDTH='90%' BORDER='1'><tr><th>'NAME'</th><th>'TARGET'</th><th>'STATE'</th><th>'LAST SERVER'</th><th>'STATE DETAILS'</th></tr>")}
+}' | $awk 'BEGIN{print("<table WIDTH=\"90%\" BORDER=\"1\"><tr><th>NAME</th><th>TARGET</th><th>STATE</th><th>LAST SERVER</th><th>STATE DETAILS</th></tr>")}
 {
 	if ($4!=NULL) {
 		print("<tr><td>",$1,"</td><td>",$2,"</td><td>",$3,"</td><td>",$4,"</td><td>",$5,$6,$7,$8,"</td></tr>")
@@ -329,7 +328,7 @@ if crsctl check crs 2>&1 | grep -q "invalid argument"; then
 else
     crs_cmd="crsctl check crs"
 fi
-$crs_cmd | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH='90%' BORDER='1'><tr><th>HOST NAME</th><th>CLUSTER SERVICE</th></tr><tr><td>",hs"</td><td>")}
+$crs_cmd | $awk -v hs=$host 'BEGIN{print("<p><table WIDTH=\"90%\" BORDER=\"1\"><tr><th>HOST NAME</th><th>CLUSTER SERVICE</th></tr><tr><td>",hs"</td><td>")}
 {
 	if ($0!=NULL) {
 		print($0,"<br>")
@@ -551,10 +550,6 @@ echo "********************"
 
 #-----Get information for report file
 
-# Name, HA/Standalone, Hardware, File system, Archiving, Flashback, Version,Patch, DB size, Backup status
-
-# Name: dbname
-
 # HA/Standalone
 
 rp_ha=$(
@@ -670,13 +665,13 @@ EOF
 
 size_last="$size GB"
 
-#Backup status
+#Backup status (FIXED with ORDER BY)
 
 bkp_last=$(
 sqlplus -s / as sysdba <<EOF
 set head off
 set feed off
-select status from $backupjob where rownum=1;
+select status from (select status from $backupjob order by start_time desc) where rownum=1;
 exit
 EOF
 )
@@ -684,7 +679,7 @@ EOF
 #Print table
 
 echo "<p>+ REPORT DETAILS</p>" >>$file_name
-echo "<table WIDTH='90%' BORDER='1'>" >>$file_name
+echo "<table WIDTH=\"90%\" BORDER=\"1\">" >>$file_name
 echo "<tr><th>ITEMS</th><th>INFORMATION</th></tr>" >>$file_name
 echo "<tr><td>Name</td><td>$dbname</td></tr>" >>$file_name
 echo "<tr><td>HA/Stand Alone</td><td>$rp_ha_last</td></tr>" >>$file_name
