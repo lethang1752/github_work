@@ -229,18 +229,33 @@ END{
 }' >>$file_name
 
 #-----Check_Listener
-
-echo "<p>+ CHECK_LISTENER</p>" >>$file_name
-lsnrctl stat | awk 'BEGIN{
-print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
-{
-	if ($0!=NULL) {
-		print($0,"<br>")
-	}
-}
-	END{
-		print("</tr></td></table><p><p>")
-	}' >>$file_name
+if [ "$grid" == "N/A" ]; then
+    echo "<p>+ CHECK_LISTENER</p>" >>$file_name
+    lsnrctl stat | awk 'BEGIN{
+    print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
+    {
+        if ($0!=NULL) {
+            print($0,"<br>")
+        }
+    }
+        END{
+            print("</tr></td></table><p><p>")
+        }' >>$file_name
+else
+    export TNS_ADMIN=$grid/network/admin
+    echo "<p>+ CHECK_LISTENER</p>" >>$file_name
+    lsnrctl stat | awk 'BEGIN{
+    print("<p><table WIDTH='90%' BORDER='1'><tr><th>'LISTENER STATUS'</th></tr><tr><td>")}
+    {
+        if ($0!=NULL) {
+            print($0,"<br>")
+        }
+    }
+        END{
+            print("</tr></td></table><p><p>")
+        }' >>$file_name
+    unset TNS_ADMIN
+fi
 
 #-----Check_Patches
 
