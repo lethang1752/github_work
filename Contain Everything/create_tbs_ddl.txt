@@ -6,8 +6,12 @@ BEGIN
 END;
 /
 
+SPOOL extract_tablespaces.sql
+
 SELECT DBMS_METADATA.get_ddl ('TABLESPACE', tablespace_name)
 FROM   dba_tablespaces
-WHERE  tablespace_name = DECODE(UPPER('&1'), 'ALL', tablespace_name, UPPER('&1'));
+WHERE tablespace_name NOT IN ('SYSTEM', 'SYSAUX', 'USERS', 'TEMP') 
+      AND tablespace_name NOT LIKE 'UNDO%';
 
+SPOOL OFF
 SET PAGESIZE 14 LINESIZE 100 FEEDBACK ON VERIFY ON
