@@ -573,3 +573,10 @@ https://www.markusdba.net/2016/06/21/oracle-linux-7-2-and-grid-infrastructure-11
 
 ------------------------------------------------
 dd if=/dev/zero of=/dev/sdb1 bs=4096 count=4096
+
+----
+scp fix
+
+#!/bin/bash
+/usr/bin/scp.orig -O "$@"
+----
