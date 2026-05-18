@@ -4,53 +4,45 @@
 vmo -r -o vmm_klock_mode=2
 vmo -r -o vpm_xvcpus=2
 schedo -r -o vpm_xvcpus=2
-/usr/sbin/no –o -p udp_sendspace=655360
-/usr/sbin/no –o -p udp_recvspace=655360
-/usr/sbin/no -o -p tcp_sendspace=65536
-/usr/sbin/no –o -p tcp_recvspace=65536 
-/usr/sbin/no –o -p rfc1323=1
-/usr/sbin/no -o -p sb_max=4194304 
-/usr/sbin/no -o -p ipqmaxlen=512
-```
-### **Setting limit of user : /etc/security/limit**
-```bash
-root:
- fsize = -1
- data = -1
- stack = -1
- core = -1
- nofiles = -1
- rss = -1
- cpu = -1
- stack_hard = -1
-grid:
- fsize = -1
- data = -1
- stack = -1
- core = -1
- nofiles = -1
- rss = -1
- cpu = -1
- stack_hard = -1
-oracle:
- fsize = -1
- data = -1
- stack = -1
- core = -1
- nofiles = -1
- rss = -1
- cpu = -1
- stack_hard = -1
-```
-### **DISK for grid**
-```bash
-lspv -u (check disk)
-lkdev -l hdisk* -d (unlock disk)
-lsattr -El hdisk* -a reserve_policy (check policy)
-chdev -l hdisk* -a reserve_policy=no_reserve (change policy)
+no –o -p udp_sendspace=65536
+no –o -p udp_recvspace=655360
+no -o -p tcp_sendspace=65536
+no –o -p tcp_recvspace=65536 
+no –o -p rfc1323=1
+no -o -p sb_max=4194304 
+no -o -p ipqmaxlen=512
 
-chown grid:asmadmin /dev/rhdisk* 
-chmod 660 /dev/rhdisk* 
+no -a | egrep "tcp_sendspace|tcp_recvspace|ipqmaxlen|rfc1323|sb_max"
+```
+### **I/O Completion Ports (IOCP)**
+```bash
+chdev -l iocp0 -P -a autoconfig=available
+lsdev -Cc iocp
+*Note: Need reboot
+```
+### **Memory Setting**
+```bash
+vmo -p -o minperm%=3
+vmo -p -o maxperm%=90
+vmo -p -o maxclient%=90
+
+vmo -a | egrep "minperm|maxperm|maxclient"
+
+vmo -L minperm
+vmo -L maxperm
+vmo -L maxclient
+```
+### **CPU - scheduler**
+```bash
+schedo -o vpm_xvcpus=2
+
+schedo -a | grep vpm_xvcpus
+```
+### **Kernel limit for processes**
+```bash
+chdev -l sys0 -a maxuproc='16384'
+
+lsattr -El sys0 | grep maxuproc
 ```
 ### **Create user grid and oracle on both nodes**
 ```bash
@@ -69,6 +61,26 @@ chuser capabilities=CAP_NUMA_ATTACH,CAP_BYPASS_RAC_VMM,CAP_PROPAGATE grid
 
 passwd grid 
 passwd oracle
+```
+### **Setting limit of user : /etc/security/limit**
+```bash
+chuser "fsize=-1" "data=-1" "stack=-1" "rss=-1" "core=-1" "nofiles=65536" "nproc=16384" oracle
+chuser "fsize=-1" "data=-1" "stack=-1" "rss=-1" "core=-1" "nofiles=65536" "nproc=16384" grid
+chuser "fsize=-1" "data=-1" "stack=-1" "rss=-1" "core=-1" "nofiles=65536" "nproc=16384" root
+
+lsuser -a fsize data stack rss core nofiles nproc oracle
+lsuser -a fsize data stack rss core nofiles nproc grid
+lsuser -a fsize data stack rss core nofiles nproc root
+```
+### **DISK for grid**
+```bash
+lspv -u (check disk)
+lkdev -l hdisk* -d (unlock disk)
+lsattr -El hdisk* -a reserve_policy (check policy)
+chdev -l hdisk* -a reserve_policy=no_reserve (change policy)
+
+chown grid:asmadmin /dev/rhdisk* 
+chmod 660 /dev/rhdisk* 
 ```
 ### **Create folder for install grid and database**
 ```bash
