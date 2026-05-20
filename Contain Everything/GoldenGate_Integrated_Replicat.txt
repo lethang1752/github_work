@@ -1,66 +1,66 @@
-TÀI LIỆU SOP: CẤU HÌNH INTEGRATED EXTRACT & INTEGRATED REPLICAT - ORACLE GOLDENGATE 12C
+SOP DOCUMENT: CONFIGURING INTEGRATED EXTRACT & INTEGRATED REPLICAT - ORACLE GOLDENGATE 12C
 ===================================================================================================
 
-Mục tiêu: Hướng dẫn chi tiết từ A-Z quá trình cấu hình Oracle GoldenGate 12c (Capture & Delivery) sử dụng kiến trúc Integrated Extract và Integrated Replicat trên nền tảng Linux.
+Objective: A detailed A-Z guide on configuring Oracle GoldenGate 12c (Capture & Delivery) using Integrated Extract and Integrated Replicat architecture on a Linux platform.
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 1: TỔNG QUAN & LƯU Ý TRƯỚC KHI TRIỂN KHAI
+PART 1: OVERVIEW & PRE-DEPLOYMENT NOTES
 ---------------------------------------------------------------------------------------------------
-1. Kiến trúc hệ thống giả định:
-   - Hệ điều hành: Linux 64-bit (Oracle Linux / RHEL / CentOS 6.x trở lên).
+1. Assumed System Architecture:
+   - Operating System: Linux 64-bit (Oracle Linux / RHEL / CentOS 6.x or higher).
    - Database: Oracle Database 12cR1 (Instance: ogg12).
-   - Kiến trúc OGG: Cài đặt 2 bản OGG trên cùng host để mô phỏng Source và Target:
-     + Nguồn (Source): /u01/app/oracle/product/ogg_src
-     + Đích (Target): /u01/app/oracle/product/ogg_trg
-2. Quy ước Terminal:
-   Quá trình cấu hình đòi hỏi mở nhiều terminal để tránh nhầm lẫn:
-   - [ROOT]: Terminal đăng nhập quyền root để thao tác OS.
-   - [OGGSRC]: Terminal kết nối sqlplus vào schema nguồn.
-   - [OGGTRG]: Terminal kết nối sqlplus vào schema đích.
-   - [GGSCI_SRC]: Terminal chạy lệnh GGSCI cho môi trường nguồn.
-   - [GGSCI_TRG]: Terminal chạy lệnh GGSCI cho môi trường đích.
-3. Tham số Database bắt buộc:
-   - ARCHIVELOG mode phải được BẬT.
-   - STREAMS_POOL_SIZE tối thiểu 512MB.
+   - OGG Architecture: 2 OGG installations on the same host to simulate Source and Target:
+     + Source: /u01/app/oracle/product/ogg_src
+     + Target: /u01/app/oracle/product/ogg_trg
+2. Terminal Conventions:
+   The configuration process requires opening multiple terminals to avoid confusion:
+   - [ROOT]: Terminal logged in as root for OS operations.
+   - [OGGSRC]: Terminal connected via sqlplus to the source schema.
+   - [OGGTRG]: Terminal connected via sqlplus to the target schema.
+   - [GGSCI_SRC]: Terminal running GGSCI commands for the source environment.
+   - [GGSCI_TRG]: Terminal running GGSCI commands for the target environment.
+3. Mandatory Database Parameters:
+   - ARCHIVELOG mode must be ENABLED.
+   - STREAMS_POOL_SIZE must be at least 512MB.
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 2: CHUẨN BỊ MÔI TRƯỜNG CƠ SỞ DỮ LIỆU (DATABASE PREPARATION)
+PART 2: DATABASE PREPARATION
 ---------------------------------------------------------------------------------------------------
 
-BƯỚC 2.1: Tạo thư mục chứa Datafiles (Tại terminal [ROOT])
+STEP 2.1: Create directory for Datafiles (At [ROOT] terminal)
 ----------------------------------------------------------
 su - root
 mkdir -p /u02/oradata/ogg12/obe
 chown oracle.oinstall /u02/oradata/ogg12/obe
 
-BƯỚC 2.2: Kích hoạt chế độ ARCHIVELOG (Tại terminal [OGGSRC])
+STEP 2.2: Enable ARCHIVELOG mode (At [OGGSRC] terminal)
 ----------------------------------------------------------
 export ORACLE_SID=ogg12
 sqlplus / as sysdba
 
--- Kiểm tra trạng thái hiện tại
+-- Check current status
 SELECT log_mode FROM v$database;
 
--- Nếu là NOARCHIVELOG, thực hiện các lệnh sau:
+-- If it is NOARCHIVELOG, execute the following commands:
 SHUTDOWN IMMEDIATE;
 STARTUP MOUNT;
 ALTER DATABASE ARCHIVELOG;
 ALTER DATABASE OPEN;
 
-BƯỚC 2.3: Tạo Tablespace và các User cần thiết (Tại terminal [OGGSRC])
+STEP 2.3: Create necessary Tablespaces and Users (At [OGGSRC] terminal)
 ----------------------------------------------------------
--- Tạo tablespace cho dữ liệu nguồn (SRCDATA) và đích (TRGDATA):
+-- Create tablespaces for source data (SRCDATA) and target data (TRGDATA):
 CREATE TABLESPACE srcdata DATAFILE '/u02/oradata/ogg12/obe/srcdata01.dbf' SIZE 50M AUTOEXTEND ON EXTENT MANAGEMENT LOCAL UNIFORM SIZE 256K;
 CREATE TABLESPACE trgdata DATAFILE '/u02/oradata/ogg12/obe/trgdata01.dbf' SIZE 50M AUTOEXTEND ON EXTENT MANAGEMENT LOCAL UNIFORM SIZE 256K;
 
--- Tạo user vận hành GoldenGate (OGGUSER):
--- Lưu ý: User này cần đặc quyền quản trị để thao tác với Streams/LogMiner.
+-- Create GoldenGate admin user (OGGUSER):
+-- Note: This user requires administrative privileges to interact with Streams/LogMiner.
 CREATE USER OGGUSER IDENTIFIED BY Welcome1 DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP;
 GRANT DBA TO OGGUSER; 
--- Thực thi cấp quyền GoldenGate chuẩn:
+-- Execute standard GoldenGate privilege grant:
 EXEC DBMS_GOLDENGATE_AUTH.GRANT_ADMIN_PRIVILEGE('OGGUSER');
 
--- Tạo schema Nguồn (OGGSRC) và Đích (OGGTRG):
+-- Create Source (OGGSRC) and Target (OGGTRG) schemas:
 CREATE USER OGGSRC IDENTIFIED BY Welcome1 DEFAULT TABLESPACE srcdata;
 GRANT CONNECT, RESOURCE TO OGGSRC;
 ALTER USER OGGSRC QUOTA UNLIMITED ON srcdata;
@@ -70,40 +70,40 @@ GRANT CONNECT, RESOURCE TO OGGTRG;
 ALTER USER OGGTRG QUOTA UNLIMITED ON trgdata;
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 3: CẤU HÌNH ORACLE GOLDENGATE VÀ ENABLE TRANDATA
+PART 3: CONFIGURE ORACLE GOLDENGATE AND ENABLE TRANDATA
 ---------------------------------------------------------------------------------------------------
 
-BƯỚC 3.1: Thiết lập biến môi trường
+STEP 3.1: Set up environment variables
 ----------------------------------------------------------
--- Tại [GGSCI_SRC] và [GGSCI_TRG], đảm bảo biến LD_LIBRARY_PATH trỏ đúng vào thư viện Oracle:
+-- At [GGSCI_SRC] and [GGSCI_TRG], ensure LD_LIBRARY_PATH points to Oracle libraries:
 export LD_LIBRARY_PATH=$ORACLE_HOME/lib
-cd /u01/app/oracle/product/ogg_src  # Tương ứng đổi đường dẫn cho target
+cd /u01/app/oracle/product/ogg_src  # Change the path accordingly for the target
 ./ggsci
 
-BƯỚC 3.2: Tạo Wallet bảo mật thông tin đăng nhập (Tại GGSCI)
+STEP 3.2: Create a Wallet for credential security (At GGSCI)
 ----------------------------------------------------------
--- Tại cả [GGSCI_SRC] và [GGSCI_TRG]:
+-- At both [GGSCI_SRC] and [GGSCI_TRG]:
 CREATE WALLET
 ADD CREDENTIALSTORE USER OGGUSER@ogg12 PASSWORD Welcome1 ALIAS ogg_user
 INFO CREDENTIALSTORE
 
-BƯỚC 3.3: Bật Logging bổ sung - TRANDATA (Tại [GGSCI_SRC])
+STEP 3.3: Enable Supplemental Logging - TRANDATA (At [GGSCI_SRC])
 ----------------------------------------------------------
--- Để GoldenGate có thể xác định chính xác các bản ghi bị thay đổi (UPDATE/DELETE), bắt buộc phải bật TRANDATA.
+-- To allow GoldenGate to accurately identify changed records (UPDATE/DELETE), TRANDATA must be enabled.
 DBLOGIN USERIDALIAS ogg_user
 ADD TRANDATA OGGSRC.* ALLCOLS
 INFO TRANDATA OGGSRC.*
--- Lưu ý: Tham số ALLCOLS là bắt buộc cho tính năng Integrated Replicat 12c để hỗ trợ giải quyết conflict và mapping chính xác.
+-- Note: The ALLCOLS parameter is mandatory for Integrated Replicat 12c to support conflict resolution and accurate mapping.
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 4: CẤU HÌNH DATA CAPTURE (INTEGRATED EXTRACT)
+PART 4: CONFIGURE DATA CAPTURE (INTEGRATED EXTRACT)
 ---------------------------------------------------------------------------------------------------
 
-BƯỚC 4.1: Tạo parameter file cho Extract (Tại [GGSCI_SRC])
+STEP 4.1: Create parameter file for Extract (At [GGSCI_SRC])
 ----------------------------------------------------------
 EDIT PARAM einta
 
--- Dán nội dung sau:
+-- Paste the following content:
 EXTRACT einta
 SETENV (ORACLE_SID='ogg12')
 USERIDALIAS ogg_user
@@ -113,10 +113,10 @@ LOGALLSUPCOLS
 UPDATERECORDFORMAT COMPACT
 TABLE OGGSRC.*;
 
--- Lưu ý cấu hình:
--- LOGALLSUPCOLS & UPDATERECORDFORMAT COMPACT: Các tham số đặc biệt bắt buộc trong 12c để sử dụng Integrated Replicat.
+-- Configuration notes:
+-- LOGALLSUPCOLS & UPDATERECORDFORMAT COMPACT: Special mandatory parameters in 12c for using Integrated Replicat.
 
-BƯỚC 4.2: Đăng ký và khởi tạo Extract (Tại [GGSCI_SRC])
+STEP 4.2: Register and initialize Extract (At [GGSCI_SRC])
 ----------------------------------------------------------
 DBLOGIN USERIDALIAS ogg_user
 REGISTER EXTRACT einta DATABASE
@@ -124,34 +124,34 @@ ADD EXTRACT einta, INTEGRATED TRANLOG, BEGIN NOW
 ADD EXTTRAIL ./dirdat/in, EXTRACT einta, MEGABYTES 50
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 5: CẤU HÌNH DATA PUMP (TÙY CHỌN NHƯNG KHUYÊN DÙNG)
+PART 5: CONFIGURE DATA PUMP (OPTIONAL BUT RECOMMENDED)
 ---------------------------------------------------------------------------------------------------
--- Mặc dù Extract có thể đẩy thẳng sang Target, việc dùng Data Pump (pinta) giúp bảo vệ dữ liệu khi network gián đoạn.
+-- Although Extract can push directly to Target, using a Data Pump (pinta) protects data during network interruptions.
 
-BƯỚC 5.1: Cấu hình Data Pump (Tại [GGSCI_SRC])
+STEP 5.1: Configure Data Pump (At [GGSCI_SRC])
 ----------------------------------------------------------
 EDIT PARAM pinta
 
--- Dán nội dung:
+-- Paste the content:
 EXTRACT pinta
 USERIDALIAS ogg_user
 RMTHOST localhost, MGRPORT 7810
 RMTTRAIL ./dirdat/pn
 TABLE OGGSRC.*;
 
--- Khởi tạo Data Pump:
+-- Initialize Data Pump:
 ADD EXTRACT pinta, EXTTRAILSOURCE ./dirdat/in
 ADD RMTTRAIL ./dirdat/pn, EXTRACT pinta, MEGABYTES 50
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 6: CẤU HÌNH DATA DELIVERY (INTEGRATED REPLICAT)
+PART 6: CONFIGURE DATA DELIVERY (INTEGRATED REPLICAT)
 ---------------------------------------------------------------------------------------------------
 
-BƯỚC 6.1: Tạo parameter file cho Replicat (Tại [GGSCI_TRG])
+STEP 6.1: Create parameter file for Replicat (At [GGSCI_TRG])
 ----------------------------------------------------------
 EDIT PARAM rinta
 
--- Dán nội dung:
+-- Paste the content:
 REPLICAT rinta
 SETENV (ORACLE_SID='ogg12')
 USERIDALIAS ogg_user
@@ -159,45 +159,45 @@ DBOPTIONS INTEGRATEDPARAMS(parallelism 2)
 ASSUMETARGETDEFS
 MAP OGGSRC.*, TARGET OGGTRG.*;
 
--- Lưu ý: INTEGRATEDPARAMS(parallelism 2) báo hiệu database inbound server sử dụng 2 luồng apply song song để tăng hiệu suất.
+-- Note: INTEGRATEDPARAMS(parallelism 2) signals the database inbound server to use 2 parallel apply streams to increase performance.
 
-BƯỚC 6.2: Khởi tạo Integrated Replicat (Tại [GGSCI_TRG])
+STEP 6.2: Initialize Integrated Replicat (At [GGSCI_TRG])
 ----------------------------------------------------------
 DBLOGIN USERIDALIAS ogg_user
 ADD REPLICAT rinta, INTEGRATED, EXTTRAIL ./dirdat/pn
 
 ---------------------------------------------------------------------------------------------------
-PHẦN 7: KHỞI CHẠY TIẾN TRÌNH VÀ KIỂM TRA (VERIFICATION)
+PART 7: START PROCESSES AND VERIFICATION
 ---------------------------------------------------------------------------------------------------
 
-BƯỚC 7.1: Bật các tiến trình Manager
+STEP 7.1: Start Manager processes
 ----------------------------------------------------------
--- Tại [GGSCI_SRC] và [GGSCI_TRG]:
+-- At [GGSCI_SRC] and [GGSCI_TRG]:
 START MGR
 INFO MGR
 
-BƯỚC 7.2: Bật Extract và Data Pump (Tại [GGSCI_SRC])
+STEP 7.2: Start Extract and Data Pump (At [GGSCI_SRC])
 ----------------------------------------------------------
 START EXTRACT einta
 START EXTRACT pinta
 INFO ALL
--- Trạng thái phải là RUNNING.
+-- Status must be RUNNING.
 
-BƯỚC 7.3: Bật Replicat (Tại [GGSCI_TRG])
+STEP 7.3: Start Replicat (At [GGSCI_TRG])
 ----------------------------------------------------------
 START REPLICAT rinta
 INFO ALL
--- Trạng thái phải là RUNNING.
+-- Status must be RUNNING.
 
-BƯỚC 7.4: Giám sát lưu lượng dữ liệu (Thao tác Daily Ops)
+STEP 7.4: Monitor data traffic (Daily Ops)
 ----------------------------------------------------------
--- Kiểm tra chi tiết số lượng bản ghi đã được capture và apply:
+-- Check the detailed number of captured and applied records:
 
--- Tại [GGSCI_SRC]:
+-- At [GGSCI_SRC]:
 STATS EXTRACT einta, TOTAL
 
--- Tại [GGSCI_TRG]:
+-- At [GGSCI_TRG]:
 STATS REPLICAT rinta, TOTAL
 
 ---------------------------------------------------------------------------------------------------
-KẾT THÚC QUY TRÌNH CẤU HÌNH
+END OF CONFIGURATION PROCESS
