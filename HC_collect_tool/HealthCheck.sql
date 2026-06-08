@@ -18,8 +18,6 @@ COL day    CLEAR
 undef V_dbname V_day
 
 set term on
-PROMPT
-PROMPT Generating output file: &output_file....
 spool &output_file
 set term off
 
@@ -1201,12 +1199,7 @@ show parameter;
 spool off
 
 set term on flush on pagesize 24
-PROMPT check_oracle complete
-PROMPT
-PROMPT
 
 EXEC DBMS_APPLICATION_INFO.set_module(NULL,NULL)
 
-
 exit
-

@@ -131,7 +131,7 @@ Head() {
 	echo " <> Alert Log  :" $spwd
 	echo " <> OSWbb Log  :" $pwd/oswbb_log_MPS_$host
 	echo
-	echo "|<<=======================<<  *** >>=======================>>|"
+	echo "|<<=======================<<  *** >>========================>>|"
 	echo "|                                                             |"
 	echo "|                    ---------------------                    |"
 	echo "|   <<===>>       << HEALTH-CHECK-DATABASE >>       <<===>>   |"
@@ -146,7 +146,7 @@ Head() {
 	echo "|                                                             |"
 	echo "| ==>> 3. Cancel Script.                                      |"
 	echo "|                                                             |"
-	echo "|                                         Ver_1.4.2_VictorLe  |"
+	echo "|                                         Ver_1.4.3_VictorLe  |"
 	echo "|<<========================<< *** >>========================>>|"
 	echo
 	if [[ "$os" == 'Linux' ]]; then
@@ -181,7 +181,9 @@ echo
 
 #-----HealthCheck
 
-sqlplus / as sysdba <<EOF
+sqlplus -s / as sysdba <<EOF
+SET TERMOUT OFF
+SET SERVEROUTPUT OFF
 @$pwd/HealthCheck.sql
 EOF
 echo
@@ -192,7 +194,7 @@ echo
 
 #-----database_information
 
-sqlplus / as sysdba <<EOF
+sqlplus -s / as sysdba <<EOF
 @$pwd/database_information.sql
 EOF
 echo
@@ -349,8 +351,10 @@ echo
 
 end_snap_id=$(
 	sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
+SET TERMOUT OFF
+SET SERVEROUTPUT OFF
+SET HEAD OFF
+SET FEED OFF
 SELECT
     snap_id
 FROM
@@ -431,8 +435,10 @@ end_snap_id=$(echo $end_snap_id | tr -d '[:space:]')
 
 begin_snap_id=$(
 	sqlplus -s / as sysdba <<EOF
-set head off
-set feed off
+SET TERMOUT OFF
+SET SERVEROUTPUT OFF
+SET HEAD OFF
+SET FEED OFF
 SELECT
     snap_id - 1
 FROM
@@ -517,9 +523,11 @@ echo "AWRRPT: @$ORACLE_HOME/rdbms/admin/awrrpt.sql"
 echo "<<=====================================================>>"
 echo
 sqlplus -s / as sysdba <<EOF >/dev/null
-set echo off
-set head off
-set feed off
+SET TERMOUT OFF
+SET SERVEROUTPUT OFF
+SET ECHO OFF
+SET HEAD OFF
+SET FEED OFF
 spool ${TEMPFILE}
 select 'define begin_snap = ${begin_snap_id}' from dual;
 select 'define end_snap = ${end_snap_id}' from dual;
