@@ -6,6 +6,26 @@
 - Tạo CSDL sử dụng dbca
 ***Note: Đảm bảo các tham số giống CSDL cũ (Source): db_files, language code, process, ...
 
+SELECT 
+    -- 1. Language Format (NLS Settings)
+    (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_LANGUAGE') AS nls_language,
+    (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_TERRITORY') AS nls_territory,
+    (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_CHARACTERSET') AS database_characterset,
+
+    -- 2. SGA Total Size (Formatted to MB)
+    (SELECT ROUND(SUM(value) / 1024 / 1024, 2) FROM v$sga) AS sga_size_mb,
+
+    -- 3. PGA Allocated Size (Formatted to MB)
+    (SELECT ROUND(value / 1024 / 1024, 2) FROM v$pgastat WHERE name = 'total PGA allocated') AS pga_allocated_mb,
+
+    -- 4. Current Process Count
+    (SELECT COUNT(*) FROM v$process) AS current_processes,
+
+    -- 5. Current Session Count
+    (SELECT COUNT(*) FROM v$session) AS current_sessions
+FROM 
+    dual;
+
 - Tạo phân vùng chứa tool M5 và giải nén (thực hiện trên cả source db và dest db)
 oracle $: mkdir /u01/app/oracle/m5
 oracle $: unzip /home/oracle/2999157.1-DBMIG.ZIP-DBMIG.zip -d /u01/app/oracle/m5
