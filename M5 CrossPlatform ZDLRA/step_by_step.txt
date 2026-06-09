@@ -6,16 +6,25 @@
 - Tạo CSDL sử dụng dbca
 ***Note: Đảm bảo các tham số giống CSDL cũ (Source): db_files, language code, process, ...
 
-SELECT 
+set lines 200 pages 999
+col nls_language format a10
+col nls_territory format a10
+col database_characterset format a15
+col processes format a10
+col sessions format a10
+col db_files format a10
+SELECT
     (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_LANGUAGE') AS nls_language,
     (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_TERRITORY') AS nls_territory,
     (SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_CHARACTERSET') AS database_characterset,
     (SELECT ROUND(SUM(value) / 1024 / 1024, 2) FROM v$sga) AS sga_size_mb,
     (SELECT ROUND(value / 1024 / 1024, 2) FROM v$pgastat WHERE name = 'total PGA allocated') AS pga_allocated_mb,
-    (SELECT COUNT(*) FROM v$process) AS current_processes,
-    (SELECT COUNT(*) FROM v$session) AS current_sessions
-FROM 
+    (SELECT value FROM v$parameter where name = 'processes') AS processes,
+    (SELECT value FROM v$parameter where name = 'sessions') AS sessions,
+    (SELECT value FROM v$parameter where name = 'db_files') AS db_files
+FROM
     dual;
+exit
 
 - Tạo phân vùng chứa tool M5 và giải nén (thực hiện trên cả source db và dest db)
 oracle $: mkdir /u01/app/oracle/m5
