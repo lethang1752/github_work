@@ -3,6 +3,8 @@
     + Có phân vùng NFS để chứa backup hoặc sử dụng ZDLRA
     + Phiên bản libra.so cho ZDLRA cần là latest > 19.10
 
+- Tài liệu tham chiếu: KB144840 - M5 Cross Endian Platform Migration using Full Transportable Data Pump Export/Import and RMAN Incremental Backups
+
 - Tạo CSDL sử dụng dbca
 ***Note: Đảm bảo các tham số giống CSDL cũ (Source): db_files, language code, process, ...
 
