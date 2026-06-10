@@ -81,7 +81,22 @@ oracle $: sh dbmig_driver_m5.sh L0
 ***Note: Sau khi hoàn thành backup, tool sẽ tự động truyền file restore rman sang dest db
 
 - Restore level 0 trên dest db
-***Note: Lưu ý xóa phần show all và chỉnh sửa oracle_home trong script được gửi từ source db
+***Note: 
+    + Lưu ý xóa phần show all và chỉnh sửa oracle_home trong script được gửi từ source db
+    + Đặt crontab để xoá file .trc .trm trong folder trace
+vi /home/oracle/delete_trace_file.sh
+===
+#!/bin/bash
+# Loop 6 times with a 10-second delay
+for i in {1..6}; do
+    find /u01/app/oracle/diag/rdbms/cmis3ls/cmis3ls1/trace -type f \( -name "*.trc" -o -name "*.trm" \) -delete
+    sleep 10
+done
+===
+chmod +x /home/oracle/delete_trace_file.sh
+crontab -e
+* * * * * /home/oracle/delete_trace_file.sh >/dev/null 2>&1
+
 oracle $: rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L0_.rman'
 
 - Backup level 1 trên source db
