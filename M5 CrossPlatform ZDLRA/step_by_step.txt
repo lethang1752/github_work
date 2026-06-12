@@ -124,3 +124,8 @@ oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> test Y
 oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> run Y
 
 - Chạy recompile invalid object và gather database
+
+- Stop/Drop RAI_STALL_WHEN ZDLRA
+sqlplus rasys/welcome1
+DROP view RAI_STALL_WHEN;
+EXEC DBMS_RA_INT.config(p_name=>'_stall_when', p_value=>'OFF', comments=>'Disabled for Cross Endian Migration');
