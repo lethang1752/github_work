@@ -1,0 +1,172 @@
+--- create group and user
+
+groupadd -g 1100 oinstall
+groupadd -g 1101 dba
+groupadd -g 1102 oper
+groupadd -g 1103 backupdba
+groupadd -g 1104 dgdba
+groupadd -g 1105 kmdba
+groupadd -g 1200 asmadmin
+groupadd -g 1201 asmdba
+groupadd -g 1202 asmoper
+groupadd -g 1300 racdba
+
+useradd -u 1401 -g oinstall -G dba,oper,backupdba,dgdba,kmdba,asmadmin,asmdba,asmoper,racdba oracle
+
+--- create software folder
+
+mkdir -p /u01/app/oracle/product/19c/dbhome_1
+mkdir -p /u01/app/19c/grid
+chown -R oracle:oinstall /u01
+chmod -R 775 /u01
+
+--- create asm disk
+
+oracleasm createdisk DBTEST_DATA04 /dev/mapper/DBTest_Data04
+oracleasm createdisk DBTEST_GG01 /dev/mapper/DBTest_GG01
+oracleasm createdisk DBTEST_GG01 /dev/mapper/DBTEST_GG01
+oracleasm createdisk DBTEST_REDO02 /dev/mapper/DBTest_REDO02
+oracleasm createdisk DBTEST_REDO03 /dev/mapper/DBTest_REDO03
+oracleasm createdisk DBTEST_ARCH01 /dev/mapper/DBTest_ARCH01
+oracleasm createdisk DBTEST_ARCH02 /dev/mapper/DBTest_ARCH02
+oracleasm createdisk DBTEST_CRS01 /dev/mapper/DBTest_CRS01 
+oracleasm createdisk DBTEST_CRS02 /dev/mapper/DBTest_CRS02 
+oracleasm createdisk DBTEST_CRS03 /dev/mapper/DBTest_CRS03 
+oracleasm createdisk DBTEST_DATA01 /dev/mapper/DBTest_Data01
+oracleasm createdisk DBTEST_DATA02 /dev/mapper/DBTest_Data02
+oracleasm createdisk DBTEST_DATA03 /dev/mapper/DBTest_Data03
+
+oracleasm createdisk DBTEST_DATA05 /dev/mapper/DBTest_Data05
+oracleasm createdisk DBTEST_DATA06 /dev/mapper/DBTest_Data06
+
+--- create acfs folder
+
+asmcmd volcreate -G DATA -s 1024G VOLUME1
+asmcmd volinfo -G DATA VOLUME1
+mkdir -p /acfs01
+chown oracle:oinstall /acfs01
+/sbin/mkfs -t acfs /dev/asm/volume1-474
+/bin/mount -t acfs /dev/asm/volume1-474 /acfs01
+
+--- restore recover clone database
+
+/home/oracle/scripts/restore_tcdn.rman
+run {
+allocate channel c1 device type disk;
+allocate channel c2 device type disk;
+allocate channel c3 device type disk;
+allocate channel c4 device type disk;
+set newname for database to '+DATA';
+restore database from service TCDN;
+switch datafile all;
+switch tempfile all;
+recover database from service TCDN;
+}
+
+--- check character
+
+SELECT parameter, value 
+FROM nls_database_parameters 
+WHERE parameter IN ('NLS_CHARACTERSET');
+
+--- DMU phase
+
+sqlplus / as sysdba
+@?/rdbms/admin/prvtdumi.plb
+purge dba_recyclebin;
+create tablespace unicode_repo datafile '+DATA' size 100m autoextend on next 100m maxsize 32767m;
+
+yum install -y java-11-openjdk
+cd $ORACLE_HOME/dmu
+chmod u+x dmu.sh
+./dmu.sh
+
+Scan and Bulk Cleansing for user data only for checking to comfirm
+No column limit + No data type invalid -> begin to export & import
+
+--- EXPDP - Export phase (Production)
+
+**need to check DDL user first to see what is abnormal
+
+**modify LOCAL_TEMPORARY_TABLESPACE SYSTEM -> TEMP
+sqlplus / as sysdba @/home/oracle/scripts/production_alter_local_temp_tbs.sql
+
+**create datapump directory
+create or replace directory DATA_PUMP_DIR as '/acfs01/datapump';
+
+**export full database exclude statistics
+expdp \"/ as sysdba\" PARFILE=export.par
+====
+DIRECTORY=DATA_PUMP_DIR
+DUMPFILE=full_users_export_%U.dmp
+LOGFILE=full_users_export.log
+FILESIZE=10G
+EXCLUDE=STATISTICS
+SCHEMAS=ANHPD,BK,GGADMIN,HIEUNT,KT_ABIC,LOGCTR,QUYLV,TAIPA,TOANDT,TUNGH,TUNGNV,W_ABIC,PHUONGNN,BC_ABIC,W_APP,TUANDN,W_HSKT,ABIMOD,TRIPM,DATVT,READONLY,MANHDC,PMNV,TUANNV,NAMLT,TRONGNN,DBL_TCDNDEV
+====
+
+--- IMPDP - Import phase (Target)
+
+**disable archivelog mode to import faster
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE NOARCHIVELOG;
+ALTER DATABASE OPEN;
+
+**adjust logfile 2 nodes: drop default 200mb, add 2g logfile (or same as Production)
+alter database add logfile group 4 '+DATA' size 2g;
+alter database add logfile member '+DATA' to group 4;
+alter system checkpoint;
+alter database drop logfile group 1;
+
+**create tablespace
+sqlplus / as sysdba @/home/oracle/scripts/extract_tablespaces.sql
+
+**add datafile and tempfile
+sqlplus / as sysdba @/home/oracle/scripts/add_data_temp_file.sql
+
+**create missing function & profile
+sqlplus / as sysdba @/home/oracle/scripts/create_profile_function.sql
+sqlplus / as sysdba @/home/oracle/scripts/create_profile.sql
+
+**create datapump directory
+create or replace directory DATA_PUMP_DIR as '/acfs01/datapump';
+
+**import database exclude index
+impdp \"/ as sysdba\" PARFILE=import.par
+====
+DIRECTORY=DATA_PUMP_DIR
+DUMPFILE=full_users_export_%U.dmp
+LOGFILE=full_users_import.log
+EXCLUDE=INDEX
+====
+
+**generate sql for only index from export dumpfile
+impdp \"/ as sysdba\" PARFILE=create_index_sql.par
+====
+DIRECTORY=DATA_PUMP_DIR 
+DUMPFILE=full_users_export_%U.dmp 
+INCLUDE=INDEX
+SQLFILE=create_all_indexes.sql
+====
+
+**edit create_all_indexes.sql to add parallel 8 and run to add only index
+sqlplus / as sysdba @create_all_indexes.sql
+
+**alter noparallel index
+SELECT 'ALTER INDEX '||owner||'.'||index_name||' NOPARALLEL;' FROM dba_indexes WHERE owner in (select username from dba_users where account_status='OPEN' and oracle_maintained='N') AND degree > 1;
+
+**create missing comment
+sqlplus / as sysdba @/home/oracle/scripts/create_comment.sql
+
+**enable archivelog mode
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE ARCHIVELOG;
+ALTER DATABASE OPEN;
+
+**recompile database
+@?/rdbms/admin/utlrp 16
+
+**gather full database
+EXEC DBMS_STATS.gather_database_stats(estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE, degree => 16, cascade => TRUE);

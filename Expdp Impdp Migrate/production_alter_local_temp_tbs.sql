@@ -1,0 +1,21 @@
+alter user KT_ABIC local temporary tablespace TEMP;
+alter user PHUONGNN local temporary tablespace TEMP;
+alter user TAIPA local temporary tablespace TEMP;
+alter user BC_ABIC local temporary tablespace TEMP;
+alter user TUNGH local temporary tablespace TEMP;
+alter user W_APP local temporary tablespace TEMP;
+alter user TUANDN local temporary tablespace TEMP;
+alter user W_HSKT local temporary tablespace TEMP;
+alter user TOANDT local temporary tablespace TEMP;
+alter user ABIMOD local temporary tablespace TEMP;
+alter user GGADMIN local temporary tablespace TEMP;
+alter user HIEUNT local temporary tablespace TEMP;
+alter user BK local temporary tablespace TEMP;
+alter user DATVT local temporary tablespace TEMP;
+alter user READONLY local temporary tablespace TEMP;
+alter user W_ABIC local temporary tablespace TEMP;
+alter user MANHDC local temporary tablespace TEMP;
+alter user TUNGNV local temporary tablespace TEMP;
+alter user PMNV local temporary tablespace TEMP;
+alter user TUANNV local temporary tablespace TEMP;
+exit

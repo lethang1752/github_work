@@ -1,0 +1,122 @@
+Abic@2021
+
+SQL> select scn_to_timestamp(61375615750) from dual;
+
+SCN_TO_TIMESTAMP(61375615750)
+---------------------------------------------------------------------------
+15-JUN-26 06.02.34.000000000 PM
+
+SQL> select count(*) from dba_objects where status='INVALID';
+
+  COUNT(*)
+----------
+      5806
+
+@?/rdbms/admin/utlrp 16
+
+SQL> select count(*) from dba_objects where status='INVALID';
+
+  COUNT(*)
+----------
+      1187
+	  
+SQL> select parameter, value from nls_database_parameters where parameter like '%SET%';
+PARAMETER
+--------------------------------------------------------------------------------
+VALUE
+--------------------------------------------------------------------------------
+NLS_NCHAR_CHARACTERSET
+AL16UTF16
+
+NLS_CHARACTERSET
+AL32UTF8
+
+SQL> select username from dba_users where account_status='OPEN' and oracle_maintained='N';
+USERNAME
+-------------------
+KT_ABIC
+PHUONGNN
+QUYLV
+TAIPA
+BC_ABIC
+TUNGH
+W_APP
+TUANDN
+W_HSKT
+TOANDT
+ABIMOD
+TRIPM
+GGADMIN
+HIEUNT
+ANHPD
+DBL_TCDNDEV
+BK
+DATVT
+READONLY
+W_ABIC
+MANHDC
+TUNGNV
+PMNV
+TUANNV
+LOGCTR
+NAMLT
+TRONGNN
+
+SQL> select owner, count(*) from dba_tables where owner in (select username from dba_users where account_status='OPEN' and oracle_maintained='N') group by owner order by 1;
+OWNER        COUNT(*)
+---------- ----------
+ANHPD               2
+BK                 35
+GGADMIN            29
+HIEUNT              5
+KT_ABIC          1097
+LOGCTR              3
+QUYLV               1
+TAIPA               2
+TOANDT              5
+TUNGH               2
+TUNGNV             11
+W_ABIC            199
+
+SQL> select distinct(tablespace_name) from dba_tables where owner in (select username from dba_users where account_status='OPEN' and oracle_maintained='N') order by 1;
+
+TABLESPACE_NAME
+------------------------------
+ABICDATA
+DATS_BH_KH_KY_FILE_TEMP
+DATS_DBA
+DATS_LOGCTR_2026
+DATS_WABIC
+USERS
+
+SQL> select object_type, count(*) from dba_objects where owner in (select username from dba_users where account_status='OPEN' and oracle_maintained='N') group by object_type order by 2;
+
+OBJECT_TYPE               COUNT(*)
+----------------------- ----------
+DATABASE LINK                    2
+EVALUATION CONTEXT               2
+TYPE                             3
+RULE SET                         8
+QUEUE                           10
+JOB                             17
+VIEW                            34
+SEQUENCE                        39
+TRIGGER                         62
+PACKAGE BODY                   103
+PACKAGE                        106
+LOB PARTITION                  110
+LOB                            244
+TABLE SUBPARTITION             256
+INDEX SUBPARTITION             256
+LOB SUBPARTITION               256
+FUNCTION                       492
+INDEX PARTITION                562
+TABLE PARTITION                811
+TABLE                         1391
+INDEX                         2060
+PROCEDURE                     4257
+
+SQL> select count(*) from dba_tablespaces WHERE tablespace_name NOT IN ('SYSTEM', 'SYSAUX', 'USERS', 'TEMP') AND tablespace_name NOT LIKE 'UNDO%';
+  COUNT(*)
+----------
+        28 (29 but exclude UNICODE tbs)
