@@ -1,0 +1,438 @@
+--- create group and user
+
+groupadd -g 1100 oinstall
+groupadd -g 1101 dba
+groupadd -g 1102 oper
+groupadd -g 1103 backupdba
+groupadd -g 1104 dgdba
+groupadd -g 1105 kmdba
+groupadd -g 1200 asmadmin
+groupadd -g 1201 asmdba
+groupadd -g 1202 asmoper
+groupadd -g 1300 racdba
+
+useradd -u 1401 -g oinstall -G dba,oper,backupdba,dgdba,kmdba,asmadmin,asmdba,asmoper,racdba oracle
+
+--- disable firewall and selinux
+
+systemctl status firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+
+cat /etc/selinux/config | grep disabled
+
+--- create software folder
+
+mkdir -p /u01/app/oracle/product/19c/dbhome_1
+mkdir -p /u01/app/19c/grid
+chown -R oracle:oinstall /u01
+chmod -R 775 /u01
+
+--- install package
+
+yum localinstall -y oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm
+yum localinstall -y libbpf-0.6.0-6.el8.x86_64.rpm
+yum localinstall -y oracleasm-support-3.1.1-5.el8.x86_64.rpm
+yum localinstall -y oracleasmlib-3.1.3-1.el8.x86_64.rpm
+
+--- init oracleasm
+oracleasm configure -i 
+systemctl start oracleasm.service
+oracleasm init 
+
+--- create asm disk
+
+oracleasm createdisk DBPROD_ARCH01 /dev/mapper/DBProd_ARCH01
+oracleasm createdisk DBPROD_ARCH02 /dev/mapper/DBProd_ARCH02
+oracleasm createdisk DBPROD_BACKUP /dev/mapper/DBProd_BACKUP
+oracleasm createdisk DBPROD_CRS01 /dev/mapper/DBProd_CRS01
+oracleasm createdisk DBPROD_CRS02 /dev/mapper/DBProd_CRS02
+oracleasm createdisk DBPROD_CRS03 /dev/mapper/DBProd_CRS03
+oracleasm createdisk DBPROD_DATA01 /dev/mapper/DBProd_Data01
+oracleasm createdisk DBPROD_DATA02 /dev/mapper/DBProd_Data02
+oracleasm createdisk DBPROD_DATA03 /dev/mapper/DBProd_Data03
+oracleasm createdisk DBPROD_DATA04 /dev/mapper/DBProd_Data04
+oracleasm createdisk DBPROD_DATA05 /dev/mapper/DBProd_Data05
+oracleasm createdisk DBPROD_DATA06 /dev/mapper/DBProd_Data06
+oracleasm createdisk DBPROD_OGG /dev/mapper/DBProd_GG01
+oracleasm createdisk DBPROD_REDO0101 /dev/mapper/DBProd_REDO_01_01
+oracleasm createdisk DBPROD_REDO0102 /dev/mapper/DBProd_REDO_01_02
+oracleasm createdisk DBPROD_REDO0103 /dev/mapper/DBProd_REDO_01_03
+oracleasm createdisk DBPROD_REDO0201 /dev/mapper/DBProd_REDO_02_01
+oracleasm createdisk DBPROD_REDO0202 /dev/mapper/DBProd_REDO_02_02
+oracleasm createdisk DBPROD_REDO0203 /dev/mapper/DBProd_REDO_02_03
+
+oracleasm createdisk BLOB_DATA01 /dev/mapper/BLOB_DATA01
+oracleasm createdisk BLOB_DATA02 /dev/mapper/BLOB_DATA02
+oracleasm createdisk BLOB_DATA03 /dev/mapper/BLOB_DATA03
+oracleasm createdisk BLOB_DATA04 /dev/mapper/BLOB_DATA04
+oracleasm createdisk BLOB_FRA01 /dev/mapper/BLOB_FRA01
+oracleasm createdisk BLOB_REDO01 /dev/mapper/BLOB_REDO01
+
+oracleasm listdisks
+
+--- environment oracle
+
+vi /home/oracle/.bash_profile
+=============
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+FIRST_PATH=$PATH
+export PATH FIRST_PATH
+shopt -s direxpand
+GGATE=/u01/app/goldengate/19.1
+export GGATE
+. $HOME/db19c
+alias tal="tail -1000f /u01/app/oracle/diag/rdbms/tcdn/tcdn1/trace/alert_tcdn1.log"
+alias talasm="tail -500f /u01/app/oracle/diag/asm/+asm/+ASM1/trace/alert_+ASM1.log"
+alias talcrs="tail -500f /u01/app/oracle/diag/crs/dbproc01/crs/trace/alert.log"
+
+###OGG
+alias talggs='tail -fn 200 /u01/app/goldengate/19.1/ggserr.log'
+
+export GG_HOME='/u01/app/goldengate/19.1'
+alias ggsci='cd /u01/app/goldengate/19.1; ./ggsci'
+
+stty erase ^H
+=============
+
+vi /home/oracle/db19c
+=============
+GRID_HOME=/u01/app/19c/grid
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/19c/dbhome_1
+ORACLE_SID=tcdn1
+PATH=$FIRST_PATH:$ORACLE_HOME/bin
+export PATH ORACLE_BASE ORACLE_HOME ORACLE_SID GRID_HOME
+=============
+
+vi /home/oracle/grid19c
+=============
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/19c/grid
+ORACLE_SID=+ASM1
+PATH=$FIRST_PATH:$ORACLE_HOME/bin
+export PATH ORACLE_BASE ORACLE_HOME ORACLE_SID
+=============
+
+--- edit /etc/hosts
+
+###########Database-DCProduction################
+#public-IPs
+10.10.30.24       dbprod-01       dbprod-01.abic.com.vn
+10.10.30.26       dbprod-02       dbprod-02.abic.com.vn
+#virtual-IPs
+10.10.30.25       dbprod-01-vip   dbprod-01-vip.abic.com.vn
+10.10.30.27       dbprod-02-vip   dbprod-02-vip.abic.com.vn
+#scan-IPs
+10.10.30.21      dbprod-scan     dbprod-scan.abic.com.vn
+10.10.30.22      dbprod-scan     dbprod-scan.abic.com.vn
+10.10.30.23      dbprod-scan     dbprod-scan.abic.com.vn
+#private-asm
+10.10.71.31     dbprod-01-asm    dbprod-01-asm.abic.com.vn
+10.10.71.32     dbprod-02-asm    dbprod-02-asm.abic.com.vn
+#private-interconnect
+10.10.72.31     dbprod-01-priv   dbprod-01-priv.abic.com.vn
+10.10.72.32     dbprod-02-priv   dbprod-02-priv.abic.com.vn
+
+#OGG_VIP
+10.10.30.28     dbprod-ogg-vip   dbprod-ogg-vip.abic.com.vn
+10.10.30.48     report-ogg-vip   report-ogg-vip.abic.com.vn
+
+#DR scan
+#10.110.30.1     drdb-scan       drdb-scan.abic.com.vn
+#10.110.30.2     drdb-scan       drdb-scan.abic.com.vn
+#10.110.30.3     drdb-scan       drdb-scan.abic.com.vn
+
+# OEM
+#10.10.20.1       oracle-oem     oracle-oem.abic.com.vn
+
+###NBU###
+10.10.30.40     nbumasteridc    nbumasteridc.abic.vn
+10.10.30.16     dbrpt02         dbrpt02.abic.com.vn
+10.1.20.40      nbumastertsc
+10.1.20.42      nbutsc
+
+10.110.30.4     labbackup
+10.10.40.30     vcenter.abic.com.vn
+10.10.40.43     nbmedia
+
+--- gridSetup
+
+./gridSetup.sh -applyRU /u01/software/39036936
+
+--- runInstall
+
+./runInstaller.sh -applyRU /u01/software/39036936
+
+--- create acfs folder
+
+asmcmd volcreate -G OGG -s 400G OGG_VOL
+asmcmd volinfo -G OGG OGG_VOL
+mkdir -p /goldengate
+chown oracle:oinstall /goldengate
+/sbin/mkfs -t acfs /dev/asm/ogg_vol-312
+/bin/mount -t acfs /dev/asm/ogg_vol-312 /goldengate
+/sbin/acfsutil registry -a  /dev/asm/ogg_vol-312 /goldengate -u oracle
+srvctl add filesystem -d /dev/asm/ogg_vol-312 -m /goldengate -u oracle -fstype ACFS  -autostart ALWAYS
+
+--- install XAG HA GoldenGate
+
+mkdir -p /u01/app/goldengate/19c
+chown -R oracle:oinstall /u01/app/goldengate
+
+mkdir -p /u01/app/goldengate/xag
+chown -R oracle:oinstall /u01/app/goldengate/xag
+chmod -R 775 /u01/app/goldengate/xag
+
+$ ./xagsetup.sh --install --directory /u01/app/goldengate/xag --all_nodes
+# ./appvipcfg create -network=1 -ip=10.10.30.28 -vipname=xag.ogg-19c.vip -user=oracle -group=oinstall
+# ./crsctl setperm resource xag.ogg-19c.vip -u user:oracle:r-x
+$ ./crsctl start resource xag.ogg-19c.vip
+$ ./crsctl status resource xag.ogg-19c.vip
+
+srvctl add service -db tcdn \
+  -service oggserv \
+  -role PRIMARY \
+  -policy AUTOMATIC \
+  -clbgoal LONG \
+  -retention 86400 \
+  -replay_init_time 300 \
+  -preferred tcdn1 \
+  -available tcdn2
+
+srvctl start service -db tcdn -service oggserv
+srvctl status service -db tcdn -service oggserv
+
+$ export XAG_HOME=/u01/app/goldengate/xag
+$ cd $XAG_HOME/bin
+./agctl add goldengate ogg19c \
+  --gg_home /u01/app/goldengate/19c \
+  --oracle_home /u01/app/oracle/product/19c/dbhome_1 \
+  --vip_name xag.ogg-19c.vip \
+  --filesystems ora.ogg.ogg_vol.acfs \
+  --db_services ora.tcdn.oggserv.svc \
+  --attribute CHECK_INTERVAL=120
+  
+mkdir -p /goldengate/BR
+mkdir -p /goldengate/dirchk
+mkdir -p /goldengate/dircrd
+mkdir -p /goldengate/dirdat
+mkdir -p /goldengate/dirpcs
+mkdir -p /goldengate/dirprm
+mkdir -p /goldengate/dirrpt
+mkdir -p /goldengate/dirtmp
+
+./ggsci
+create subdirs
+
+rm -r dirprm dirchk dirdat dircrd dirrpt
+
+ln -s /goldengate/dirprm dirprm
+ln -s /goldengate/dirchk dirchk
+ln -s /goldengate/dirdat dirdat
+ln -s /goldengate/dircrd dircrd
+ln -s /goldengate/dirrpt dirrpt
+
+--- restore recover clone database
+
+/home/oracle/scripts/restore_tcdn.rman
+run {
+allocate channel c1 device type disk;
+allocate channel c2 device type disk;
+allocate channel c3 device type disk;
+allocate channel c4 device type disk;
+set newname for database to '+DATA';
+restore database from service TCDN;
+switch datafile all;
+switch tempfile all;
+recover database from service TCDN;
+}
+
+--- check character
+
+SELECT parameter, value 
+FROM nls_database_parameters 
+WHERE parameter IN ('NLS_CHARACTERSET');
+
+--- DMU phase
+
+sqlplus / as sysdba
+@?/rdbms/admin/prvtdumi.plb
+purge dba_recyclebin;
+create tablespace unicode_repo datafile '+DATA' size 100m autoextend on next 100m maxsize 32767m;
+
+yum install -y java-11-openjdk
+cd $ORACLE_HOME/dmu
+chmod u+x dmu.sh
+./dmu.sh
+
+Scan and Bulk Cleansing for user data only for checking to comfirm
+No column limit + No data type invalid -> begin to export & import
+
+--- EXPDP - Export phase (Production)
+
+**need to check DDL user first to see what is abnormal
+
+**modify LOCAL_TEMPORARY_TABLESPACE SYSTEM -> TEMP
+sqlplus / as sysdba @/home/oracle/scripts/production_alter_local_temp_tbs.sql
+
+**create datapump directory
+create or replace directory DATA_PUMP_DIR as '/acfs01/datapump';
+
+**export full database exclude statistics
+expdp \"/ as sysdba\" PARFILE=export.par
+====
+DIRECTORY=DATA_PUMP_DIR
+DUMPFILE=full_users_export_%U.dmp
+LOGFILE=full_users_export.log
+FILESIZE=20G
+EXCLUDE=STATISTICS
+SCHEMAS=ANHPD,BK,GGADMIN,HIEUNT,KT_ABIC,LOGCTR,QUYLV,TAIPA,TOANDT,TUNGH,TUNGNV,W_ABIC,PHUONGNN,BC_ABIC,W_APP,TUANDN,W_HSKT,ABIMOD,TRIPM,DATVT,READONLY,MANHDC,PMNV,TUANNV,NAMLT,TRONGNN,DBL_TCDNDEV
+====
+
+--- IMPDP - Import phase (Target)
+
+**disable archivelog mode to import faster
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE NOARCHIVELOG;
+ALTER DATABASE OPEN;
+
+**adjust logfile 2 nodes: drop default 200mb, add 2g logfile (or same as Production)
+alter database add logfile group 4 '+DATA' size 2g;
+alter database add logfile member '+DATA' to group 4;
+alter system checkpoint;
+alter database drop logfile group 1;
+
+**create tablespace
+sqlplus / as sysdba @/home/oracle/scripts/extract_tablespaces.sql
+
+**add datafile and tempfile
+sqlplus / as sysdba @/home/oracle/scripts/add_data_temp_file.sql
+
+**create missing function & profile
+sqlplus / as sysdba @/home/oracle/scripts/create_profile_function.sql
+sqlplus / as sysdba @/home/oracle/scripts/create_profile.sql
+
+**create datapump directory
+create or replace directory DATA_PUMP_DIR as '/acfs01/datapump';
+
+**import database exclude index
+impdp \"/ as sysdba\" PARFILE=import.par
+====
+DIRECTORY=DATA_PUMP_DIR
+DUMPFILE=full_users_export_%U.dmp
+LOGFILE=full_users_import.log
+EXCLUDE=INDEX
+====
+
+**generate sql for only index from export dumpfile
+impdp \"/ as sysdba\" PARFILE=create_index_sql.par
+====
+DIRECTORY=DATA_PUMP_DIR 
+DUMPFILE=full_users_export_%U.dmp 
+INCLUDE=INDEX
+SQLFILE=create_all_indexes.sql
+====
+
+**edit create_all_indexes.sql to add parallel 8 and run to add only index
+sqlplus / as sysdba @create_all_indexes.sql
+
+**alter noparallel index
+SELECT 'ALTER INDEX '||owner||'.'||index_name||' NOPARALLEL;' FROM dba_indexes WHERE owner in (select username from dba_users where account_status='OPEN' and oracle_maintained='N') AND degree > 1;
+
+**create missing comment
+sqlplus / as sysdba @/home/oracle/scripts/create_comment.sql
+
+**enable archivelog mode
+SHUTDOWN IMMEDIATE;
+STARTUP MOUNT;
+ALTER DATABASE ARCHIVELOG;
+ALTER DATABASE OPEN;
+
+**recompile database
+@?/rdbms/admin/utlrp 16
+
+**gather full database
+EXEC DBMS_STATS.gather_database_stats(estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE, degree => 16, cascade => TRUE);
+
+***change nvarchar2(2000) to nvarchar2(4000)
+shutdown immediate;
+startup upgrade;
+alter system set max_string_size=extended scope=both;
+@?/rdbms/admin/utl32k.sql;
+shutdown immediate;
+startup;
+show parameter max_string_size;
+
+--fix loi
+SELECT log_group_name 
+FROM dba_log_groups 
+WHERE owner = 'KT_ABIC' AND table_name = 'BH_DPP_2021';
+
+ALTER TABLE KT_ABIC.BH_DPP_2021 DROP SUPPLEMENTAL LOG GROUP YOUR_LOG_GROUP_NAME;
+
+@?/rdbms/admin/utl32k.sql
+
+SHUTDOWN IMMEDIATE;
+STARTUP;
+@?/rdbms/admin/utlrp.sql;
+
+ALTER TABLE KT_ABIC.BH_DPP_2021 ADD SUPPLEMENTAL LOG DATA (PRIMARY KEY) COLUMNS;
+--
+
+select 'alter table '||owner||'.'||table_name||' modify '||column_name||' NVARCHAR2(4000);' from dba_tab_columns where owner='W_ABIC' and data_type='NVARCHAR2' and char_length='2000';
+
+=========================
+GoldenGate
+=========================
+
+--- add tns entry to both 24/26
+
+TCDN_OGG =
+  (DESCRIPTION =
+     (ADDRESS = (PROTOCOL = TCP)(HOST=10.10.30.26)(PORT = 1521))
+   (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID = tcdn2)
+    )
+  )
+
+--- add tns entry to both report
+
+TCDNRP_OGG =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = report-ip-new)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID = tcdnrp2)
+    )
+  )
+
+--- add /etc/hosts entry
+
+#OGG_VIP
+10.10.30.8      dbproc-ogg-vip  dbproc-ogg-vip.abic.com.vn
+10.10.30.18     dbrpt-ogg-vip   dbrpt-ogg-vip.abic.com.vn
+
+--- edit params mgr report
+
+PORT 7809
+--ACCESSRULE, PROG *, DENY, PRI 99
+ACCESSRULE, PROG SERVER, ALLOW, PRI 1
+ACCESSRULE, PROG *, IPADDR 10.10.30.24, ALLOW, PRI 1
+ACCESSRULE, PROG *, IPADDR 10.10.30.26, ALLOW, PRI 1
+ACCESSRULE, PROG *, IPADDR 127.0.0.1, ALLOW, PRI 1
+AUTORESTART EXTRACT *, RETRIES 3, WAITMINUTES 10, RESETMINUTES 120
+AUTORESTART REPLICAT *, RETRIES 3, WAITMINUTES 10, RESETMINUTES 120
+AUTOSTART ER *
+PURGEOLDEXTRACTS ./dirdat/e_report/rt*, USECHECKPOINTS, MINKEEPFILES  100
+PURGEOLDEXTRACTS ./dirdat/e_report/rw*, USECHECKPOINTS, MINKEEPFILES  100
+
+--- encryption password
+./ggsci
+ENCRYPT PASSWORD your_actual_password BLOWFISH ENCRYPTKEY DEFAULT
+
+copy: Encrypted password:  AACAAAAAAAAAAALAADVBAIEAKBGFBETELFQDQBHFQFTACGMF

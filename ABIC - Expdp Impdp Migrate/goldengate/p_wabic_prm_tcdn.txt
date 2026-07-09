@@ -1,0 +1,5 @@
+EXTRACT P_WABIC
+RMTHOST dbrpt-ogg-vip, MGRPORT 7809, COMPRESS
+RMTTRAIL ./dirdat/e_report/rw
+PASSTHRU
+TABLE W_ABIC.*;
