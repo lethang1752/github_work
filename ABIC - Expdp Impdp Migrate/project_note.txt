@@ -443,6 +443,20 @@ AUTOSTART ER *
 PURGEOLDEXTRACTS ./dirdat/e_report/rt*, USECHECKPOINTS, MINKEEPFILES  100
 PURGEOLDEXTRACTS ./dirdat/e_report/rw*, USECHECKPOINTS, MINKEEPFILES  100
 
+--- check GLOBALS file both tcdn and report 
+
+[oracle@dbproc01 19.1]$ cat GLOBALS
+ALLOWOUTPUTDIR /goldengate/dirdat
+XAGENABLE
+GGSCHEMA GGADMIN
+
+[oracle@dbrpt02 19.1]$ cat GLOBALS
+--ENABLEMONITORING
+ALLOWOUTPUTDIR /goldengate/dirdat
+XAGENABLE
+GGSCHEMA GGADMIN
+USEIPV4
+
 --- encryption password
 ./ggsci
 ENCRYPT PASSWORD your_actual_password BLOWFISH ENCRYPTKEY DEFAULT
