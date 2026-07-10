@@ -38,7 +38,7 @@ yum localinstall -y oracleasmlib-3.1.3-1.el8.x86_64.rpm
 --- init oracleasm
 oracleasm configure -i 
 systemctl start oracleasm.service
-oracleasm init 
+oracleasm init
 
 --- create asm disk
 
@@ -263,6 +263,8 @@ sqlplus / as sysdba @/home/oracle/scripts/production_alter_local_temp_tbs.sql
 
 **create datapump directory
 create or replace directory DATA_PUMP_DIR as '/acfs01/datapump';
+
+select username from dba_users where account_status='OPEN' and oracle_maintained='N';
 
 **export full database exclude statistics
 expdp \"/ as sysdba\" PARFILE=export.par
