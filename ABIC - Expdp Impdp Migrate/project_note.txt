@@ -233,21 +233,6 @@ ln -s /goldengate/dirdat dirdat
 ln -s /goldengate/dircrd dircrd
 ln -s /goldengate/dirrpt dirrpt
 
---- restore recover clone database
-
-/home/oracle/scripts/restore_tcdn.rman
-run {
-allocate channel c1 device type disk;
-allocate channel c2 device type disk;
-allocate channel c3 device type disk;
-allocate channel c4 device type disk;
-set newname for database to '+DATA';
-restore database from service TCDN;
-switch datafile all;
-switch tempfile all;
-recover database from service TCDN;
-}
-
 --- check character
 
 SELECT parameter, value 
@@ -299,6 +284,7 @@ ALTER DATABASE NOARCHIVELOG;
 ALTER DATABASE OPEN;
 
 **adjust logfile 2 nodes: drop default 200mb, add 2g logfile (or same as Production)
+select group#, thread#, bytes from v$log;
 alter database add logfile group 4 '+DATA' size 2g;
 alter database add logfile member '+DATA' to group 4;
 alter system checkpoint;
