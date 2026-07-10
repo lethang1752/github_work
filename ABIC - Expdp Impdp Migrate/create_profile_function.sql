@@ -1,4 +1,4 @@
-create or replace NONEDITIONABLE FUNCTION     dba_password_verify_function
+create or replace NONEDITIONABLE FUNCTION dba_password_verify_function
 (username varchar2,
   password varchar2,
   old_password varchar2)
@@ -137,7 +137,7 @@ BEGIN
 END;
 /
 
-create or replace NONEDITIONABLE FUNCTION     DEV_password_verify_function
+create or replace NONEDITIONABLE FUNCTION DEV_password_verify_function
 (username varchar2,
   password varchar2,
   old_password varchar2)

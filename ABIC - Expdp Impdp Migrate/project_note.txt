@@ -351,10 +351,12 @@ ALTER DATABASE ARCHIVELOG;
 ALTER DATABASE OPEN;
 
 **recompile database
-@?/rdbms/admin/utlrp 16
+@?/rdbms/admin/utlrp 32
 
 **gather full database
-EXEC DBMS_STATS.gather_database_stats(estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE, degree => 16, cascade => TRUE);
+EXEC DBMS_STATS.GATHER_DICTIONARY_STATS;
+EXEC DBMS_STATS.GATHER_FIXED_OBJECTS_STATS;
+EXEC DBMS_STATS.gather_database_stats(estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE, degree => 32, cascade => TRUE);
 
 ***change nvarchar2(2000) to nvarchar2(4000)
 shutdown immediate;
