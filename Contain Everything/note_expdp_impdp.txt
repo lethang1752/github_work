@@ -1,9 +1,9 @@
 - expdp no transport tablespace can be executed with parallel
 - expdp/impdp with transport tablespace can only be executed with 1 parallel
-- impdp table, index with parallel=32, cluster=no (only table)
+- impdp table, index with parallel=32, cluster=no (only table and index and index need full table to not hang)
 - impdp other like procedure, package, ... should be executed with 1 parallel (for no lock) and should exclude db_link
 - expdp and impdp should include all user with oracle_maintained='N' (to compare and valid all objects)
-- with big table with lob or others, can impdp metadata_only first to impdp index successfully later
+- expdp/impdp with big table with lob or others, can impdp metadata_only first to impdp index successfully later
 - before expdp, should disable all schedulers jobs and trigger
 
 SELECT 'EXEC DBMS_SCHEDULER.DISABLE(name => '''||owner||'.'||job_name||''');' FROM dba_scheduler_jobs where owner like 'KT_ABIC' and enabled='TRUE';
