@@ -56,4 +56,3 @@ WHERE
                  'PT_MONITOR', 'BI_ABIC', 'TESTLINK', 'TRIPM', 'NAMLT',
                  'TUNGH', 'HIEUVT', 'GUEST', 'BK', 'TUNGNV',
                  'W_ABIC', 'R_ABIC', 'DATVT' ));
-
