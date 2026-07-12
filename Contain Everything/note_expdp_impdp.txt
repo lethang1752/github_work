@@ -9,8 +9,8 @@
 SELECT 'EXEC DBMS_SCHEDULER.DISABLE(name => '''||owner||'.'||job_name||''');' FROM dba_scheduler_jobs where enabled='TRUE';
 SELECT 'EXEC DBMS_SCHEDULER.ENABLE(name => '''||owner||'.'||job_name||''');' FROM dba_scheduler_jobs where enabled='TRUE';
 
-SELECT 'ALTER TRIGGER ' || trigger_name || ' DISABLE;' FROM user_triggers WHERE status = 'ENABLED';
-SELECT 'ALTER TRIGGER ' || trigger_name || ' ENABLE;' FROM user_triggers WHERE status = 'ENABLED';
+SELECT 'ALTER TRIGGER ' || trigger_name || ' DISABLE;' FROM dba_triggers WHERE status = 'ENABLED';
+SELECT 'ALTER TRIGGER ' || trigger_name || ' ENABLE;' FROM dba_triggers WHERE status = 'ENABLED';
 
 - note:
 
