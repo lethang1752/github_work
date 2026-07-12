@@ -6,7 +6,9 @@
    - Sinh ra cau lenh DDL (CREATE / GRANT) cho nhung object con THIEU o TARGET
      sau qua trinh expdp/impdp
    - Bao gom: USER, ROLE, ROLE_GRANT, SYSTEM PRIVILEGE, OBJECT PRIVILEGE,
-     DB_LINK, PROCEDURE, FUNCTION, PACKAGE, PACKAGE BODY
+     DB_LINK, PROCEDURE, FUNCTION, PACKAGE, PACKAGE BODY, TRIGGER,
+     SCHEDULER JOB/PROGRAM/SCHEDULE, PUBLIC SYNONYM, DIRECTORY, CONTEXT,
+     TABLESPACE QUOTA
 
  GIA DINH:
    - Dang chay tren TARGET database, voi user co quyen DBA
@@ -55,11 +57,14 @@ SELECT DBMS_METADATA.GET_DDL('USER', u.username)@DB_LINK_COMPARE AS ddl
 FROM (
     SELECT username
     FROM dba_users@DB_LINK_COMPARE
-    WHERE oracle_maintained='N'
+    WHERE username NOT IN ('SYS','SYSTEM','OUTLN','DBSNMP','APPQOSSYS',
+                            'GSMADMIN_INTERNAL','GSMCATUSER','GSMUSER',
+                            'XS$NULL','ORACLE_OCM','DIP','WMSYS','ANONYMOUS',
+                            'CTXSYS','XDB','MDSYS','ORDSYS','ORDDATA','ORDPLUGINS',
+                            'SI_INFORMTN_SCHEMA','LBACSYS','FLOWS_FILES','APEX_PUBLIC_USER')
     MINUS
     SELECT username
     FROM dba_users
-    WHERE oracle_maintained='N'
 ) u;
 
 
@@ -148,25 +153,26 @@ FROM (
 
 
 -- ===========================================================================
--- 7. PROCEDURE / FUNCTION / PACKAGE / PACKAGE BODY con thieu
+-- 7. PROCEDURE / FUNCTION / PACKAGE / PACKAGE BODY / TRIGGER con thieu
 --    Cac object nay CO trong dba_objects, so sanh theo owner+object_name+type
 --    Luu y: object_type trong dba_objects la 'PACKAGE BODY' (co dau cach)
 --    nhung DBMS_METADATA.GET_DDL can 'PACKAGE_BODY' (dau gach duoi)
 --    => phai REPLACE(object_type,' ','_')
+--    (TRIGGER thi khong bi van de nay, GET_DDL nhan thang 'TRIGGER')
 -- ===========================================================================
-PROMPT ===== MISSING PROCEDURE/FUNCTION/PACKAGE/PACKAGE BODY =====
+PROMPT ===== MISSING PROCEDURE/FUNCTION/PACKAGE/PACKAGE BODY/TRIGGER =====
 SELECT DBMS_METADATA.GET_DDL(
          REPLACE(o.object_type,' ','_'), o.object_name, o.owner
        )@DB_LINK_COMPARE AS ddl
 FROM (
     SELECT owner, object_name, object_type
     FROM dba_objects@DB_LINK_COMPARE
-    WHERE object_type IN ('PROCEDURE','FUNCTION','PACKAGE','PACKAGE BODY')
+    WHERE object_type IN ('PROCEDURE','FUNCTION','PACKAGE','PACKAGE BODY','TRIGGER')
       AND owner NOT IN ('SYS','SYSTEM')
     MINUS
     SELECT owner, object_name, object_type
     FROM dba_objects
-    WHERE object_type IN ('PROCEDURE','FUNCTION','PACKAGE','PACKAGE BODY')
+    WHERE object_type IN ('PROCEDURE','FUNCTION','PACKAGE','PACKAGE BODY','TRIGGER')
       AND owner NOT IN ('SYS','SYSTEM')
 ) o;
 
@@ -185,3 +191,132 @@ FROM (
     FROM dba_profiles
     WHERE profile <> 'DEFAULT'
 ) p;
+
+
+-- ===========================================================================
+-- 9. SCHEDULER JOB con thieu
+--    Luu y: JOB/PROGRAM/SCHEDULE/CHAIN KHONG dung GET_DDL truc tiep voi
+--    type 'JOB', ma phai dung type 'PROCOBJ' (Procedural Object) cua
+--    DBMS_METADATA. Ham nay tra ve DDL cua job (bao gom ca job dang
+--    DISABLED, khong tu chay lai khi tao lai).
+-- ===========================================================================
+PROMPT ===== MISSING SCHEDULER JOBS =====
+SELECT DBMS_METADATA.GET_DDL('PROCOBJ', j.job_name, j.owner)@DB_LINK_COMPARE AS ddl
+FROM (
+    SELECT owner, job_name
+    FROM dba_scheduler_jobs@DB_LINK_COMPARE
+    MINUS
+    SELECT owner, job_name
+    FROM dba_scheduler_jobs
+) j;
+
+-- Neu co dung SCHEDULER PROGRAM / SCHEDULE rieng (khong gan lien vao job)
+-- thi so sanh tuong tu voi dba_scheduler_programs / dba_scheduler_schedules,
+-- van dung GET_DDL('PROCOBJ', name, owner).
+
+
+-- ===========================================================================
+-- 10. PUBLIC SYNONYM con thieu
+--     Synonym (ca PUBLIC va cua user) CO trong dba_objects (type SYNONYM),
+--     nhung PUBLIC SYNONYM hay bi impdp bo qua vi can quyen CREATE PUBLIC
+--     SYNONYM rieng, nen tach ra kiem tra doc lap cho chac.
+-- ===========================================================================
+PROMPT ===== MISSING PUBLIC SYNONYMS =====
+SELECT DBMS_METADATA.GET_DDL('SYNONYM', s.synonym_name, 'PUBLIC')@DB_LINK_COMPARE AS ddl
+FROM (
+    SELECT synonym_name
+    FROM dba_synonyms@DB_LINK_COMPARE
+    WHERE owner = 'PUBLIC'
+    MINUS
+    SELECT synonym_name
+    FROM dba_synonyms
+    WHERE owner = 'PUBLIC'
+) s;
+
+
+-- ===========================================================================
+-- 11. DIRECTORY con thieu
+--     Directory object thuong bi bo qua khi impdp vi can quyen DBA that su,
+--     va duong dan OS tren TARGET co the khac SOURCE => sau khi chay DDL
+--     nay, KIEM TRA LAI duong dan vat ly co ton tai tren server TARGET
+--     khong, dieu chinh neu can.
+-- ===========================================================================
+PROMPT ===== MISSING DIRECTORIES (KIEM TRA LAI DUONG DAN OS) =====
+SELECT DBMS_METADATA.GET_DDL('DIRECTORY', d.directory_name)@DB_LINK_COMPARE AS ddl
+FROM (
+    SELECT directory_name
+    FROM dba_directories@DB_LINK_COMPARE
+    MINUS
+    SELECT directory_name
+    FROM dba_directories
+) d;
+
+
+-- ===========================================================================
+-- 12. CONTEXT (Application Context) con thieu
+-- ===========================================================================
+PROMPT ===== MISSING CONTEXTS =====
+SELECT DBMS_METADATA.GET_DDL('CONTEXT', c.namespace)@DB_LINK_COMPARE AS ddl
+FROM (
+    SELECT namespace
+    FROM dba_context@DB_LINK_COMPARE
+    MINUS
+    SELECT namespace
+    FROM dba_context
+) c;
+
+
+-- ===========================================================================
+-- 13. TABLESPACE QUOTA con thieu
+--     Day KHONG phai la object, chi la thuoc tinh cua user, nen impdp
+--     hoac buoc tao user thu cong rat de bi thieu/sai. Sinh truc tiep
+--     ALTER USER ... QUOTA ...
+--     Luu y: neu MAX_BYTES = -1 nghia la UNLIMITED tren tablespace do.
+-- ===========================================================================
+PROMPT ===== MISSING TABLESPACE QUOTAS =====
+SELECT 'ALTER USER ' || username || ' QUOTA ' ||
+       CASE WHEN max_bytes = -1 THEN 'UNLIMITED' ELSE TO_CHAR(max_bytes) END ||
+       ' ON ' || tablespace_name || ';' AS ddl
+FROM (
+    SELECT username, tablespace_name, max_bytes
+    FROM dba_ts_quotas@DB_LINK_COMPARE
+    MINUS
+    SELECT username, tablespace_name, max_bytes
+    FROM dba_ts_quotas
+);
+
+
+/*
+============================================================================
+ NHUNG THU KHAC NEN KIEM TRA THEM (khong the/khong nen chi dung MINUS don
+ gian theo ten, can luu y rieng):
+
+ - COMMENT tren TABLE/COLUMN (dba_tab_comments, dba_col_comments):
+   DBMS_METADATA.GET_DDL('TABLE', ...) KHONG tu dong kem COMMENT.
+   Phai lay rieng bang:
+     DBMS_METADATA.GET_DEPENDENT_DDL('COMMENT', table_name, owner)
+   hoac tu ghep "COMMENT ON TABLE/COLUMN ... IS '...';" tu 2 view tren.
+
+ - CONSTRAINT bi DISABLE / NOVALIDATE: constraint thuong di kem trong DDL
+   cua TABLE, nhung neu source co constraint dang DISABLE ma sau impdp
+   lai ra ENABLE (hoac nguoc lai) thi can so sanh rieng dba_constraints
+   (cot STATUS, VALIDATED) giua 2 ben.
+
+ - INDEX invisible/unusable: so sanh dba_indexes (cot VISIBILITY, STATUS)
+   neu nghi ngo impdp tao thieu index hoac index bi UNUSABLE.
+
+ - MATERIALIZED VIEW LOG (dba_mview_logs) va REFRESH GROUP
+   (dba_refresh): khong nam gon trong dba_objects theo kieu don gian,
+   nen kiem tra rieng neu he thong co dung MVIEW.
+
+ - AUDIT POLICY / FGA POLICY (dba_audit_policies, dba_sched...): it dung
+   nhung neu co thi cung can kiem tra rieng, khong nam trong dba_objects.
+
+ - EDITION / EDITIONING VIEW: chi can quan tam neu he thong co bat
+   Edition-Based Redefinition (EBR).
+
+ - Cuoi cung: sau khi chay xong toan bo script, nen doi chieu lai tong so
+   dong tung view dba_* giua SOURCE va TARGET (COUNT(*) MINUS COUNT(*) qua
+   db link) de chac chan khong con lech ngoai du kien.
+============================================================================
+*/
