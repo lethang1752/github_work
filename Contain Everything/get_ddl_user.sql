@@ -1,67 +1,62 @@
-SET SERVEROUTPUT ON SIZE UNLIMITED;
-SET LONG 2000000;
-SET PAGESIZE 0;
+set long 20000 longchunksize 20000 pagesize 0 linesize 1000 feedback off verify off trimspool on
+column ddl format a1000
 
-DECLARE
-    v_username VARCHAR2(30) := 'USERNAME'; -- Must be UPPERCASE
-    v_ddl      CLOB;
-    v_count    NUMBER;
-BEGIN
-    dbms_output.put_line('-- =========================================');
-    dbms_output.put_line('-- DDL FOR USER: ' || v_username);
-    dbms_output.put_line('-- =========================================');
-
-    -- 1. BASE USER CREATION DDL
-    BEGIN
-        v_ddl := dbms_metadata.get_ddl('USER', v_username);
-        dbms_output.put_line(v_ddl || ';');
-    EXCEPTION
-        WHEN OTHERS THEN
-            dbms_output.put_line('-- Error getting user creation DDL: ' || SQLERRM);
-    END;
-
-    -- 2. TABLESPACE QUOTAS
-    BEGIN
-        SELECT COUNT(*) INTO v_count FROM dba_ts_quotas WHERE username = v_username;
-        IF v_count > 0 THEN
-            v_ddl := dbms_metadata.get_granted_ddl('TABLESPACE_QUOTA', v_username);
-            dbms_output.put_line(v_ddl || ';');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN NULL;
-    END;
-
-    -- 3. GRANTED ROLES
-    BEGIN
-        SELECT COUNT(*) INTO v_count FROM dba_role_privs WHERE grantee = v_username;
-        IF v_count > 0 THEN
-            v_ddl := dbms_metadata.get_granted_ddl('ROLE_GRANT', v_username);
-            dbms_output.put_line(v_ddl || ';');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN NULL;
-    END;
-
-    -- 4. SYSTEM PRIVILEGES
-    BEGIN
-        SELECT COUNT(*) INTO v_count FROM dba_sys_privs WHERE grantee = v_username;
-        IF v_count > 0 THEN
-            v_ddl := dbms_metadata.get_granted_ddl('SYSTEM_GRANT', v_username);
-            dbms_output.put_line(v_ddl || ';');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN NULL;
-    END;
-
-    -- 5. OBJECT PRIVILEGES
-    BEGIN
-        SELECT COUNT(*) INTO v_count FROM dba_tab_privs WHERE grantee = v_username;
-        IF v_count > 0 THEN
-            v_ddl := dbms_metadata.get_granted_ddl('OBJECT_GRANT', v_username);
-            dbms_output.put_line(v_ddl || ';');
-        END IF;
-    EXCEPTION
-        WHEN OTHERS THEN NULL;
-    END;
-END;
+begin
+dbms_metadata.set_transform_param (dbms_metadata.session_transform, 'SQLTERMINATOR', true);
+dbms_metadata.set_transform_param (dbms_metadata.session_transform, 'PRETTY', true);
+end;
 /
+
+variable v_username VARCHAR2(30);
+
+exec:v_username := upper('&1');
+
+select dbms_metadata.get_ddl('USER', u.username) AS ddl
+from dba_users u
+where u.username = :v_username
+union all
+select dbms_metadata.get_granted_ddl('TABLESPACE_QUOTA', tq.username) AS ddl
+from dba_ts_quotas tq
+where tq.username = :v_username
+and rownum = 1
+union all
+select dbms_metadata.get_granted_ddl('ROLE_GRANT', rp.grantee) AS ddl
+from dba_role_privs rp
+where rp.grantee = :v_username
+and rownum = 1
+union all
+select dbms_metadata.get_granted_ddl('SYSTEM_GRANT', sp.grantee) AS ddl
+from dba_sys_privs sp
+where sp.grantee = :v_username
+and rownum = 1
+union all
+select dbms_metadata.get_granted_ddl('OBJECT_GRANT', tp.grantee) AS ddl
+from dba_tab_privs tp
+where tp.grantee = :v_username
+and rownum = 1
+union all
+select dbms_metadata.get_granted_ddl('DEFAULT_ROLE', rp.grantee) AS ddl
+from dba_role_privs rp
+where rp.grantee = :v_username
+and rp.default_role = 'YES'
+and rownum = 1
+union all
+select to_clob('/* Start profile creation script in case they are missing') AS ddl
+from dba_users u
+where u.username = :v_username
+and u.profile <> 'DEFAULT'
+and rownum = 1
+union all
+select dbms_metadata.get_ddl('PROFILE', u.profile) AS ddl
+from dba_users u
+where u.username = :v_username
+and u.profile <> 'DEFAULT'
+union all
+select to_clob('End profile creation script */') AS ddl
+from dba_users u
+where u.username = :v_username
+and u.profile <> 'DEFAULT'
+and rownum = 1
+/
+
+set linesize 80 pagesize 14 feedback on trimspool on verify on
