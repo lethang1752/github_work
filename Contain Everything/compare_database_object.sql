@@ -18,10 +18,17 @@ WHERE NVL(s.cnt, 0) != NVL(t.cnt, 0)
 ORDER BY owner, object_type;
 
 --minus index
-select 'SELECT DBMS_METADATA.GET_DDL(''INDEX'','''||index_name||''', ''BK'') FROM DUAL;' from (
-select index_name from dba_indexes@DB_LINK_COMPARE where owner='BK'
+select 'SELECT DBMS_METADATA.GET_DDL(''INDEX'','''||index_name||''', ''KT_ABIC'') FROM DUAL;' from (
+select index_name from dba_indexes@DB_LINK_COMPARE where owner='KT_ABIC'
 minus
-select index_name from dba_indexes where owner='BK'
+select index_name from dba_indexes where owner='KT_ABIC'
+);
+
+--minus constraint
+select 'SELECT DBMS_METADATA.GET_DDL(''CONSTRAINT'','''||index_name||''', ''BK'') FROM DUAL;' from (
+select CONSTRAINT_NAME from dba_constraints@DB_LINK_COMPARE where owner='BK'
+minus
+select CONSTRAINT_NAME from dba_constraints where owner='BK'
 );
 
 -- minus grant table - dba_tab_privs - dba_role_privs - dba_sys_privs
