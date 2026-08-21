@@ -3,7 +3,9 @@
     + Có phân vùng NFS để chứa backup hoặc sử dụng ZDLRA
     + Phiên bản libra.so cho ZDLRA cần là latest > 19.10
 
-- Tài liệu tham chiếu: KB144840 - M5 Cross Endian Platform Migration using Full Transportable Data Pump Export/Import and RMAN Incremental Backups
+- Tài liệu tham chiếu: 
+KB144840 - M5 Cross Endian Platform Migration using Full Transportable Data Pump Export/Import and RMAN Incremental Backups
+KB152248 - How to Migrate Large Amount of Binary XML Data between Databases
 
 - Tạo CSDL sử dụng dbca
 ***Note: Đảm bảo các tham số giống CSDL cũ (Source): db_files, language code, process, ...
@@ -52,7 +54,7 @@ AND db_key = <DB_KEY>;
 
 EXEC DBMS_RA_INT.config(p_name=>'_stall_when', p_value=>'ON', comments=>'Enabled for Cross Endian Migration');
 
-- Cấu hình wallet cho dest db
+- Cấu hình wallet cho dest db (nếu CSDL có mã hóa encryption)
     + Trên source db, export wallet và kiểm tra key
     oracle $: sqlplus / as sysdba
     ADMINISTER KEY MANAGEMENT EXPORT ENCRYPTION KEYS WITH SECRET "welcome1" TO 'exportkeys.exp' FORCE KEYSTORE IDENTIFIED BY NPC$12345;
@@ -77,7 +79,7 @@ EXEC DBMS_RA_INT.config(p_name=>'_stall_when', p_value=>'ON', comments=>'Enabled
 
 - Backup level 0 trên source db
 oracle $: cd /u01/app/oracle/m5
-oracle $: sh dbmig_driver_m5.sh L0
+oracle $: nohup sh dbmig_driver_m5.sh L0 &
 ***Note: Sau khi hoàn thành backup, tool sẽ tự động truyền file restore rman sang dest db
 
 - Restore level 0 trên dest db
@@ -97,16 +99,16 @@ chmod +x /home/oracle/delete_trace_file.sh
 crontab -e
 * * * * * /home/oracle/delete_trace_file.sh >/dev/null 2>&1
 
-oracle $: rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L0_.rman'
+oracle $: nohup rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L0_.rman' &
 
 - Backup level 1 trên source db
 oracle $: cd /u01/app/oracle/m5
-oracle $: sh dbmig_driver_m5.sh L1
+oracle $: nohup sh dbmig_driver_m5.sh L1 &
 ***Note: Sau khi hoàn thành backup, tool sẽ tự động truyền file restore rman sang dest db
 
 - Restore level 1 trên dest db
 ***Note: Lưu ý xóa phần show all và chỉnh sửa oracle_home trong script được gửi từ source db
-oracle $: rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L1_.rman'
+oracle $: nohup rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L1_.rman' &
 
 - Backup level 1 final trên source db
 oracle $: cd /u01/app/oracle/m5
@@ -115,13 +117,13 @@ oracle $: sh dbmig_driver_m5.sh L1F
 
 - Restore level 1 final trên dest db
 ***Note: Lưu ý xóa phần show all và chỉnh sửa oracle_home trong script được gửi từ source db
-oracle $: rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L1F_.rman'
+oracle $: nohup rman target / catalog VPC_BAOCAO/oracle_4U@zdl0db-scan1:1521/zdl0db cmdfile='/u01/app/oracle/m5/restore_L1F_.rman' &
 
-- Test file import được gửi từ source db sau khi backup L1F trên dest db (Y dành cho csdl đã mã hóa)
-oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> test Y
+- Test file import được gửi từ source db sau khi backup L1F trên dest db
+oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> test N
 
 - Kiểm tra lại log file sau khi test và thực hiện import thật trên dest db
-oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> run Y
+oracle $: sh impdp.sh <expdp_dumpfile> <rman_restore_logs_L1F> run N
 
 - Chạy recompile invalid object và gather database
 
