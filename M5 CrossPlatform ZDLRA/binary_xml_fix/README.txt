@@ -49,7 +49,11 @@ end;
 
 The two tables XDB$TT_TEMP$ and XDB$NM_TEMP$ should exist and be non-empty now.
 
-Get DDL of 2 table from source side, they should be owned by system user.
+Get DDL of 2 table from source side, they should be owned by system user. Prefer to connect to sys user and using sql tool.
+
+sql / as sysdba
+ddl "SYSTEM".XDB$TT_TEMP$"
+ddl "SYSTEM".XDB$NM_TEMP$"
 
 These tables have to be copied to the IMPORTING side. Using DDL from source side and replace owner from system to sys to create table in target side.
 Use a database link (INSERT AS SELECT) , conventional export/import or other means to move these two tables to the database where you want to import the data.
