@@ -75,6 +75,9 @@ select * from "SYSTEM".XDB$TT_TEMP$"@binary_xml;
 insert into "SYS"."XDB$NM_TEMP$"
 select * from "SYSTEM".XDB$NM_TEMP$"@binary_xml;
 
+select count(*) from "SYS".XDB$TT_TEMP$";
+select count(*) from "SYS".XDB$NM_TEMP$";
+
 -----------------------------------------------------------------
 Now, on the IMPORTING process as follow:
 
